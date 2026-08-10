@@ -1,0 +1,20 @@
+# Release artifacts and signing material
+release/
+*.crx
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local dependencies and tool state
+node_modules/
+.wrangler/
+.dev.vars
+.env
+.env.*
+!.env.example
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini

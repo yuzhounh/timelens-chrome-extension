@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>时光镜</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <div class="brand"><img class="brand-mark" src="icons/timer.svg" alt="" /><span>时光镜</span></div>
+      <p class="eyebrow">今日有效浏览</p>
+      <p id="todayTotal" class="total">—</p>
+      <div class="bar"><span id="progress"></span></div>
+      <div class="meta">
+        <span id="siteCount">— 个网站</span>
+        <span id="activeSite">正在读取…</span>
+      </div>
+      <ol id="topSites" class="top-sites"></ol>
+      <button id="openDashboard">打开完整仪表盘 <span>↗</span></button>
+    </main>
+    <script src="lib.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+name = "timelens-email-backup"
+main = "worker.js"
+compatibility_date = "2026-08-01"
+
+# 部署前请设置三个密钥：
+# npx wrangler secret put RESEND_API_KEY
+# npx wrangler secret put BACKUP_SECRET
+# npx wrangler secret put REPORT_FROM_EMAIL

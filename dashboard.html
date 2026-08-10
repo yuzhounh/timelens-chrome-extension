@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>时光镜 · 访问统计</title>
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="logo"><img src="icons/timer.svg" alt="" /><div>时光镜<small>TIME LENS</small></div></div>
+        <nav>
+          <button class="nav-item active" data-page="overview"><span>◫</span> 概览</button>
+          <button class="nav-item" data-page="reports"><span>◇</span> 周期报告</button>
+          <button class="nav-item" data-page="data"><span>⇄</span> 数据管理</button>
+          <button class="nav-item" data-page="settings"><span>⌘</span> 设置</button>
+        </nav>
+        <div class="privacy-note">
+          <span class="pulse"></span>
+          <div><strong>本地优先</strong><small>浏览数据默认只保存在本机</small></div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section id="overview" class="page active">
+          <header class="page-header">
+            <div><p class="kicker">YOUR DIGITAL RHYTHM</p><h1>时间都去了哪里？</h1></div>
+            <div class="period-toolbar" aria-label="统计周期">
+              <select id="periodType" aria-label="选择统计周期">
+                <option value="daily">日</option>
+                <option value="weekly">周</option>
+                <option value="monthly" selected>月</option>
+                <option value="quarterly">季度</option>
+                <option value="yearly">年</option>
+                <option value="all">所有时间</option>
+              </select>
+              <button id="previousPeriod" class="period-arrow" title="上一周期" aria-label="上一周期">‹</button>
+              <div class="period-current"><small>当前查看</small><strong id="periodLabel">—</strong></div>
+              <button id="nextPeriod" class="period-arrow" title="下一周期" aria-label="下一周期">›</button>
+              <input id="periodAnchor" type="date" title="跳转到指定日期" aria-label="跳转到指定日期" />
+              <button id="resetPeriod" class="period-reset">回到本期</button>
+            </div>
+          </header>
+
+          <div class="metrics">
+            <article class="metric hero-metric"><small>总浏览时长</small><strong id="totalTime">—</strong><span id="rangeLabel">本月</span></article>
+            <article class="metric"><small>日均时长</small><strong id="dailyAverage">—</strong><span>仅统计有效访问</span></article>
+            <article class="metric"><small>访问次数</small><strong id="visitCount">—</strong><span id="activeDays">— 个活跃日</span></article>
+            <article class="metric"><small>最常访问</small><strong id="topHost">—</strong><span id="topHostTime">暂无记录</span></article>
+          </div>
+
+          <div class="grid two-thirds">
+            <article class="panel chart-panel">
+              <div class="panel-title"><div><small>趋势</small><h2 id="trendHeading">每日有效浏览</h2></div><span id="trendTotal" class="chip">—</span></div>
+              <div class="canvas-wrap"><canvas id="trendChart" aria-label="每日浏览时长趋势图"></canvas></div>
+            </article>
+            <article class="panel composition-panel">
+              <div class="panel-title"><div><small>构成</small><h2>时间分布</h2></div></div>
+              <div class="donut-wrap">
+                <canvas id="donutChart" aria-label="网站时间分布图"></canvas>
+                <div class="donut-center"><strong id="donutHours">0 分钟</strong><small>总计</small></div>
+              </div>
+              <div id="donutLegend" class="legend"></div>
+            </article>
+          </div>
+
+          <article class="panel site-table-panel">
+            <div class="panel-title"><div><small>明细</small><h2>网站排行</h2></div><input id="siteSearch" type="search" placeholder="搜索网站" /></div>
+            <div class="table-wrap">
+              <table>
+                <colgroup>
+                  <col class="site-column" />
+                  <col class="duration-column" />
+                  <col class="share-column" />
+                  <col class="visits-column" />
+                  <col class="url-column" />
+                </colgroup>
+                <thead><tr><th>网站</th><th>时长</th><th>占比</th><th>访问次数</th><th>最近访问</th></tr></thead>
+                <tbody id="siteTable"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="reports" class="page">
+          <header class="page-header"><div><p class="kicker">PERIODIC ARCHIVE</p><h1>周期报告</h1><p class="subtitle">生成月报、季报或年报，并按需发送邮件备份。</p></div></header>
+          <div class="report-builder panel">
+            <div><label for="reportType">报告周期</label><select id="reportType"><option value="weekly">本周周报</option><option value="monthly">本月月报</option><option value="quarterly">本季度报告</option><option value="yearly">本年度报告</option></select></div>
+            <label class="check"><input id="sendReportEmail" type="checkbox" /> 同时发送到已配置邮箱</label>
+            <button id="generateReport" class="primary">生成报告</button>
+          </div>
+          <div id="reportCards" class="report-list"></div>
+        </section>
+
+        <section id="data" class="page">
+          <header class="page-header"><div><p class="kicker">PORTABLE BY DESIGN</p><h1>数据管理</h1><p class="subtitle">备份、迁移或恢复所有统计记录。</p></div></header>
+          <div class="data-grid">
+            <article class="panel data-card"><span class="card-icon">↓</span><h2>导出完整备份</h2><p>导出 JSON 文件，包含访问记录、设置和已生成报告。</p><button id="exportJson" class="primary">导出 JSON</button></article>
+            <article class="panel data-card"><span class="card-icon">≡</span><h2>导出当前报表</h2><p>将概览中选定的时间范围导出为可用 Excel 打开的 CSV。</p><button id="exportCsv">导出 CSV</button></article>
+            <article class="panel data-card"><span class="card-icon">↑</span><h2>导入备份</h2><p>选择时光镜 JSON 备份文件，可合并或完全替换当前记录。</p><input id="importFile" type="file" accept="application/json,.json" /><div class="button-row"><button id="mergeImport">合并导入</button><button id="replaceImport" class="danger-outline">替换导入</button></div></article>
+          </div>
+          <article class="danger-zone"><div><h2>清除全部统计数据</h2><p>删除本机上的所有访问记录和报告，设置会保留。此操作不可撤销。</p></div><button id="deleteAll" class="danger">清除数据</button></article>
+        </section>
+
+        <section id="settings" class="page">
+          <header class="page-header"><div><p class="kicker">QUIET AUTOMATION</p><h1>设置</h1><p class="subtitle">控制统计方式和自动邮件备份。</p></div></header>
+          <form id="settingsForm">
+            <article class="panel form-section"><div class="section-copy"><h2>统计规则</h2><p>离开电脑后暂停计时，避免把挂机时间算进去。</p></div><div class="fields"><label>空闲暂停时间（秒）<input id="idleThreshold" type="number" min="15" max="3600" /></label><label>不统计的网站 <textarea id="excludedHosts" rows="5" placeholder="每行一个域名，例如：&#10;localhost&#10;example.com"></textarea><small>填写主域名后，其子域名也会被排除。</small></label></div></article>
+            <article class="panel form-section"><div class="section-copy"><h2>自动报告</h2><p>周期结束后几分钟内生成上一周期报告。</p></div><div class="fields toggle-list"><label><input id="scheduleWeekly" type="checkbox" /> 每周自动生成周报</label><label><input id="scheduleMonthly" type="checkbox" /> 每月自动生成月报</label><label><input id="scheduleQuarterly" type="checkbox" /> 每季度自动生成季报</label><label><input id="scheduleYearly" type="checkbox" /> 每年自动生成年报</label></div></article>
+            <article class="panel form-section"><div class="section-copy"><h2>邮件备份</h2><p>通过你自己的安全邮件网关发送。API 密钥应保存在网关端，不要放进插件。</p></div><div class="fields"><label class="check"><input id="emailEnabled" type="checkbox" /> 启用自动邮件备份</label><label>邮件网关 URL<input id="emailEndpoint" type="url" placeholder="https://your-worker.example.com/report" /></label><label>收件邮箱<input id="emailRecipient" type="email" placeholder="you@example.com" /></label><label>网关访问令牌<input id="emailToken" type="password" autocomplete="off" placeholder="与网关 BACKUP_SECRET 一致" /></label><small>仓库中的 <code>email-worker/</code> 提供可直接部署的 Cloudflare Worker 示例。</small></div></article>
+            <div class="form-actions"><span id="saveStatus"></span><button type="submit" class="primary">保存设置</button></div>
+          </form>
+        </section>
+      </main>
+    </div>
+    <div id="toast" class="toast" role="status"></div>
+    <script src="lib.js"></script>
+    <script src="dashboard.js"></script>
+  </body>
+</html>
