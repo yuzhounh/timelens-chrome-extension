@@ -79,7 +79,7 @@ canvas { width: 100%; height: 100%; }
 .legend-row span:last-child { color: var(--muted); }
 .site-table-panel { overflow: hidden; }
 .panel-title input { width: 210px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; outline: none; background: #f6f7f2; font-size: 13px; }
-.table-wrap { overflow-x: auto; padding: 14px 24px 20px; }
+.table-wrap { overflow-x: auto; padding: 14px 24px 8px; }
 table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; }
 .site-column { width: 28%; }
 .duration-column { width: 9%; }
@@ -96,6 +96,11 @@ td { padding: 13px 10px; border-top: 1px solid #e8ebe5; }
 .site-url { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .share { width: 105px; height: 5px; overflow: hidden; border-radius: 5px; background: #e7ebe4; }
 .share span { display: block; height: 100%; border-radius: inherit; background: var(--lime); }
+.table-pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 34px 20px; color: var(--muted); font-size: 13px; }
+.pagination-actions { display: flex; gap: 8px; }
+.pagination-actions button { min-width: 68px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; color: #527466; background: #fff; font-size: 13px; font-weight: 700; }
+.pagination-actions button:hover:not(:disabled) { border-color: #8db1a4; background: #edf6f2; }
+.pagination-actions button:disabled { opacity: .42; cursor: default; }
 .empty { padding: 40px !important; color: var(--muted); text-align: center; }
 .report-builder { display: flex; align-items: end; gap: 22px; padding: 24px; }
 label { display: grid; gap: 8px; color: #526058; font-size: 14px; font-weight: 600; }
@@ -159,6 +164,8 @@ input:focus, textarea:focus, select:focus { border-color: #799c83; box-shadow: 0
   .period-current { order: 4; width: 100%; }
   .period-toolbar input { flex: 1; }
   .metrics { grid-template-columns: 1fr; }
+  .table-pagination { align-items: stretch; flex-direction: column; padding: 14px 24px 20px; }
+  .pagination-actions button { flex: 1; }
   .report-builder, .report-card, .danger-zone { align-items: stretch; grid-template-columns: 1fr; flex-direction: column; }
   .report-stat { text-align: left; }
   .form-section { grid-template-columns: 1fr; gap: 25px; }

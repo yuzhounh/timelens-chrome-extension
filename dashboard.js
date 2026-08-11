@@ -7,6 +7,8 @@ let appState = {
   settings: {},
   periodType: "monthly",
   anchorDate: Core.dateKey(new Date()),
+  sitePage: 1,
+  sitePageSize: 20,
   summary: null
 };
 
@@ -201,11 +203,11 @@ function drawTrend(canvas, days) {
 
   const labelEvery = Math.max(1, Math.ceil(days.length / 6));
   ctx.fillStyle = "#8b968e";
-  ctx.textAlign = "center";
   days.forEach((day, index) => {
     if (index % labelEvery === 0 || index === days.length - 1) {
       const p = point(values[index], index);
       const dateLabel = day.date.length === 7 ? day.date.replace("-", "/") : day.date.slice(5).replace("-", "/");
+      ctx.textAlign = index === 0 ? "left" : index === days.length - 1 ? "right" : "center";
       ctx.fillText(dateLabel, p.x, height - 8);
     }
   });
@@ -258,11 +260,15 @@ function renderSiteTable() {
   const query = document.getElementById("siteSearch").value.trim().toLowerCase();
   const summary = appState.summary;
   const sites = summary.sites.filter((site) => `${site.host} ${site.title}`.toLowerCase().includes(query));
+  const totalPages = Math.max(1, Math.ceil(sites.length / appState.sitePageSize));
+  appState.sitePage = Math.min(Math.max(1, appState.sitePage), totalPages);
+  const startIndex = (appState.sitePage - 1) * appState.sitePageSize;
+  const pageSites = sites.slice(startIndex, startIndex + appState.sitePageSize);
   document.getElementById("siteTable").innerHTML = sites.length
-    ? sites.map((site, index) => {
+    ? pageSites.map((site, index) => {
         const share = summary.totalMs ? site.durationMs / summary.totalMs * 100 : 0;
         return `<tr>
-          <td><div class="site-cell"><span class="favicon" style="background:${COLORS[index % COLORS.length]}">${escapeHtml(site.host[0] || "·")}</span><div><strong title="${escapeHtml(site.host)}">${escapeHtml(site.host)}</strong><small title="${escapeHtml(site.title)}">${escapeHtml(site.title)}</small></div></div></td>
+          <td><div class="site-cell"><span class="favicon" style="background:${COLORS[(startIndex + index) % COLORS.length]}">${escapeHtml(site.host[0] || "·")}</span><div><strong title="${escapeHtml(site.host)}">${escapeHtml(site.host)}</strong><small title="${escapeHtml(site.title)}">${escapeHtml(site.title)}</small></div></div></td>
           <td>${escapeHtml(Core.formatDuration(site.durationMs))}</td>
           <td><div class="share" title="${share.toFixed(1)}%"><span style="width:${Math.max(2, share)}%"></span></div></td>
           <td>${site.visits.toLocaleString("zh-CN")}</td>
@@ -270,6 +276,11 @@ function renderSiteTable() {
         </tr>`;
       }).join("")
     : "<tr><td colspan=\"5\" class=\"empty\">没有匹配的数据</td></tr>";
+  document.getElementById("sitePageSummary").textContent = sites.length
+    ? `第 ${appState.sitePage} / ${totalPages} 页 · 共 ${sites.length.toLocaleString("zh-CN")} 个网站`
+    : "共 0 个网站";
+  document.getElementById("previousSitePage").disabled = appState.sitePage <= 1;
+  document.getElementById("nextSitePage").disabled = appState.sitePage >= totalPages;
 }
 
 function renderReports() {
@@ -333,27 +344,42 @@ function shiftPeriod(direction) {
     anchor.setFullYear(anchor.getFullYear() + direction);
   }
   appState.anchorDate = Core.dateKey(anchor);
+  appState.sitePage = 1;
   renderOverview();
 }
 
 document.getElementById("periodAnchor").max = Core.dateKey(new Date());
 document.getElementById("periodType").addEventListener("change", (event) => {
   appState.periodType = event.target.value;
+  appState.sitePage = 1;
   renderOverview();
 });
 document.getElementById("periodAnchor").addEventListener("change", (event) => {
   if (!event.target.value) return;
   appState.anchorDate = event.target.value;
+  appState.sitePage = 1;
   renderOverview();
 });
 document.getElementById("previousPeriod").addEventListener("click", () => shiftPeriod(-1));
 document.getElementById("nextPeriod").addEventListener("click", () => shiftPeriod(1));
 document.getElementById("resetPeriod").addEventListener("click", () => {
   appState.anchorDate = Core.dateKey(new Date());
+  appState.sitePage = 1;
   renderOverview();
 });
 
-document.getElementById("siteSearch").addEventListener("input", renderSiteTable);
+document.getElementById("siteSearch").addEventListener("input", () => {
+  appState.sitePage = 1;
+  renderSiteTable();
+});
+document.getElementById("previousSitePage").addEventListener("click", () => {
+  appState.sitePage -= 1;
+  renderSiteTable();
+});
+document.getElementById("nextSitePage").addEventListener("click", () => {
+  appState.sitePage += 1;
+  renderSiteTable();
+});
 window.addEventListener("resize", () => {
   clearTimeout(window.__chartResizeTimer);
   window.__chartResizeTimer = setTimeout(() => {
