@@ -43,17 +43,18 @@
             </div>
           </header>
 
-          <div class="metrics">
-            <article class="metric hero-metric"><small>总浏览时长</small><strong id="totalTime">—</strong><span id="rangeLabel">本月</span></article>
-            <article class="metric"><small>日均时长</small><strong id="dailyAverage">—</strong><span>仅统计有效访问</span></article>
-            <article class="metric"><small>访问次数</small><strong id="visitCount">—</strong><span id="activeDays">— 个活跃日</span></article>
-          </div>
-
-          <div class="grid two-thirds">
-            <article class="panel chart-panel">
-              <div class="panel-title"><div><small>趋势</small><h2 id="trendHeading">每日有效浏览</h2></div><span id="trendTotal" class="chip">—</span></div>
-              <div class="canvas-wrap"><canvas id="trendChart" aria-label="每日浏览时长趋势图"></canvas><div id="chartTooltip" class="chart-tooltip" hidden></div></div>
-            </article>
+          <div class="overview-grid">
+            <div class="overview-main">
+              <div class="metrics">
+                <article class="metric hero-metric"><small>总浏览时长</small><strong id="totalTime">—</strong><span id="rangeLabel">本月</span></article>
+                <article class="metric"><small>日均时长</small><strong id="dailyAverage">—</strong><span>仅统计有效访问</span></article>
+                <article class="metric"><small>访问次数</small><strong id="visitCount">—</strong><span id="activeDays">— 个活跃日</span></article>
+              </div>
+              <article class="panel chart-panel">
+                <div class="panel-title"><div><small>趋势</small><h2 id="trendHeading">每日有效浏览</h2></div><span id="trendTotal" class="chip">—</span></div>
+                <div class="canvas-wrap"><canvas id="trendChart" aria-label="每日浏览时长趋势图"></canvas><div id="chartTooltip" class="chart-tooltip" hidden></div></div>
+              </article>
+            </div>
             <article class="panel composition-panel">
               <div class="panel-title"><div><small>构成</small><h2>时间分布</h2></div></div>
               <div class="donut-wrap">
