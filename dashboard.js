@@ -147,44 +147,12 @@ function renderOverview() {
   drawDonut(document.getElementById("donutChart"), donut.sites);
   renderLegend(summary);
 
-  // The trend card's height should match the composition card's (which varies
-  // with its legend row count). Rather than lean on CSS flex/grid auto-sizing
-  // to stretch the canvas — which fed back into the canvas's own devicePixelRatio
-  // resize logic and made the card grow on every hover redraw — measure the
-  // composition card once here and set an explicit pixel height on the trend
-  // canvas wrapper. That gives the canvas a fixed, JS-independent size, so
-  // hover redraws never re-measure a moving target.
-  syncTrendChartHeight();
-
   trend.days = trendSeries(summary.days);
   trend.hoverIndex = null;
   document.getElementById("trendTooltip").hidden = true;
   drawTrend(document.getElementById("trendChart"), trend.days);
 
   renderSiteTable();
-}
-
-function syncTrendChartHeight() {
-  const canvasWrap = document.querySelector(".chart-panel .canvas-wrap");
-  const panelTitle = document.querySelector(".chart-panel .panel-title");
-  const compositionPanel = document.querySelector(".composition-panel");
-  if (!canvasWrap || !panelTitle || !compositionPanel) return;
-  if (window.innerWidth <= 1000) {
-    canvasWrap.style.height = "";
-    return;
-  }
-  // Both cards sit in the same CSS grid, so composition-panel's rendered
-  // height can itself be inflated by a stale inline height left on
-  // canvas-wrap from a previous render (grid-row stretching feeds back the
-  // other way). Reset to the CSS baseline first so the measurement below
-  // always reflects composition-panel's own natural content, not a moving
-  // target — otherwise this can drift upward across renders just like the
-  // canvas devicePixelRatio issue did.
-  canvasWrap.style.height = "";
-  const targetHeight = compositionPanel.getBoundingClientRect().height;
-  const titleHeight = panelTitle.getBoundingClientRect().height;
-  const height = Math.max(165, Math.round((targetHeight - titleHeight) * 0.55));
-  canvasWrap.style.height = `${height}px`;
 }
 
 function durationLines(milliseconds) {
