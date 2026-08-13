@@ -1,5 +1,11 @@
 const Core = self.TimeLensCore;
-const COLORS = ["#6f9f8e", "#a9d2c3", "#f0aa81", "#83aee2", "#ab96cf", "#d9be72"];
+const COLORS = ["#6f9f8e", "#a9d2c3", "#f0aa81", "#83aee2", "#ab96cf", "#d9be72", "#e29aa8", "#7fc4c0", "#b7c98a", "#cfa98a", "#9aa8d8"];
+const OTHER_COLOR = "#c2cec8";
+const TOOLTIP_SITE_LIMIT = 5;
+const COMPOSITION_LIMIT = 10;
+
+const trend = { days: [], layout: null, hoverIndex: null };
+const donut = { sites: [], layout: null, hoverIndex: null, scale: 0, targetScale: 0, raf: null };
 
 let appState = {
   dailyStats: {},
@@ -11,9 +17,6 @@ let appState = {
   sitePageSize: 20,
   summary: null
 };
-
-let trendChartLayout = null;
-let trendChartHoverIndex = null;
 
 function sendMessage(message) {
   return new Promise((resolve, reject) => {
@@ -58,20 +61,48 @@ function resolvePeriod() {
   };
 }
 
-function trendBuckets(days) {
-  if (!["yearly", "all"].includes(appState.periodType)) return days;
+function topSlices(sites, limit) {
+  const top = sites.slice(0, limit).map((site, index) => ({
+    host: site.host,
+    durationMs: site.durationMs,
+    color: COLORS[index % COLORS.length]
+  }));
+  const otherMs = sites.slice(limit).reduce((sum, site) => sum + site.durationMs, 0);
+  return otherMs ? [...top, { host: "其他", durationMs: otherMs, color: OTHER_COLOR }] : top;
+}
+
+function trendSeries(days) {
+  const byMonth = ["yearly", "all"].includes(appState.periodType);
   const buckets = new Map();
   for (const day of days) {
-    const month = day.date.slice(0, 7);
-    const bucket = buckets.get(month) || { date: month, durationMs: 0, visits: 0 };
+    const key = byMonth ? day.date.slice(0, 7) : day.date;
+    let bucket = buckets.get(key);
+    if (!bucket) {
+      bucket = { date: key, durationMs: 0, visits: 0, siteMap: new Map() };
+      buckets.set(key, bucket);
+    }
     bucket.durationMs += day.durationMs;
     bucket.visits += day.visits;
-    buckets.set(month, bucket);
+    for (const [host, record] of Object.entries(appState.dailyStats[day.date] || {})) {
+      const site = bucket.siteMap.get(host) || { host, durationMs: 0, visits: 0 };
+      site.durationMs += record.durationMs;
+      site.visits += record.visits;
+      bucket.siteMap.set(host, site);
+    }
   }
-  return [...buckets.values()];
+  return [...buckets.values()].map(({ siteMap, ...bucket }) => ({
+    ...bucket,
+    sites: [...siteMap.values()].sort((a, b) => b.durationMs - a.durationMs)
+  }));
+}
+
+function renderAppVersion() {
+  const version = chrome.runtime?.getManifest?.().version;
+  document.getElementById("appVersion").textContent = version ? `v${version}` : "";
 }
 
 async function loadState() {
+  renderAppVersion();
   await sendMessage({ type: "get-summary" }).catch(() => null);
   const stored = await chrome.storage.local.get(["dailyStats", "reports", "settings"]);
   appState.dailyStats = Core.normalizeDailyStats(stored.dailyStats);
@@ -88,7 +119,6 @@ function renderOverview() {
   appState.summary = summary;
   const activeDayCount = summary.days.filter((day) => day.durationMs > 0).length;
   const analyzedDays = Math.max(1, summary.days.length);
-  const trendDays = trendBuckets(summary.days);
 
   document.getElementById("totalTime").textContent = Core.formatDuration(summary.totalMs);
   document.getElementById("dailyAverage").textContent = Core.formatDuration(summary.totalMs / analyzedDays);
@@ -98,38 +128,98 @@ function renderOverview() {
   document.getElementById("periodLabel").textContent = range.label;
   document.getElementById("trendTotal").textContent = `${range.start} — ${range.end}`;
   document.getElementById("trendHeading").textContent = ["yearly", "all"].includes(appState.periodType) ? "每月有效浏览" : "每日有效浏览";
-  document.getElementById("donutHours").innerHTML = escapeHtml(Core.formatDuration(summary.totalMs)).replace(" 小时 ", " 小时<br/>");
   document.getElementById("periodAnchor").value = appState.anchorDate;
   document.getElementById("periodAnchor").disabled = appState.periodType === "all";
   document.getElementById("previousPeriod").disabled = appState.periodType === "all";
   document.getElementById("nextPeriod").disabled = appState.periodType === "all" || range.calendarEnd >= Core.dateKey(new Date());
   document.getElementById("resetPeriod").disabled = appState.periodType === "all" || (range.calendarStart <= Core.dateKey(new Date()) && range.calendarEnd >= Core.dateKey(new Date()));
 
-  drawTrend(document.getElementById("trendChart"), trendDays);
-  drawDonut(document.getElementById("donutChart"), summary.sites);
+  document.getElementById("donutHours").innerHTML = durationLines(summary.totalMs).map((line) => `<span>${escapeHtml(line)}</span>`).join("");
+  if (donut.raf !== null) {
+    cancelAnimationFrame(donut.raf);
+    donut.raf = null;
+  }
+  donut.sites = summary.sites;
+  donut.hoverIndex = null;
+  donut.scale = 0;
+  donut.targetScale = 0;
+  document.getElementById("donutTooltip").hidden = true;
+  drawDonut(document.getElementById("donutChart"), donut.sites);
   renderLegend(summary);
+
+  // The trend card's height should match the composition card's (which varies
+  // with its legend row count). Rather than lean on CSS flex/grid auto-sizing
+  // to stretch the canvas — which fed back into the canvas's own devicePixelRatio
+  // resize logic and made the card grow on every hover redraw — measure the
+  // composition card once here and set an explicit pixel height on the trend
+  // canvas wrapper. That gives the canvas a fixed, JS-independent size, so
+  // hover redraws never re-measure a moving target.
+  syncTrendChartHeight();
+
+  trend.days = trendSeries(summary.days);
+  trend.hoverIndex = null;
+  document.getElementById("trendTooltip").hidden = true;
+  drawTrend(document.getElementById("trendChart"), trend.days);
+
   renderSiteTable();
+}
+
+function syncTrendChartHeight() {
+  const canvasWrap = document.querySelector(".chart-panel .canvas-wrap");
+  const panelTitle = document.querySelector(".chart-panel .panel-title");
+  const compositionPanel = document.querySelector(".composition-panel");
+  if (!canvasWrap || !panelTitle || !compositionPanel) return;
+  if (window.innerWidth <= 1000) {
+    canvasWrap.style.height = "";
+    return;
+  }
+  // Both cards sit in the same CSS grid, so composition-panel's rendered
+  // height can itself be inflated by a stale inline height left on
+  // canvas-wrap from a previous render (grid-row stretching feeds back the
+  // other way). Reset to the CSS baseline first so the measurement below
+  // always reflects composition-panel's own natural content, not a moving
+  // target — otherwise this can drift upward across renders just like the
+  // canvas devicePixelRatio issue did.
+  canvasWrap.style.height = "";
+  const targetHeight = compositionPanel.getBoundingClientRect().height;
+  const titleHeight = panelTitle.getBoundingClientRect().height;
+  const height = Math.max(200, Math.round((targetHeight - titleHeight) * 2 / 3));
+  canvasWrap.style.height = `${height}px`;
+}
+
+function durationLines(milliseconds) {
+  const minutes = Math.max(0, Math.round((Number(milliseconds) || 0) / 60000));
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  if (!hours) return [`${remainder} 分钟`];
+  return remainder ? [`${hours} 小时`, `${remainder} 分钟`] : [`${hours} 小时`];
 }
 
 function setupCanvas(canvas) {
   const rect = canvas.getBoundingClientRect();
   const ratio = window.devicePixelRatio || 1;
-  canvas.width = Math.max(1, Math.round(rect.width * ratio));
-  canvas.height = Math.max(1, Math.round(rect.height * ratio));
+  const pixelWidth = Math.max(1, Math.round(rect.width * ratio));
+  const pixelHeight = Math.max(1, Math.round(rect.height * ratio));
+  // Only touch the backing store when the CSS size actually changed. Resizing
+  // canvas.width/height on every redraw (e.g. on each hover mousemove) can
+  // otherwise compound with layout rounding and make the element grow.
+  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+    canvas.width = pixelWidth;
+    canvas.height = pixelHeight;
+  }
   const ctx = canvas.getContext("2d");
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   return { ctx, width: rect.width, height: rect.height };
 }
 
-function drawTrend(canvas, days, hoverIndex = null) {
-  if (hoverIndex == null) trendChartHoverIndex = null;
+function drawTrend(canvas, days) {
   const { ctx, width, height } = setupCanvas(canvas);
   const margin = { top: 14, right: 10, bottom: 30, left: 42 };
   const chartWidth = Math.max(1, width - margin.left - margin.right);
   const chartHeight = Math.max(1, height - margin.top - margin.bottom);
   const values = days.map((day) => day.durationMs / 3600000);
   const max = Math.max(1, ...values);
-  trendChartLayout = { days, margin, chartWidth, chartHeight, values, max, width, height, hasData: values.some(Boolean) };
+  trend.layout = null;
 
   ctx.clearRect(0, 0, width, height);
   ctx.font = '11px "Microsoft YaHei", "微软雅黑", sans-serif';
@@ -137,13 +227,17 @@ function drawTrend(canvas, days, hoverIndex = null) {
   ctx.strokeStyle = "#e2e6df";
   ctx.lineWidth = 1;
 
-  for (let row = 0; row <= 4; row += 1) {
-    const y = margin.top + chartHeight * (row / 4);
+  // Scale the number of horizontal gridlines to the chart's actual height so
+  // rows stay evenly spaced (~45-55px apart) instead of a fixed count that
+  // looks sparse once the chart grows taller to fill the card.
+  const rowCount = Math.min(9, Math.max(4, Math.round(chartHeight / 50)));
+  for (let row = 0; row <= rowCount; row += 1) {
+    const y = margin.top + chartHeight * (row / rowCount);
     ctx.beginPath();
     ctx.moveTo(margin.left, y);
     ctx.lineTo(width - margin.right, y);
     ctx.stroke();
-    const hours = max * (1 - row / 4);
+    const hours = max * (1 - row / rowCount);
     ctx.fillText(`${hours.toFixed(hours < 4 ? 1 : 0)}h`, 8, y + 3);
   }
 
@@ -169,21 +263,8 @@ function drawTrend(canvas, days, hoverIndex = null) {
     ctx.textAlign = "center";
     ctx.fillText(days[0].date.replace(/-/g, "/"), x, height - 8);
     ctx.textAlign = "left";
-    if (hoverIndex === 0) {
-      ctx.beginPath();
-      ctx.arc(x, y, 9, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(111, 159, 142, .22)";
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.strokeStyle = "#6f9f8e";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+    trend.layout = { margin, chartWidth, count: 1, pointAt: () => ({ x, y }) };
+    if (trend.hoverIndex === 0) drawTrendMarker(ctx, { x, y }, margin, chartHeight);
     return;
   }
 
@@ -230,33 +311,124 @@ function drawTrend(canvas, days, hoverIndex = null) {
   });
   ctx.textAlign = "left";
 
-  if (hoverIndex != null) {
-    const hp = point(values[hoverIndex], hoverIndex);
-    ctx.beginPath();
-    ctx.arc(hp.x, hp.y, 9, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(111, 159, 142, .22)";
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(hp.x, hp.y, 5, 0, Math.PI * 2);
-    ctx.fillStyle = "#ffffff";
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(hp.x, hp.y, 5, 0, Math.PI * 2);
-    ctx.strokeStyle = "#6f9f8e";
-    ctx.lineWidth = 2;
-    ctx.stroke();
+  trend.layout = { margin, chartWidth, count: days.length, pointAt: (index) => point(values[index], index) };
+  if (trend.hoverIndex !== null && trend.hoverIndex < days.length) {
+    drawTrendMarker(ctx, trend.layout.pointAt(trend.hoverIndex), margin, chartHeight);
   }
+}
+
+function drawTrendMarker(ctx, point, margin, chartHeight) {
+  ctx.save();
+  ctx.setLineDash([3, 4]);
+  ctx.beginPath();
+  ctx.moveTo(point.x, margin.top);
+  ctx.lineTo(point.x, margin.top + chartHeight);
+  ctx.strokeStyle = "#a9cbbe";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, 9, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(111, 159, 142, .18)";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.strokeStyle = "#6f9f8e";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function formatBucketDate(key) {
+  if (key.length === 7) {
+    const [year, month] = key.split("-").map(Number);
+    return `${year}年${month}月`;
+  }
+  const date = Core.parseDate(key);
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 · 周${"日一二三四五六"[date.getDay()]}`;
+}
+
+// Anchors a tooltip to the mouse cursor's bottom-right, flipping to the
+// opposite side when it would overflow the container. Keeping the tooltip
+// tied to the pointer (rather than the hovered data point) means it never
+// sits on top of what the user is trying to point at next — important for
+// the donut ring, where a point-anchored tooltip used to cover the arcs.
+function positionTooltipAtCursor(tooltip, container, event, gap = 14) {
+  const rect = container.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const maxLeft = Math.max(6, container.clientWidth - tooltip.offsetWidth - 6);
+  const maxTop = Math.max(6, container.clientHeight - tooltip.offsetHeight - 6);
+  let left = x + gap;
+  if (left > maxLeft) left = x - tooltip.offsetWidth - gap;
+  let top = y + gap;
+  if (top > maxTop) top = y - tooltip.offsetHeight - gap;
+  tooltip.style.left = `${Math.min(Math.max(6, left), maxLeft)}px`;
+  tooltip.style.top = `${Math.min(Math.max(6, top), maxTop)}px`;
+}
+
+function renderTrendTooltip(canvas, bucket, event) {
+  const tooltip = document.getElementById("trendTooltip");
+  const slices = topSlices(bucket.sites, TOOLTIP_SITE_LIMIT);
+  const detail = slices.length
+    ? `<ul class="tooltip-sites">${slices.map((slice) => `<li><span class="dot" style="background:${slice.color}"></span><span class="host" title="${escapeHtml(slice.host)}">${escapeHtml(slice.host)}</span><span class="time">${escapeHtml(Core.formatDuration(slice.durationMs))}</span></li>`).join("")}</ul>`
+    : `<div class="tooltip-empty">${bucket.date.length === 7 ? "该月" : "当日"}没有有效访问记录</div>`;
+  tooltip.innerHTML = `<div class="tooltip-date">${escapeHtml(formatBucketDate(bucket.date))}</div>
+    <div class="tooltip-total"><strong>${escapeHtml(Core.formatDuration(bucket.durationMs))}</strong><span>${bucket.visits.toLocaleString("zh-CN")} 次访问</span></div>
+    ${detail}`;
+  tooltip.hidden = false;
+  positionTooltipAtCursor(tooltip, canvas.parentElement, event);
+}
+
+function trendIndexAt(canvas, clientX) {
+  const layout = trend.layout;
+  if (!layout) return null;
+  if (layout.count === 1) return 0;
+  const x = clientX - canvas.getBoundingClientRect().left;
+  if (x < layout.margin.left - 8 || x > layout.margin.left + layout.chartWidth + 8) return null;
+  const index = Math.round((x - layout.margin.left) / layout.chartWidth * (layout.count - 1));
+  return Math.max(0, Math.min(layout.count - 1, index));
+}
+
+function handleTrendHover(event) {
+  const canvas = event.currentTarget;
+  const index = trendIndexAt(canvas, event.clientX);
+  if (index === null) return clearTrendHover();
+  if (trend.hoverIndex !== index) {
+    trend.hoverIndex = index;
+    drawTrend(canvas, trend.days);
+  }
+  renderTrendTooltip(canvas, trend.days[index], event);
+}
+
+function clearTrendHover() {
+  if (trend.hoverIndex === null) return;
+  trend.hoverIndex = null;
+  document.getElementById("trendTooltip").hidden = true;
+  drawTrend(document.getElementById("trendChart"), trend.days);
 }
 
 function drawDonut(canvas, sites) {
   const { ctx, width, height } = setupCanvas(canvas);
-  const total = sites.reduce((sum, site) => sum + site.durationMs, 0);
   const cx = width / 2;
   const cy = height / 2;
   const radius = Math.min(width, height) * .39;
   const lineWidth = Math.max(14, radius * .23);
-  ctx.clearRect(0, 0, width, height);
+  const total = sites.reduce((sum, site) => sum + site.durationMs, 0);
+  const slices = topSlices(sites, COMPOSITION_LIMIT);
 
+  let cumulative = 0;
+  slices.forEach((slice) => {
+    const sweep = total ? slice.durationMs / total * Math.PI * 2 : 0;
+    slice.startAngle = cumulative;
+    slice.endAngle = cumulative + sweep;
+    cumulative += sweep;
+  });
+  donut.layout = { cx, cy, radius, lineWidth, slices, total };
+
+  ctx.clearRect(0, 0, width, height);
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.strokeStyle = "#e8ece5";
@@ -264,30 +436,99 @@ function drawDonut(canvas, sites) {
   ctx.stroke();
   if (!total) return;
 
-  const top = sites.slice(0, 8);
-  const other = sites.slice(8).reduce((sum, site) => sum + site.durationMs, 0);
-  const segments = [...top.map((site) => site.durationMs), ...(other ? [other] : [])];
-  let angle = -Math.PI / 2;
-  segments.forEach((value, index) => {
-    const sweep = value / total * Math.PI * 2;
+  slices.forEach((slice, index) => {
+    const isHovered = donut.hoverIndex === index;
+    const boost = isHovered ? donut.scale : 0;
+    const dim = donut.hoverIndex !== null && !isHovered ? 1 - .55 * donut.scale : 1;
+    const pad = Math.min(.015, Math.max(.006, (slice.endAngle - slice.startAngle) / 8));
     ctx.beginPath();
-    ctx.arc(cx, cy, radius, angle + .015, angle + sweep - .015);
-    ctx.strokeStyle = COLORS[index % COLORS.length];
-    ctx.lineWidth = lineWidth;
+    ctx.arc(cx, cy, radius + boost * 5, -Math.PI / 2 + slice.startAngle + pad, -Math.PI / 2 + slice.endAngle - pad);
+    ctx.strokeStyle = slice.color;
+    ctx.globalAlpha = dim;
+    ctx.lineWidth = lineWidth + boost * 4;
     ctx.lineCap = "round";
     ctx.stroke();
-    angle += sweep;
   });
+  ctx.globalAlpha = 1;
 }
 
 function renderLegend(summary) {
   const container = document.getElementById("donutLegend");
-  const top = summary.sites.slice(0, 8);
-  const otherMs = summary.sites.slice(8).reduce((sum, site) => sum + site.durationMs, 0);
-  const items = [...top, ...(otherMs ? [{ host: "其他", durationMs: otherMs }] : [])];
+  const items = topSlices(summary.sites, COMPOSITION_LIMIT);
   container.innerHTML = items.length
-    ? items.map((site, index) => `<div class="legend-row"><span class="legend-dot" style="background:${COLORS[index % COLORS.length]}"></span><span>${escapeHtml(site.host)}</span><span>${summary.totalMs ? Math.round(site.durationMs / summary.totalMs * 100) : 0}%</span></div>`).join("")
+    ? items.map((slice, index) => `<div class="legend-row" data-index="${index}"><span class="legend-dot" style="background:${slice.color}"></span><span title="${escapeHtml(slice.host)}">${escapeHtml(slice.host)}</span><span>${summary.totalMs ? Math.round(slice.durationMs / summary.totalMs * 100) : 0}%</span></div>`).join("")
     : "<div class=\"legend-row\"><span></span><span>暂无数据</span><span>0%</span></div>";
+}
+
+function highlightLegendRow(index) {
+  document.querySelectorAll("#donutLegend .legend-row").forEach((row) => {
+    row.classList.toggle("is-active", index !== null && Number(row.dataset.index) === index);
+  });
+}
+
+function donutSliceAt(canvas, clientX, clientY) {
+  const layout = donut.layout;
+  if (!layout || !layout.total) return null;
+  const rect = canvas.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const dist = Math.hypot(x - layout.cx, y - layout.cy);
+  const inner = layout.radius - layout.lineWidth / 2 - 6;
+  const outer = layout.radius + layout.lineWidth / 2 + 10;
+  if (dist < inner || dist > outer) return null;
+  const angle = (((Math.atan2(y - layout.cy, x - layout.cx) + Math.PI / 2) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  const index = layout.slices.findIndex((slice) => angle >= slice.startAngle && angle < slice.endAngle);
+  return index === -1 ? null : index;
+}
+
+function renderDonutTooltip(canvas, slice, event) {
+  const tooltip = document.getElementById("donutTooltip");
+  const total = donut.layout.total;
+  const percent = total ? slice.durationMs / total * 100 : 0;
+  tooltip.innerHTML = `<div class="tooltip-date">${escapeHtml(slice.host)}</div>
+    <div class="tooltip-total"><strong>${escapeHtml(Core.formatDuration(slice.durationMs))}</strong><span>${percent.toFixed(1)}%</span></div>`;
+  tooltip.hidden = false;
+  positionTooltipAtCursor(tooltip, canvas.parentElement, event);
+}
+
+function stepDonutAnimation() {
+  const diff = donut.targetScale - donut.scale;
+  if (Math.abs(diff) < .02) {
+    donut.scale = donut.targetScale;
+    if (donut.scale === 0) donut.hoverIndex = null;
+    donut.raf = null;
+    drawDonut(document.getElementById("donutChart"), donut.sites);
+    return;
+  }
+  donut.scale += diff * .25;
+  drawDonut(document.getElementById("donutChart"), donut.sites);
+  donut.raf = requestAnimationFrame(stepDonutAnimation);
+}
+
+function startDonutAnimation() {
+  if (donut.raf === null) donut.raf = requestAnimationFrame(stepDonutAnimation);
+}
+
+function handleDonutHover(event) {
+  const canvas = event.currentTarget;
+  const index = donutSliceAt(canvas, event.clientX, event.clientY);
+  if (index === null) return clearDonutHover();
+  if (donut.hoverIndex !== index) {
+    donut.hoverIndex = index;
+    donut.scale = 0;
+    highlightLegendRow(index);
+  }
+  donut.targetScale = 1;
+  startDonutAnimation();
+  renderDonutTooltip(canvas, donut.layout.slices[index], event);
+}
+
+function clearDonutHover() {
+  if (donut.hoverIndex === null) return;
+  donut.targetScale = 0;
+  document.getElementById("donutTooltip").hidden = true;
+  highlightLegendRow(null);
+  startDonutAnimation();
 }
 
 function renderSiteTable() {
@@ -299,117 +540,23 @@ function renderSiteTable() {
   const startIndex = (appState.sitePage - 1) * appState.sitePageSize;
   const pageSites = sites.slice(startIndex, startIndex + appState.sitePageSize);
   document.getElementById("siteTable").innerHTML = sites.length
-    ? pageSites.map((site, index) => `<tr>
-          <td><div class="site-cell"><span class="favicon" style="background:${COLORS[(startIndex + index) % COLORS.length]}">${escapeHtml(site.host[0] || "·")}</span><div><strong title="${escapeHtml(site.host)}">${escapeHtml(site.host)}</strong><small title="${escapeHtml(site.title)}">${escapeHtml(site.title)}</small></div></div></td>
+    ? pageSites.map((site, index) => {
+        const color = COLORS[(startIndex + index) % COLORS.length];
+        const share = summary.totalMs ? site.durationMs / summary.totalMs * 100 : 0;
+        return `<tr>
+          <td><div class="site-cell"><span class="favicon" style="background:${color}">${escapeHtml(site.host[0] || "·")}</span><strong title="${escapeHtml(site.host)}">${escapeHtml(site.host)}</strong></div></td>
           <td>${escapeHtml(Core.formatDuration(site.durationMs))}</td>
-          <td>${site.visits.toLocaleString("zh-CN")}</td>
-          <td><span class="site-url" title="${escapeHtml(site.url || "—")}">${escapeHtml(site.url || "—")}</span></td>
-        </tr>`).join("")
-    : "<tr><td colspan=\"4\" class=\"empty\">没有匹配的数据</td></tr>";
+          <td><div class="share-cell"><div class="share-track"><span class="share-bar" style="width:${Math.max(2, share)}%;background:${color}"></span></div><div class="share-spacer"></div><span class="share-value">${share.toFixed(1)}%</span></div></td>
+          <td class="visits-cell">${site.visits.toLocaleString("zh-CN")}</td>
+          <td><div class="visit-cell"><strong class="visit-title" title="${escapeHtml(site.title)}">${escapeHtml(site.title)}</strong><span class="site-url" title="${escapeHtml(site.url || "—")}">${escapeHtml(site.url || "—")}</span></div></td>
+        </tr>`;
+      }).join("")
+    : "<tr><td colspan=\"5\" class=\"empty\">没有匹配的数据</td></tr>";
   document.getElementById("sitePageSummary").textContent = sites.length
     ? `第 ${appState.sitePage} / ${totalPages} 页 · 共 ${sites.length.toLocaleString("zh-CN")} 个网站`
     : "共 0 个网站";
   document.getElementById("previousSitePage").disabled = appState.sitePage <= 1;
   document.getElementById("nextSitePage").disabled = appState.sitePage >= totalPages;
-}
-
-function formatTrendDate(key) {
-  if (key.length === 7) return `${key.slice(0, 4)}年${Number(key.slice(5, 7))}月`;
-  const [year, month, day] = key.split("-").map(Number);
-  return `${year}年${month}月${day}日`;
-}
-
-function daySitesFor(key) {
-  if (key.length === 7) {
-    const sites = new Map();
-    const prefix = `${key}-`;
-    for (const [date, records] of Object.entries(appState.dailyStats)) {
-      if (!date.startsWith(prefix)) continue;
-      for (const [host, record] of Object.entries(records)) {
-        const previous = sites.get(host) || { host, durationMs: 0, visits: 0, title: record.title || host, url: record.url || `https://${host}` };
-        previous.durationMs += record.durationMs;
-        previous.visits += record.visits;
-        if (record.title) previous.title = record.title;
-        if (record.url) previous.url = record.url;
-        sites.set(host, previous);
-      }
-    }
-    return [...sites.values()].sort((a, b) => b.durationMs - a.durationMs);
-  }
-  const records = appState.dailyStats[key] || {};
-  return Object.entries(records)
-    .map(([host, record]) => ({ host, durationMs: record.durationMs, visits: record.visits, title: record.title, url: record.url }))
-    .sort((a, b) => b.durationMs - a.durationMs);
-}
-
-function showTrendTooltip(event, point) {
-  const tooltip = document.getElementById("chartTooltip");
-  const sites = daySitesFor(point.date);
-  let html = `<div class="tooltip-head">${escapeHtml(formatTrendDate(point.date))}</div>`;
-  html += `<div class="tooltip-total">总耗时 <strong>${escapeHtml(Core.formatDuration(point.durationMs))}</strong></div>`;
-  if (sites.length) {
-    const topSites = sites.slice(0, 5);
-    const otherMs = sites.slice(5).reduce((sum, site) => sum + site.durationMs, 0);
-    html += `<div class="tooltip-label">当日访问</div><ol class="tooltip-sites">`;
-    html += topSites.map((site, index) => `<li><span class="tooltip-dot" style="background:${COLORS[index % COLORS.length]}"></span><span class="tooltip-host" title="${escapeHtml(site.host)}">${escapeHtml(site.host)}</span><span class="tooltip-time">${escapeHtml(Core.formatDuration(site.durationMs, true))}</span></li>`).join("");
-    if (otherMs) html += `<li><span class="tooltip-dot" style="background:#aebcb5"></span><span class="tooltip-host">其他</span><span class="tooltip-time">${escapeHtml(Core.formatDuration(otherMs, true))}</span></li>`;
-    html += "</ol>";
-  } else {
-    html += `<div class="tooltip-label">当日暂无访问记录</div>`;
-  }
-  tooltip.innerHTML = html;
-  tooltip.hidden = false;
-
-  const canvas = document.getElementById("trendChart");
-  const wrapRect = canvas.parentElement.getBoundingClientRect();
-  const tooltipWidth = tooltip.offsetWidth;
-  const tooltipHeight = tooltip.offsetHeight;
-  let left = event.clientX - wrapRect.left + 16;
-  let top = event.clientY - wrapRect.top + 16;
-  if (left + tooltipWidth > wrapRect.width - 8) left = event.clientX - wrapRect.left - tooltipWidth - 12;
-  if (top + tooltipHeight > wrapRect.height - 8) top = wrapRect.height - tooltipHeight - 8;
-  tooltip.style.left = `${Math.max(0, left)}px`;
-  tooltip.style.top = `${Math.max(0, top)}px`;
-}
-
-function onTrendMousemove(event) {
-  const layout = trendChartLayout;
-  const tooltip = document.getElementById("chartTooltip");
-  if (!layout || !layout.hasData) {
-    tooltip.hidden = true;
-    return;
-  }
-  const canvas = document.getElementById("trendChart");
-  const rect = canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-
-  let index;
-  if (layout.days.length === 1) {
-    index = 0;
-  } else {
-    if (x < layout.margin.left || x > rect.width - layout.margin.right) {
-      onTrendMouseleave();
-      return;
-    }
-    index = Math.round((x - layout.margin.left) / layout.chartWidth * (layout.days.length - 1));
-    index = Math.max(0, Math.min(layout.days.length - 1, index));
-  }
-
-  if (trendChartHoverIndex !== index) {
-    trendChartHoverIndex = index;
-    drawTrend(canvas, layout.days, index);
-  }
-  showTrendTooltip(event, layout.days[index]);
-}
-
-function onTrendMouseleave() {
-  const tooltip = document.getElementById("chartTooltip");
-  tooltip.hidden = true;
-  if (trendChartHoverIndex !== null) {
-    trendChartHoverIndex = null;
-    const layout = trendChartLayout;
-    if (layout) drawTrend(document.getElementById("trendChart"), layout.days, null);
-  }
 }
 
 function renderReports() {
@@ -509,8 +656,10 @@ document.getElementById("nextSitePage").addEventListener("click", () => {
   appState.sitePage += 1;
   renderSiteTable();
 });
-document.getElementById("trendChart").addEventListener("mousemove", onTrendMousemove);
-document.getElementById("trendChart").addEventListener("mouseleave", onTrendMouseleave);
+document.getElementById("trendChart").addEventListener("mousemove", handleTrendHover);
+document.getElementById("trendChart").addEventListener("mouseleave", clearTrendHover);
+document.getElementById("donutChart").addEventListener("mousemove", handleDonutHover);
+document.getElementById("donutChart").addEventListener("mouseleave", clearDonutHover);
 window.addEventListener("resize", () => {
   clearTimeout(window.__chartResizeTimer);
   window.__chartResizeTimer = setTimeout(() => {
