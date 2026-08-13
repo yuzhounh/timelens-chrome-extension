@@ -2,7 +2,7 @@ const Core = self.TimeLensCore;
 const COLORS = ["#6f9f8e", "#a9d2c3", "#f0aa81", "#83aee2", "#ab96cf", "#d9be72", "#e29aa8", "#7fc4c0", "#b7c98a", "#cfa98a", "#9aa8d8"];
 const OTHER_COLOR = "#c2cec8";
 const TOOLTIP_SITE_LIMIT = 5;
-const COMPOSITION_LIMIT = 10;
+const COMPOSITION_LIMIT = 8;
 
 const trend = { days: [], layout: null, hoverIndex: null };
 const donut = { sites: [], layout: null, hoverIndex: null, scale: 0, targetScale: 0, raf: null };
@@ -135,6 +135,7 @@ function renderOverview() {
   document.getElementById("resetPeriod").disabled = appState.periodType === "all" || (range.calendarStart <= Core.dateKey(new Date()) && range.calendarEnd >= Core.dateKey(new Date()));
 
   document.getElementById("donutHours").innerHTML = durationLines(summary.totalMs).map((line) => `<span>${escapeHtml(line)}</span>`).join("");
+  document.getElementById("donutLabel").textContent = "总计";
   if (donut.raf !== null) {
     cancelAnimationFrame(donut.raf);
     donut.raf = null;
@@ -143,7 +144,6 @@ function renderOverview() {
   donut.hoverIndex = null;
   donut.scale = 0;
   donut.targetScale = 0;
-  document.getElementById("donutTooltip").hidden = true;
   drawDonut(document.getElementById("donutChart"), donut.sites);
   renderLegend(summary);
 
@@ -183,7 +183,7 @@ function syncTrendChartHeight() {
   canvasWrap.style.height = "";
   const targetHeight = compositionPanel.getBoundingClientRect().height;
   const titleHeight = panelTitle.getBoundingClientRect().height;
-  const height = Math.max(200, Math.round((targetHeight - titleHeight) * 2 / 3));
+  const height = Math.max(165, Math.round((targetHeight - titleHeight) * 0.55));
   canvasWrap.style.height = `${height}px`;
 }
 
@@ -238,7 +238,7 @@ function drawTrend(canvas, days) {
     ctx.lineTo(width - margin.right, y);
     ctx.stroke();
     const hours = max * (1 - row / rowCount);
-    ctx.fillText(`${hours.toFixed(hours < 4 ? 1 : 0)}h`, 8, y + 3);
+    ctx.fillText(`${hours.toFixed(1)}h`, 8, y + 3);
   }
 
   if (!values.some(Boolean)) {
@@ -460,10 +460,48 @@ function renderLegend(summary) {
     : "<div class=\"legend-row\"><span></span><span>暂无数据</span><span>0%</span></div>";
 }
 
+function updateDonutCenter(index) {
+  const hoursEl = document.getElementById("donutHours");
+  const labelEl = document.getElementById("donutLabel");
+  if (index === null || !donut.layout?.slices[index]) {
+    const total = donut.layout?.total ?? donut.sites.reduce((sum, site) => sum + site.durationMs, 0);
+    hoursEl.innerHTML = durationLines(total).map((line) => `<span>${escapeHtml(line)}</span>`).join("");
+    labelEl.textContent = "总计";
+    labelEl.removeAttribute("title");
+    return;
+  }
+  const slice = donut.layout.slices[index];
+  hoursEl.innerHTML = durationLines(slice.durationMs).map((line) => `<span>${escapeHtml(line)}</span>`).join("");
+  labelEl.textContent = slice.host;
+  labelEl.title = slice.host;
+}
+
 function highlightLegendRow(index) {
   document.querySelectorAll("#donutLegend .legend-row").forEach((row) => {
     row.classList.toggle("is-active", index !== null && Number(row.dataset.index) === index);
   });
+}
+
+function setDonutHover(index) {
+  if (index === null) {
+    clearDonutHover();
+    return;
+  }
+  if (donut.hoverIndex !== index) {
+    donut.hoverIndex = index;
+    donut.scale = 0;
+    highlightLegendRow(index);
+    updateDonutCenter(index);
+  }
+  donut.targetScale = 1;
+  startDonutAnimation();
+}
+
+function handleCompositionPointerLeave(event) {
+  const panel = document.querySelector(".composition-panel");
+  const related = event.relatedTarget;
+  if (related && panel.contains(related)) return;
+  clearDonutHover();
 }
 
 function donutSliceAt(canvas, clientX, clientY) {
@@ -479,16 +517,6 @@ function donutSliceAt(canvas, clientX, clientY) {
   const angle = (((Math.atan2(y - layout.cy, x - layout.cx) + Math.PI / 2) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
   const index = layout.slices.findIndex((slice) => angle >= slice.startAngle && angle < slice.endAngle);
   return index === -1 ? null : index;
-}
-
-function renderDonutTooltip(canvas, slice, event) {
-  const tooltip = document.getElementById("donutTooltip");
-  const total = donut.layout.total;
-  const percent = total ? slice.durationMs / total * 100 : 0;
-  tooltip.innerHTML = `<div class="tooltip-date">${escapeHtml(slice.host)}</div>
-    <div class="tooltip-total"><strong>${escapeHtml(Core.formatDuration(slice.durationMs))}</strong><span>${percent.toFixed(1)}%</span></div>`;
-  tooltip.hidden = false;
-  positionTooltipAtCursor(tooltip, canvas.parentElement, event);
 }
 
 function stepDonutAnimation() {
@@ -510,24 +538,16 @@ function startDonutAnimation() {
 }
 
 function handleDonutHover(event) {
-  const canvas = event.currentTarget;
-  const index = donutSliceAt(canvas, event.clientX, event.clientY);
-  if (index === null) return clearDonutHover();
-  if (donut.hoverIndex !== index) {
-    donut.hoverIndex = index;
-    donut.scale = 0;
-    highlightLegendRow(index);
-  }
-  donut.targetScale = 1;
-  startDonutAnimation();
-  renderDonutTooltip(canvas, donut.layout.slices[index], event);
+  const index = donutSliceAt(event.currentTarget, event.clientX, event.clientY);
+  if (index === null) return handleCompositionPointerLeave(event);
+  setDonutHover(index);
 }
 
 function clearDonutHover() {
   if (donut.hoverIndex === null) return;
   donut.targetScale = 0;
-  document.getElementById("donutTooltip").hidden = true;
   highlightLegendRow(null);
+  updateDonutCenter(null);
   startDonutAnimation();
 }
 
@@ -565,9 +585,9 @@ function renderReports() {
     ? appState.reports.map((report) => {
         const statusText = report.status === "sent" ? "已邮件备份" : report.status === "failed" ? "发送失败" : "已保存在本地";
         return `<article class="report-card" data-report-id="${escapeHtml(report.id)}">
-          <div><h3>${escapeHtml(report.label || Core.labelForType(report.type))} · ${escapeHtml(report.periodStart)}</h3><p>${escapeHtml(report.periodStart)} 至 ${escapeHtml(report.periodEnd)} · ${report.sites?.length || 0} 个网站${report.sendError ? ` · ${escapeHtml(report.sendError)}` : ""}</p></div>
+          <div class="report-main"><div class="report-heading"><h3>${escapeHtml(report.label || Core.labelForType(report.type))} · ${escapeHtml(report.periodStart)}</h3><span class="status${report.status === "failed" ? " failed" : ""}">${statusText}</span></div><p>${escapeHtml(report.periodStart)} 至 ${escapeHtml(report.periodEnd)} · ${report.sites?.length || 0} 个网站${report.sendError ? ` · ${escapeHtml(report.sendError)}` : ""}</p></div>
           <div class="report-stat"><strong>${escapeHtml(Core.formatDuration(report.totalMs))}</strong><small>${Number(report.totalVisits || 0).toLocaleString("zh-CN")} 次访问</small></div>
-          <div><span class="status${report.status === "failed" ? " failed" : ""}">${statusText}</span><div class="report-actions"><button data-export="csv">CSV</button><button data-export="json">JSON</button></div></div>
+          <div class="report-actions"><button data-export="csv">CSV</button><button data-export="json">JSON</button></div>
         </article>`;
       }).join("")
     : "<article class=\"panel empty\">还没有报告。你可以立即生成本周期报告，或等待自动任务运行。</article>";
@@ -659,7 +679,13 @@ document.getElementById("nextSitePage").addEventListener("click", () => {
 document.getElementById("trendChart").addEventListener("mousemove", handleTrendHover);
 document.getElementById("trendChart").addEventListener("mouseleave", clearTrendHover);
 document.getElementById("donutChart").addEventListener("mousemove", handleDonutHover);
-document.getElementById("donutChart").addEventListener("mouseleave", clearDonutHover);
+document.getElementById("donutChart").addEventListener("mouseleave", handleCompositionPointerLeave);
+document.getElementById("donutLegend").addEventListener("mouseover", (event) => {
+  const row = event.target.closest(".legend-row[data-index]");
+  if (!row) return;
+  setDonutHover(Number(row.dataset.index));
+});
+document.getElementById("donutLegend").addEventListener("mouseleave", handleCompositionPointerLeave);
 window.addEventListener("resize", () => {
   clearTimeout(window.__chartResizeTimer);
   window.__chartResizeTimer = setTimeout(() => {
@@ -710,12 +736,6 @@ document.getElementById("exportJson").addEventListener("click", async () => {
     settings: stored.settings || {}
   }, null, 2), "application/json");
   showToast("完整备份已导出");
-});
-
-document.getElementById("exportCsv").addEventListener("click", () => {
-  const report = { ...appState.summary, sites: appState.summary.sites };
-  download(`timelens-${report.start}-${report.end}.csv`, Core.reportToCsv(report), "text/csv;charset=utf-8");
-  showToast("当前报表已导出");
 });
 
 async function importBackup(mode) {
