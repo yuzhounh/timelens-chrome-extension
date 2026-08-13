@@ -12,6 +12,9 @@ let appState = {
   summary: null
 };
 
+let trendChartLayout = null;
+let trendChartHoverIndex = null;
+
 function sendMessage(message) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(message, (response) => {
@@ -84,7 +87,6 @@ function renderOverview() {
   const summary = Core.aggregate(appState.dailyStats, range.start, range.end);
   appState.summary = summary;
   const activeDayCount = summary.days.filter((day) => day.durationMs > 0).length;
-  const top = summary.sites[0];
   const analyzedDays = Math.max(1, summary.days.length);
   const trendDays = trendBuckets(summary.days);
 
@@ -92,13 +94,11 @@ function renderOverview() {
   document.getElementById("dailyAverage").textContent = Core.formatDuration(summary.totalMs / analyzedDays);
   document.getElementById("visitCount").textContent = summary.totalVisits.toLocaleString("zh-CN");
   document.getElementById("activeDays").textContent = `${activeDayCount} 个活跃日`;
-  document.getElementById("topHost").textContent = top?.host || "暂无记录";
-  document.getElementById("topHostTime").textContent = top ? Core.formatDuration(top.durationMs) : "尚未开始统计";
   document.getElementById("rangeLabel").textContent = range.label;
   document.getElementById("periodLabel").textContent = range.label;
   document.getElementById("trendTotal").textContent = `${range.start} — ${range.end}`;
   document.getElementById("trendHeading").textContent = ["yearly", "all"].includes(appState.periodType) ? "每月有效浏览" : "每日有效浏览";
-  document.getElementById("donutHours").textContent = Core.formatDuration(summary.totalMs);
+  document.getElementById("donutHours").innerHTML = escapeHtml(Core.formatDuration(summary.totalMs)).replace(" 小时 ", " 小时<br/>");
   document.getElementById("periodAnchor").value = appState.anchorDate;
   document.getElementById("periodAnchor").disabled = appState.periodType === "all";
   document.getElementById("previousPeriod").disabled = appState.periodType === "all";
@@ -121,13 +121,15 @@ function setupCanvas(canvas) {
   return { ctx, width: rect.width, height: rect.height };
 }
 
-function drawTrend(canvas, days) {
+function drawTrend(canvas, days, hoverIndex = null) {
+  if (hoverIndex == null) trendChartHoverIndex = null;
   const { ctx, width, height } = setupCanvas(canvas);
   const margin = { top: 14, right: 10, bottom: 30, left: 42 };
   const chartWidth = Math.max(1, width - margin.left - margin.right);
   const chartHeight = Math.max(1, height - margin.top - margin.bottom);
   const values = days.map((day) => day.durationMs / 3600000);
   const max = Math.max(1, ...values);
+  trendChartLayout = { days, margin, chartWidth, chartHeight, values, max, width, height, hasData: values.some(Boolean) };
 
   ctx.clearRect(0, 0, width, height);
   ctx.font = '11px "Microsoft YaHei", "微软雅黑", sans-serif';
@@ -167,6 +169,21 @@ function drawTrend(canvas, days) {
     ctx.textAlign = "center";
     ctx.fillText(days[0].date.replace(/-/g, "/"), x, height - 8);
     ctx.textAlign = "left";
+    if (hoverIndex === 0) {
+      ctx.beginPath();
+      ctx.arc(x, y, 9, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(111, 159, 142, .22)";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.strokeStyle = "#6f9f8e";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
     return;
   }
 
@@ -212,6 +229,23 @@ function drawTrend(canvas, days) {
     }
   });
   ctx.textAlign = "left";
+
+  if (hoverIndex != null) {
+    const hp = point(values[hoverIndex], hoverIndex);
+    ctx.beginPath();
+    ctx.arc(hp.x, hp.y, 9, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(111, 159, 142, .22)";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(hp.x, hp.y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(hp.x, hp.y, 5, 0, Math.PI * 2);
+    ctx.strokeStyle = "#6f9f8e";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
 }
 
 function drawDonut(canvas, sites) {
@@ -230,8 +264,8 @@ function drawDonut(canvas, sites) {
   ctx.stroke();
   if (!total) return;
 
-  const top = sites.slice(0, 5);
-  const other = sites.slice(5).reduce((sum, site) => sum + site.durationMs, 0);
+  const top = sites.slice(0, 8);
+  const other = sites.slice(8).reduce((sum, site) => sum + site.durationMs, 0);
   const segments = [...top.map((site) => site.durationMs), ...(other ? [other] : [])];
   let angle = -Math.PI / 2;
   segments.forEach((value, index) => {
@@ -248,8 +282,8 @@ function drawDonut(canvas, sites) {
 
 function renderLegend(summary) {
   const container = document.getElementById("donutLegend");
-  const top = summary.sites.slice(0, 5);
-  const otherMs = summary.sites.slice(5).reduce((sum, site) => sum + site.durationMs, 0);
+  const top = summary.sites.slice(0, 8);
+  const otherMs = summary.sites.slice(8).reduce((sum, site) => sum + site.durationMs, 0);
   const items = [...top, ...(otherMs ? [{ host: "其他", durationMs: otherMs }] : [])];
   container.innerHTML = items.length
     ? items.map((site, index) => `<div class="legend-row"><span class="legend-dot" style="background:${COLORS[index % COLORS.length]}"></span><span>${escapeHtml(site.host)}</span><span>${summary.totalMs ? Math.round(site.durationMs / summary.totalMs * 100) : 0}%</span></div>`).join("")
@@ -265,22 +299,117 @@ function renderSiteTable() {
   const startIndex = (appState.sitePage - 1) * appState.sitePageSize;
   const pageSites = sites.slice(startIndex, startIndex + appState.sitePageSize);
   document.getElementById("siteTable").innerHTML = sites.length
-    ? pageSites.map((site, index) => {
-        const share = summary.totalMs ? site.durationMs / summary.totalMs * 100 : 0;
-        return `<tr>
+    ? pageSites.map((site, index) => `<tr>
           <td><div class="site-cell"><span class="favicon" style="background:${COLORS[(startIndex + index) % COLORS.length]}">${escapeHtml(site.host[0] || "·")}</span><div><strong title="${escapeHtml(site.host)}">${escapeHtml(site.host)}</strong><small title="${escapeHtml(site.title)}">${escapeHtml(site.title)}</small></div></div></td>
           <td>${escapeHtml(Core.formatDuration(site.durationMs))}</td>
-          <td><div class="share" title="${share.toFixed(1)}%"><span style="width:${Math.max(2, share)}%"></span></div></td>
           <td>${site.visits.toLocaleString("zh-CN")}</td>
           <td><span class="site-url" title="${escapeHtml(site.url || "—")}">${escapeHtml(site.url || "—")}</span></td>
-        </tr>`;
-      }).join("")
-    : "<tr><td colspan=\"5\" class=\"empty\">没有匹配的数据</td></tr>";
+        </tr>`).join("")
+    : "<tr><td colspan=\"4\" class=\"empty\">没有匹配的数据</td></tr>";
   document.getElementById("sitePageSummary").textContent = sites.length
     ? `第 ${appState.sitePage} / ${totalPages} 页 · 共 ${sites.length.toLocaleString("zh-CN")} 个网站`
     : "共 0 个网站";
   document.getElementById("previousSitePage").disabled = appState.sitePage <= 1;
   document.getElementById("nextSitePage").disabled = appState.sitePage >= totalPages;
+}
+
+function formatTrendDate(key) {
+  if (key.length === 7) return `${key.slice(0, 4)}年${Number(key.slice(5, 7))}月`;
+  const [year, month, day] = key.split("-").map(Number);
+  return `${year}年${month}月${day}日`;
+}
+
+function daySitesFor(key) {
+  if (key.length === 7) {
+    const sites = new Map();
+    const prefix = `${key}-`;
+    for (const [date, records] of Object.entries(appState.dailyStats)) {
+      if (!date.startsWith(prefix)) continue;
+      for (const [host, record] of Object.entries(records)) {
+        const previous = sites.get(host) || { host, durationMs: 0, visits: 0, title: record.title || host, url: record.url || `https://${host}` };
+        previous.durationMs += record.durationMs;
+        previous.visits += record.visits;
+        if (record.title) previous.title = record.title;
+        if (record.url) previous.url = record.url;
+        sites.set(host, previous);
+      }
+    }
+    return [...sites.values()].sort((a, b) => b.durationMs - a.durationMs);
+  }
+  const records = appState.dailyStats[key] || {};
+  return Object.entries(records)
+    .map(([host, record]) => ({ host, durationMs: record.durationMs, visits: record.visits, title: record.title, url: record.url }))
+    .sort((a, b) => b.durationMs - a.durationMs);
+}
+
+function showTrendTooltip(event, point) {
+  const tooltip = document.getElementById("chartTooltip");
+  const sites = daySitesFor(point.date);
+  let html = `<div class="tooltip-head">${escapeHtml(formatTrendDate(point.date))}</div>`;
+  html += `<div class="tooltip-total">总耗时 <strong>${escapeHtml(Core.formatDuration(point.durationMs))}</strong></div>`;
+  if (sites.length) {
+    const topSites = sites.slice(0, 5);
+    const otherMs = sites.slice(5).reduce((sum, site) => sum + site.durationMs, 0);
+    html += `<div class="tooltip-label">当日访问</div><ol class="tooltip-sites">`;
+    html += topSites.map((site, index) => `<li><span class="tooltip-dot" style="background:${COLORS[index % COLORS.length]}"></span><span class="tooltip-host" title="${escapeHtml(site.host)}">${escapeHtml(site.host)}</span><span class="tooltip-time">${escapeHtml(Core.formatDuration(site.durationMs, true))}</span></li>`).join("");
+    if (otherMs) html += `<li><span class="tooltip-dot" style="background:#aebcb5"></span><span class="tooltip-host">其他</span><span class="tooltip-time">${escapeHtml(Core.formatDuration(otherMs, true))}</span></li>`;
+    html += "</ol>";
+  } else {
+    html += `<div class="tooltip-label">当日暂无访问记录</div>`;
+  }
+  tooltip.innerHTML = html;
+  tooltip.hidden = false;
+
+  const canvas = document.getElementById("trendChart");
+  const wrapRect = canvas.parentElement.getBoundingClientRect();
+  const tooltipWidth = tooltip.offsetWidth;
+  const tooltipHeight = tooltip.offsetHeight;
+  let left = event.clientX - wrapRect.left + 16;
+  let top = event.clientY - wrapRect.top + 16;
+  if (left + tooltipWidth > wrapRect.width - 8) left = event.clientX - wrapRect.left - tooltipWidth - 12;
+  if (top + tooltipHeight > wrapRect.height - 8) top = wrapRect.height - tooltipHeight - 8;
+  tooltip.style.left = `${Math.max(0, left)}px`;
+  tooltip.style.top = `${Math.max(0, top)}px`;
+}
+
+function onTrendMousemove(event) {
+  const layout = trendChartLayout;
+  const tooltip = document.getElementById("chartTooltip");
+  if (!layout || !layout.hasData) {
+    tooltip.hidden = true;
+    return;
+  }
+  const canvas = document.getElementById("trendChart");
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+
+  let index;
+  if (layout.days.length === 1) {
+    index = 0;
+  } else {
+    if (x < layout.margin.left || x > rect.width - layout.margin.right) {
+      onTrendMouseleave();
+      return;
+    }
+    index = Math.round((x - layout.margin.left) / layout.chartWidth * (layout.days.length - 1));
+    index = Math.max(0, Math.min(layout.days.length - 1, index));
+  }
+
+  if (trendChartHoverIndex !== index) {
+    trendChartHoverIndex = index;
+    drawTrend(canvas, layout.days, index);
+  }
+  showTrendTooltip(event, layout.days[index]);
+}
+
+function onTrendMouseleave() {
+  const tooltip = document.getElementById("chartTooltip");
+  tooltip.hidden = true;
+  if (trendChartHoverIndex !== null) {
+    trendChartHoverIndex = null;
+    const layout = trendChartLayout;
+    if (layout) drawTrend(document.getElementById("trendChart"), layout.days, null);
+  }
 }
 
 function renderReports() {
@@ -380,6 +509,8 @@ document.getElementById("nextSitePage").addEventListener("click", () => {
   appState.sitePage += 1;
   renderSiteTable();
 });
+document.getElementById("trendChart").addEventListener("mousemove", onTrendMousemove);
+document.getElementById("trendChart").addEventListener("mouseleave", onTrendMouseleave);
 window.addEventListener("resize", () => {
   clearTimeout(window.__chartResizeTimer);
   window.__chartResizeTimer = setTimeout(() => {
