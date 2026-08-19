@@ -1,4 +1,10 @@
-# 时光镜 · Chrome 网站访问时间统计
+<p align="center">
+  <img src="icons/timer.svg" width="112" alt="时光镜图标" />
+</p>
+
+<h1 align="center">时光镜</h1>
+
+<p align="center"><strong>Chrome 网站访问时间统计、可视化与周期报告</strong></p>
 
 一个本地优先的 Chrome Manifest V3 扩展。它只累计“当前窗口中激活的网页”且电脑处于非空闲状态时的访问时间，并按网站域名汇总。
 
