@@ -555,7 +555,7 @@ function renderReports() {
         return `<article class="report-card" data-report-id="${escapeHtml(report.id)}">
           <div class="report-main"><div class="report-heading"><h3>${escapeHtml(report.label || Core.labelForType(report.type))} · ${escapeHtml(report.periodStart)}</h3><span class="status${report.status === "failed" ? " failed" : ""}">${statusText}</span></div><p>${escapeHtml(report.periodStart)} 至 ${escapeHtml(report.periodEnd)} · ${report.sites?.length || 0} 个网站${report.sendError ? ` · ${escapeHtml(report.sendError)}` : ""}</p></div>
           <div class="report-stat"><strong>${escapeHtml(Core.formatDuration(report.totalMs))}</strong><small>${Number(report.totalVisits || 0).toLocaleString("zh-CN")} 次访问</small></div>
-          <div class="report-actions"><button data-export="csv">CSV</button><button data-export="json">JSON</button></div>
+          <div class="report-actions"><button data-export="csv">CSV</button><button data-export="json">JSON</button><button type="button" data-action="delete" title="删除此报告">删除报告</button></div>
         </article>`;
       }).join("")
     : "<article class=\"panel empty\">还没有报告。你可以立即生成本周期报告，或等待自动任务运行。</article>";
@@ -683,14 +683,29 @@ document.getElementById("generateReport").addEventListener("click", async () => 
   }
 });
 
-document.getElementById("reportCards").addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-export]");
+document.getElementById("reportCards").addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-export], button[data-action]");
   if (!button) return;
-  const id = button.closest(".report-card").dataset.reportId;
+  const id = button.closest(".report-card")?.dataset.reportId;
   const report = appState.reports.find((item) => item.id === id);
   if (!report) return;
+
+  if (button.dataset.action === "delete") {
+    const label = report.label || Core.labelForType(report.type);
+    if (!confirm(`确定删除「${label} · ${report.periodStart}」吗？此操作不可撤销。`)) return;
+    try {
+      await sendMessage({ type: "delete-report", reportId: id });
+      appState.reports = appState.reports.filter((item) => item.id !== id);
+      renderReports();
+      showToast("报告已删除");
+    } catch (error) {
+      showToast(error.message, true);
+    }
+    return;
+  }
+
   if (button.dataset.export === "csv") download(`${report.id}.csv`, Core.reportToCsv(report), "text/csv;charset=utf-8");
-  else download(`${report.id}.json`, JSON.stringify(report, null, 2), "application/json");
+  else if (button.dataset.export === "json") download(`${report.id}.json`, JSON.stringify(report, null, 2), "application/json");
 });
 
 document.getElementById("exportJson").addEventListener("click", async () => {

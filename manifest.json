@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "时光镜 · 网站访问统计",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "统计有效网站访问时间，提供可视化、数据导入导出与周期报告邮件备份。",
   "permissions": [
     "storage",

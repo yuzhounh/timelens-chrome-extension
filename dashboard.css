@@ -159,17 +159,20 @@ input:focus, textarea:focus, select:focus { border-color: #799c83; box-shadow: 0
 .primary, .data-card button, .button-row button, .danger, .danger-outline { padding: 11px 16px; border: 1px solid var(--forest); border-radius: 8px; font-weight: 700; }
 .primary { color: #fff; background: var(--forest); }
 .report-list { display: grid; gap: 12px; margin-top: 18px; }
-.report-card { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 20px; padding: 20px 24px; border: 1px solid var(--line); border-radius: 13px; background: var(--panel); }
+.report-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "main stat" "actions actions"; align-items: center; gap: 14px 20px; padding: 20px 24px; border: 1px solid var(--line); border-radius: 13px; background: var(--panel); }
+.report-main { grid-area: main; min-width: 0; }
 .report-heading { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
 .report-card h3 { margin: 0; font: 500 17px "Microsoft YaHei", "微软雅黑", sans-serif; }
 .report-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
-.report-stat { text-align: right; white-space: nowrap; }
+.report-stat { grid-area: stat; text-align: right; white-space: nowrap; }
 .report-stat strong, .report-stat small { display: block; }
 .report-stat small { margin-top: 4px; color: var(--muted); font-size: 12px; }
 .status { flex-shrink: 0; padding: 6px 10px; border-radius: 20px; color: #3e6e4d; background: #e4f1e5; font-size: 12px; line-height: 1.4; white-space: nowrap; }
 .status.failed { color: #954b3b; background: #f8e7e2; }
-.report-actions { display: flex; align-self: center; gap: 8px; }
-.report-actions button { width: 72px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 12px; text-align: center; }
+.report-actions { grid-area: actions; display: flex; align-self: stretch; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding-top: 4px; border-top: 1px solid #edf3f0; }
+.report-actions button { min-width: 72px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 12px; text-align: center; }
+.report-actions button[data-action="delete"] { min-width: 88px; border-color: #e3b8ad; color: #a04436; font-weight: 700; }
+.report-actions button[data-action="delete"]:hover { background: #fff8f5; }
 .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .data-card { display: flex; align-items: flex-start; flex-direction: column; padding: 25px; }
 .data-card h2 { margin: 14px 0 0; }
@@ -228,8 +231,8 @@ input:focus, textarea:focus, select:focus { border-color: #799c83; box-shadow: 0
   .metrics { grid-template-columns: 1fr; }
   .table-pagination { align-items: stretch; flex-direction: column; padding: 14px 24px 20px; }
   .pagination-actions button { flex: 1; }
-  .report-builder, .report-card, .danger-zone { align-items: stretch; grid-template-columns: 1fr; flex-direction: column; }
+  .report-builder, .report-card, .danger-zone { align-items: stretch; grid-template-columns: 1fr; grid-template-areas: "main" "stat" "actions"; flex-direction: column; }
   .report-stat { text-align: left; }
-  .report-actions { align-self: flex-start; }
+  .report-actions { justify-content: flex-start; }
   .form-section { grid-template-columns: 1fr; gap: 25px; }
 }

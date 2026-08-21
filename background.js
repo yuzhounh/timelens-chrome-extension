@@ -213,6 +213,11 @@ async function saveReport(report) {
   await chrome.storage.local.set({ reports: [report, ...withoutSame].slice(0, 100) });
 }
 
+async function deleteReport(reportId) {
+  const { reports = [] } = await chrome.storage.local.get("reports");
+  await chrome.storage.local.set({ reports: reports.filter((item) => item.id !== reportId) });
+}
+
 async function createPeriodicReport(type, { sendEmail = true, offset = -1 } = {}) {
   await flushActive({ continueSession: true });
   const [{ dailyStats = {} }, settings] = await Promise.all([
@@ -331,6 +336,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           offset: Number.isInteger(message.offset) ? message.offset : 0
         });
         sendResponse({ ok: true, report });
+      } else if (message.type === "delete-report") {
+        if (!message.reportId) throw new Error("缺少报告 ID");
+        await deleteReport(message.reportId);
+        sendResponse({ ok: true });
       } else if (message.type === "delete-all-data") {
         await flushActive();
         await chrome.storage.local.set({ dailyStats: {}, reports: [] });
