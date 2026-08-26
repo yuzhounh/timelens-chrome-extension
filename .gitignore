@@ -9,6 +9,8 @@ release/
 # Local dependencies and tool state
 node_modules/
 .wrangler/
+email-worker/preview.html
+timelens-chrome-extension-v*.zip
 .dev.vars
 .env
 .env.*

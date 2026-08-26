@@ -88,7 +88,7 @@ function formatDuration(milliseconds) {
   return hours ? `${hours} 小时 ${minutes % 60} 分钟` : `${minutes} 分钟`;
 }
 
-function renderEmail(report) {
+export function renderEmail(report) {
   const rows = report.sites.slice(0, 20).map((site, index) => `
     <tr>
       <td style="padding:12px 8px;border-top:1px solid #e5e9e2">${index + 1}. ${escapeHtml(site.host)}</td>
@@ -103,13 +103,24 @@ function renderEmail(report) {
         <h1 style="margin:20px 0 8px;font-family:'Microsoft YaHei','微软雅黑',sans-serif;font-size:30px">${escapeHtml(report.label || "周期报告")}</h1>
         <div style="color:#aebeb2">${escapeHtml(report.periodStart)} — ${escapeHtml(report.periodEnd)}</div>
       </div>
-      <div style="display:flex;gap:12px;padding:22px 30px;background:#f8faf6">
-        <div style="flex:1"><small style="color:#77847a">有效浏览</small><strong style="display:block;margin-top:7px;font-size:22px">${formatDuration(report.totalMs)}</strong></div>
-        <div style="flex:1"><small style="color:#77847a">访问次数</small><strong style="display:block;margin-top:7px;font-size:22px">${Number(report.totalVisits || 0)}</strong></div>
-        <div style="flex:1"><small style="color:#77847a">网站数量</small><strong style="display:block;margin-top:7px;font-size:22px">${report.sites.length}</strong></div>
-      </div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8faf6;border-collapse:collapse">
+        <tr>
+          <td style="width:33%;padding:22px 8px 22px 30px;vertical-align:top">
+            <small style="color:#77847a">有效浏览</small>
+            <strong style="display:block;margin-top:7px;font-size:18px;line-height:1.3">${formatDuration(report.totalMs)}</strong>
+          </td>
+          <td style="width:34%;padding:22px 8px;vertical-align:top">
+            <small style="color:#77847a">访问次数</small>
+            <strong style="display:block;margin-top:7px;font-size:18px;line-height:1.3">${Number(report.totalVisits || 0)}</strong>
+          </td>
+          <td style="width:33%;padding:22px 30px 22px 8px;vertical-align:top">
+            <small style="color:#77847a">网站数量</small>
+            <strong style="display:block;margin-top:7px;font-size:18px;line-height:1.3">${report.sites.length}</strong>
+          </td>
+        </tr>
+      </table>
       <div style="padding:18px 30px 30px">
-        <h2 style="font-family:'Microsoft YaHei','微软雅黑',sans-serif;font-size:18px">访问最多的网站</h2>
+        <h2 style="font-family:'Microsoft YaHei','微软雅黑',sans-serif;font-size:18px;font-weight:normal;margin:0 0 12px">访问最多的网站</h2>
         <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="padding:8px;text-align:left;color:#7b877e">网站</th><th style="padding:8px;text-align:right;color:#7b877e">时长</th><th style="padding:8px;text-align:right;color:#7b877e">次数</th></tr></thead><tbody>${rows || '<tr><td colspan="3" style="padding:30px;text-align:center;color:#7b877e">本周期暂无记录</td></tr>'}</tbody></table>
         <p style="margin:24px 0 0;color:#88938b;font-size:11px">完整数据已作为 CSV 和 JSON 附件随邮件发送。</p>
       </div>
