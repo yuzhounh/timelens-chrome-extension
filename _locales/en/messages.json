@@ -1,0 +1,281 @@
+{
+  "extName": {
+    "message": "Time Lens · Website Tracker"
+  },
+  "extDescription": {
+    "message": "Track active browsing time by website, visualize trends, export data, and send periodic reports."
+  },
+  "commandOpenDashboard": {
+    "message": "Open dashboard"
+  },
+  "popupBrand": { "message": "Time Lens" },
+  "popupTodayBrowsing": { "message": "Today's active browsing" },
+  "popupSiteCount": {
+    "message": "$COUNT$ sites",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popupReading": { "message": "Loading…" },
+  "popupTracking": {
+    "message": "Tracking $HOST$",
+    "placeholders": { "host": { "content": "$1" } }
+  },
+  "popupNotTracking": { "message": "Not tracking now" },
+  "popupNoRecords": { "message": "No visits recorded today" },
+  "popupOpenDashboard": { "message": "Open full dashboard" },
+  "popupReadError": { "message": "Unable to read data right now" },
+  "navOverview": { "message": "Overview" },
+  "navReports": { "message": "Reports" },
+  "navData": { "message": "Data" },
+  "navSettings": { "message": "Settings" },
+  "privacyLocalFirst": { "message": "Local-first" },
+  "privacyLocalFirstHint": { "message": "Browsing data stays on this device by default" },
+  "overviewKicker": { "message": "YOUR DIGITAL RHYTHM" },
+  "overviewTitle": { "message": "Where does your time go?" },
+  "periodToolbarLabel": { "message": "Time range" },
+  "periodTypeLabel": { "message": "Select time range" },
+  "periodDaily": { "message": "Day" },
+  "periodWeekly": { "message": "Week" },
+  "periodMonthly": { "message": "Month" },
+  "periodQuarterly": { "message": "Quarter" },
+  "periodYearly": { "message": "Year" },
+  "periodAll": { "message": "All time" },
+  "periodPrevious": { "message": "Previous period" },
+  "periodNext": { "message": "Next period" },
+  "periodCurrent": { "message": "Viewing" },
+  "periodJumpDate": { "message": "Jump to date" },
+  "periodReset": { "message": "Back to current" },
+  "metricTotalTime": { "message": "Total browsing time" },
+  "metricDailyAverage": { "message": "Daily average" },
+  "metricEffectiveOnly": { "message": "Active visits only" },
+  "metricVisitCount": { "message": "Visits" },
+  "metricActiveDays": {
+    "message": "$COUNT$ active days",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "trendLabel": { "message": "Trend" },
+  "trendDaily": { "message": "Daily active browsing" },
+  "trendMonthly": { "message": "Monthly active browsing" },
+  "trendChartLabel": { "message": "Daily browsing trend chart" },
+  "compositionLabel": { "message": "Breakdown" },
+  "compositionTitle": { "message": "Time distribution" },
+  "donutChartLabel": { "message": "Website time distribution chart" },
+  "detailsLabel": { "message": "Details" },
+  "siteRankingTitle": { "message": "Top websites" },
+  "siteSearchPlaceholder": { "message": "Search websites" },
+  "tableWebsite": { "message": "Website" },
+  "tableDuration": { "message": "Duration" },
+  "tableShare": { "message": "Share" },
+  "tableVisits": { "message": "Visits" },
+  "tableLastVisit": { "message": "Last visit" },
+  "paginationPrevious": { "message": "Previous page" },
+  "paginationNext": { "message": "Next page" },
+  "sitePageSummary": {
+    "message": "Page $PAGE$ / $TOTAL$ · $COUNT$ sites",
+    "placeholders": {
+      "page": { "content": "$1" },
+      "total": { "content": "$2" },
+      "count": { "content": "$3" }
+    }
+  },
+  "sitePageEmpty": { "message": "0 sites" },
+  "reportsKicker": { "message": "PERIODIC ARCHIVE" },
+  "reportsTitle": { "message": "Periodic reports" },
+  "reportsSubtitle": { "message": "Generate weekly, monthly, quarterly, or yearly reports and optionally email them." },
+  "reportTypeLabel": { "message": "Report period" },
+  "reportWeekly": { "message": "This week" },
+  "reportMonthly": { "message": "This month" },
+  "reportQuarterly": { "message": "This quarter" },
+  "reportYearly": { "message": "This year" },
+  "reportSendEmail": { "message": "Also send to configured email" },
+  "reportGenerate": { "message": "Generate report" },
+  "reportGenerating": { "message": "Generating…" },
+  "dataKicker": { "message": "PORTABLE BY DESIGN" },
+  "dataTitle": { "message": "Data management" },
+  "dataSubtitle": { "message": "Back up, migrate, or restore all browsing records." },
+  "exportTitle": { "message": "Export backup" },
+  "exportDesc": { "message": "Export a JSON file with all visits, settings, and saved reports." },
+  "exportButton": { "message": "Export JSON" },
+  "importTitle": { "message": "Import backup" },
+  "importDesc": { "message": "Choose a Time Lens JSON backup to merge or fully replace current records." },
+  "importMerge": { "message": "Merge import" },
+  "importReplace": { "message": "Replace import" },
+  "deleteAllTitle": { "message": "Delete all statistics" },
+  "deleteAllDesc": { "message": "Remove all visit records and reports on this device. Settings are kept. This cannot be undone." },
+  "deleteAllButton": { "message": "Delete data" },
+  "settingsKicker": { "message": "QUIET AUTOMATION" },
+  "settingsTitle": { "message": "Settings" },
+  "settingsSubtitle": { "message": "Control tracking rules and optional email backups." },
+  "languageTitle": { "message": "Language" },
+  "languageDesc": { "message": "Choose the interface language for Time Lens." },
+  "languageLabel": { "message": "Interface language" },
+  "languageAuto": { "message": "Follow Chrome language" },
+  "languageZh": { "message": "中文（简体）" },
+  "languageEn": { "message": "English" },
+  "rulesTitle": { "message": "Tracking rules" },
+  "rulesDesc": { "message": "Pause tracking when you leave the computer to avoid counting idle time." },
+  "idleThresholdLabel": { "message": "Idle pause threshold (seconds)" },
+  "excludedHostsLabel": { "message": "Excluded websites" },
+  "excludedHostsPlaceholder": { "message": "One domain per line, e.g.:\nlocalhost\nexample.com" },
+  "excludedHostsHint": { "message": "Subdomains of a listed domain are excluded too." },
+  "autoReportsTitle": { "message": "Automatic reports" },
+  "autoReportsDesc": { "message": "Generate the previous period's report a few minutes after it ends." },
+  "scheduleWeekly": { "message": "Generate weekly reports automatically" },
+  "scheduleMonthly": { "message": "Generate monthly reports automatically" },
+  "scheduleQuarterly": { "message": "Generate quarterly reports automatically" },
+  "scheduleYearly": { "message": "Generate yearly reports automatically" },
+  "emailTitle": { "message": "Email backup" },
+  "emailDesc": { "message": "Send reports through your own secure email gateway. Keep API keys on the server, not in the extension." },
+  "emailEnabled": { "message": "Enable automatic email backup" },
+  "emailEndpointLabel": { "message": "Email gateway URL" },
+  "emailRecipientLabel": { "message": "Recipient email" },
+  "emailTokenLabel": { "message": "Gateway access token" },
+  "emailTokenPlaceholder": { "message": "Same as gateway BACKUP_SECRET" },
+  "emailWorkerHint": { "message": "The email-worker/ folder includes a deployable Cloudflare Worker example." },
+  "saveSettings": { "message": "Save settings" },
+  "savedAt": {
+    "message": "Saved at $TIME$",
+    "placeholders": { "time": { "content": "$1" } }
+  },
+  "otherSites": { "message": "Other" },
+  "total": { "message": "Total" },
+  "noData": { "message": "No data yet" },
+  "noMatchingData": { "message": "No matching results" },
+  "trendEmpty": { "message": "Not enough data yet. Start browsing and trends will appear here." },
+  "tooltipNoVisitsMonth": { "message": "No active visits this month" },
+  "tooltipNoVisitsDay": { "message": "No active visits this day" },
+  "tooltipVisits": {
+    "message": "$COUNT$ visits",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "reportStatusSent": { "message": "Emailed" },
+  "reportStatusFailed": { "message": "Send failed" },
+  "reportStatusSaved": { "message": "Saved locally" },
+  "reportRange": {
+    "message": "$START$ to $END$ · $COUNT$ sites",
+    "placeholders": {
+      "start": { "content": "$1" },
+      "end": { "content": "$2" },
+      "count": { "content": "$3" }
+    }
+  },
+  "reportSiteCount": {
+    "message": "$COUNT$ sites",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "reportVisits": {
+    "message": "$COUNT$ visits",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "reportDelete": { "message": "Delete report" },
+  "reportEmpty": { "message": "No reports yet. Generate one now or wait for automatic scheduling." },
+  "reportGenerated": { "message": "Report generated and saved" },
+  "reportSavedEmailFailed": {
+    "message": "Report saved, but email failed: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "reportDeleted": { "message": "Report deleted" },
+  "confirmDeleteReport": {
+    "message": "Delete \"$LABEL$ · $DATE$\"? This cannot be undone.",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "date": { "content": "$2" }
+    }
+  },
+  "backupExported": { "message": "Full backup exported" },
+  "selectBackupFirst": { "message": "Choose a JSON backup file first" },
+  "confirmReplaceImport": { "message": "Replace all current visit records and reports with this backup? This cannot be undone." },
+  "backupRestored": { "message": "Backup restored" },
+  "backupMerged": { "message": "Backup merged" },
+  "importFailed": {
+    "message": "Import failed: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "confirmDeleteAll": { "message": "Delete all visit records and periodic reports? This cannot be undone." },
+  "dataCleared": { "message": "Statistics cleared" },
+  "emailConfigRequired": { "message": "Enter gateway URL and recipient before enabling email backup" },
+  "settingsSaved": { "message": "Settings saved" },
+  "loadFailed": {
+    "message": "Failed to load data: $ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "operationFailed": { "message": "Operation failed" },
+  "invalidBackup": { "message": "Missing dailyStats in file; this may not be a valid backup" },
+  "reportTypeDaily": { "message": "Daily report" },
+  "reportTypeWeekly": { "message": "Weekly report" },
+  "reportTypeMonthly": { "message": "Monthly report" },
+  "reportTypeQuarterly": { "message": "Quarterly report" },
+  "reportTypeYearly": { "message": "Yearly report" },
+  "durationMinutes": {
+    "message": "$MIN$ min",
+    "placeholders": { "min": { "content": "$1" } }
+  },
+  "durationHours": {
+    "message": "$HOURS$ hr",
+    "placeholders": { "hours": { "content": "$1" } }
+  },
+  "durationHoursMinutes": {
+    "message": "$HOURS$ hr $MIN$ min",
+    "placeholders": {
+      "hours": { "content": "$1" },
+      "min": { "content": "$2" }
+    }
+  },
+  "durationMinutesLong": {
+    "message": "$MIN$ minutes",
+    "placeholders": { "min": { "content": "$1" } }
+  },
+  "durationHoursLong": {
+    "message": "$HOURS$ hours",
+    "placeholders": { "hours": { "content": "$1" } }
+  },
+  "durationHoursMinutesLong": {
+    "message": "$HOURS$ hours $MIN$ minutes",
+    "placeholders": {
+      "hours": { "content": "$1" },
+      "min": { "content": "$2" }
+    }
+  },
+  "periodAllTime": {
+    "message": "All time · $START$ — $END$",
+    "placeholders": {
+      "start": { "content": "$1" },
+      "end": { "content": "$2" }
+    }
+  },
+  "periodWeek": {
+    "message": "Week $WEEK$, $YEAR$ · $START$ — $END$",
+    "placeholders": {
+      "week": { "content": "$1" },
+      "year": { "content": "$2" },
+      "start": { "content": "$3" },
+      "end": { "content": "$4" }
+    }
+  },
+  "periodQuarter": {
+    "message": "Q$QUARTER$ $YEAR$",
+    "placeholders": {
+      "quarter": { "content": "$1" },
+      "year": { "content": "$2" }
+    }
+  },
+  "csvHeaderWebsite": { "message": "Website" },
+  "csvHeaderDuration": { "message": "Duration (minutes)" },
+  "csvHeaderVisits": { "message": "Visits" },
+  "csvHeaderTitle": { "message": "Latest title" },
+  "csvHeaderUrl": { "message": "Latest URL" },
+  "errUnknownReportType": {
+    "message": "Unknown report type: $TYPE$",
+    "placeholders": { "type": { "content": "$1" } }
+  },
+  "errEmailNotConfigured": { "message": "Email gateway URL or recipient is not configured" },
+  "errEmailGateway": {
+    "message": "Email gateway returned $STATUS$$DETAIL$",
+    "placeholders": {
+      "status": { "content": "$1" },
+      "detail": { "content": "$2" }
+    }
+  },
+  "errMissingReportId": { "message": "Missing report ID" },
+  "errUnknownRequest": { "message": "Unknown request" },
+  "errBackgroundOperation": { "message": "Background operation failed" }
+}

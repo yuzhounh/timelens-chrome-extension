@@ -1,4 +1,9 @@
 const Core = self.TimeLensCore;
+const I18n = self.TimeLensI18n;
+
+function displayDuration(milliseconds) {
+  return Core.formatDuration(milliseconds, I18n.isEnglish());
+}
 const COLORS = ["#6f9f8e", "#a9d2c3", "#f0aa81", "#83aee2", "#ab96cf", "#d9be72", "#e29aa8", "#7fc4c0", "#b7c98a", "#cfa98a", "#9aa8d8"];
 const OTHER_COLOR = "#c2cec8";
 const TOOLTIP_SITE_LIMIT = 5;
@@ -22,7 +27,7 @@ function sendMessage(message) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(message, (response) => {
       if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
-      else if (!response?.ok) reject(new Error(response?.error || "操作失败"));
+      else if (!response?.ok) reject(new Error(response?.error || I18n.t("operationFailed")));
       else resolve(response);
     });
   });
@@ -68,7 +73,7 @@ function topSlices(sites, limit) {
     color: COLORS[index % COLORS.length]
   }));
   const otherMs = sites.slice(limit).reduce((sum, site) => sum + site.durationMs, 0);
-  return otherMs ? [...top, { host: "其他", durationMs: otherMs, color: OTHER_COLOR }] : top;
+  return otherMs ? [...top, { host: I18n.t("otherSites"), durationMs: otherMs, color: OTHER_COLOR }] : top;
 }
 
 function trendSeries(days) {
@@ -108,6 +113,8 @@ async function loadState() {
   appState.dailyStats = Core.normalizeDailyStats(stored.dailyStats);
   appState.reports = Array.isArray(stored.reports) ? stored.reports : [];
   appState.settings = stored.settings || {};
+  await I18n.init(appState.settings);
+  I18n.apply();
   renderOverview();
   renderReports();
   fillSettings();
@@ -120,14 +127,16 @@ function renderOverview() {
   const activeDayCount = summary.days.filter((day) => day.durationMs > 0).length;
   const analyzedDays = Math.max(1, summary.days.length);
 
-  document.getElementById("totalTime").textContent = Core.formatDuration(summary.totalMs);
-  document.getElementById("dailyAverage").textContent = Core.formatDuration(summary.totalMs / analyzedDays);
-  document.getElementById("visitCount").textContent = summary.totalVisits.toLocaleString("zh-CN");
-  document.getElementById("activeDays").textContent = `${activeDayCount} 个活跃日`;
+  document.getElementById("totalTime").textContent = displayDuration(summary.totalMs);
+  document.getElementById("dailyAverage").textContent = displayDuration(summary.totalMs / analyzedDays);
+  document.getElementById("visitCount").textContent = I18n.formatNumber(summary.totalVisits);
+  document.getElementById("activeDays").textContent = I18n.t("metricActiveDays", String(activeDayCount));
   document.getElementById("rangeLabel").textContent = range.label;
   document.getElementById("periodLabel").textContent = range.label;
   document.getElementById("trendTotal").textContent = `${range.start} — ${range.end}`;
-  document.getElementById("trendHeading").textContent = ["yearly", "all"].includes(appState.periodType) ? "每月有效浏览" : "每日有效浏览";
+  document.getElementById("trendHeading").textContent = ["yearly", "all"].includes(appState.periodType)
+    ? I18n.t("trendMonthly")
+    : I18n.t("trendDaily");
   document.getElementById("periodAnchor").value = appState.anchorDate;
   document.getElementById("periodAnchor").disabled = appState.periodType === "all";
   document.getElementById("previousPeriod").disabled = appState.periodType === "all";
@@ -135,7 +144,7 @@ function renderOverview() {
   document.getElementById("resetPeriod").disabled = appState.periodType === "all" || (range.calendarStart <= Core.dateKey(new Date()) && range.calendarEnd >= Core.dateKey(new Date()));
 
   document.getElementById("donutHours").innerHTML = durationLines(summary.totalMs).map((line) => `<span>${escapeHtml(line)}</span>`).join("");
-  document.getElementById("donutLabel").textContent = "总计";
+  document.getElementById("donutLabel").textContent = I18n.t("total");
   if (donut.raf !== null) {
     cancelAnimationFrame(donut.raf);
     donut.raf = null;
@@ -156,6 +165,7 @@ function renderOverview() {
 }
 
 function durationLines(milliseconds) {
+  if (I18n.isEnglish()) return [Core.formatDuration(milliseconds, true)];
   const minutes = Math.max(0, Math.round((Number(milliseconds) || 0) / 60000));
   const hours = Math.floor(minutes / 60);
   const remainder = minutes % 60;
@@ -190,7 +200,9 @@ function drawTrend(canvas, days) {
   trend.layout = null;
 
   ctx.clearRect(0, 0, width, height);
-  ctx.font = '11px "Microsoft YaHei", "微软雅黑", sans-serif';
+  ctx.font = I18n.isEnglish()
+    ? '11px system-ui, -apple-system, "Segoe UI", sans-serif'
+    : '11px "Microsoft YaHei", "微软雅黑", sans-serif';
   ctx.fillStyle = "#8b968e";
   ctx.strokeStyle = "#e2e6df";
   ctx.lineWidth = 1;
@@ -212,7 +224,7 @@ function drawTrend(canvas, days) {
   if (!values.some(Boolean)) {
     ctx.fillStyle = "#95a098";
     ctx.textAlign = "center";
-    ctx.fillText("还没有足够的数据，开始浏览后这里会出现趋势", margin.left + chartWidth / 2, margin.top + chartHeight / 2);
+    ctx.fillText(I18n.t("trendEmpty"), margin.left + chartWidth / 2, margin.top + chartHeight / 2);
     ctx.textAlign = "left";
     return;
   }
@@ -312,9 +324,16 @@ function drawTrendMarker(ctx, point, margin, chartHeight) {
 function formatBucketDate(key) {
   if (key.length === 7) {
     const [year, month] = key.split("-").map(Number);
+    if (I18n.isEnglish()) {
+      return new Date(year, month - 1, 1).toLocaleDateString("en-US", { year: "numeric", month: "long" });
+    }
     return `${year}年${month}月`;
   }
   const date = Core.parseDate(key);
+  if (I18n.isEnglish()) {
+    const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
+    return `${date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} · ${weekday}`;
+  }
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 · 周${"日一二三四五六"[date.getDay()]}`;
 }
 
@@ -341,10 +360,10 @@ function renderTrendTooltip(canvas, bucket, event) {
   const tooltip = document.getElementById("trendTooltip");
   const slices = topSlices(bucket.sites, TOOLTIP_SITE_LIMIT);
   const detail = slices.length
-    ? `<ul class="tooltip-sites">${slices.map((slice) => `<li><span class="dot" style="background:${slice.color}"></span><span class="host" title="${escapeHtml(slice.host)}">${escapeHtml(slice.host)}</span><span class="time">${escapeHtml(Core.formatDuration(slice.durationMs))}</span></li>`).join("")}</ul>`
-    : `<div class="tooltip-empty">${bucket.date.length === 7 ? "该月" : "当日"}没有有效访问记录</div>`;
+    ? `<ul class="tooltip-sites">${slices.map((slice) => `<li><span class="dot" style="background:${slice.color}"></span><span class="host" title="${escapeHtml(slice.host)}">${escapeHtml(slice.host)}</span><span class="time">${escapeHtml(displayDuration(slice.durationMs))}</span></li>`).join("")}</ul>`
+    : `<div class="tooltip-empty">${bucket.date.length === 7 ? I18n.t("tooltipNoVisitsMonth") : I18n.t("tooltipNoVisitsDay")}</div>`;
   tooltip.innerHTML = `<div class="tooltip-date">${escapeHtml(formatBucketDate(bucket.date))}</div>
-    <div class="tooltip-total"><strong>${escapeHtml(Core.formatDuration(bucket.durationMs))}</strong><span>${bucket.visits.toLocaleString("zh-CN")} 次访问</span></div>
+    <div class="tooltip-total"><strong>${escapeHtml(displayDuration(bucket.durationMs))}</strong><span>${escapeHtml(I18n.t("tooltipVisits", I18n.formatNumber(bucket.visits)))}</span></div>
     ${detail}`;
   tooltip.hidden = false;
   positionTooltipAtCursor(tooltip, canvas.parentElement, event);
@@ -425,7 +444,7 @@ function renderLegend(summary) {
   const items = topSlices(summary.sites, COMPOSITION_LIMIT);
   container.innerHTML = items.length
     ? items.map((slice, index) => `<div class="legend-row" data-index="${index}"><span class="legend-dot" style="background:${slice.color}"></span><span title="${escapeHtml(slice.host)}">${escapeHtml(slice.host)}</span><span>${summary.totalMs ? Math.round(slice.durationMs / summary.totalMs * 100) : 0}%</span></div>`).join("")
-    : "<div class=\"legend-row\"><span></span><span>暂无数据</span><span>0%</span></div>";
+    : `<div class="legend-row"><span></span><span>${escapeHtml(I18n.t("noData"))}</span><span>0%</span></div>`;
 }
 
 function updateDonutCenter(index) {
@@ -434,7 +453,7 @@ function updateDonutCenter(index) {
   if (index === null || !donut.layout?.slices[index]) {
     const total = donut.layout?.total ?? donut.sites.reduce((sum, site) => sum + site.durationMs, 0);
     hoursEl.innerHTML = durationLines(total).map((line) => `<span>${escapeHtml(line)}</span>`).join("");
-    labelEl.textContent = "总计";
+    labelEl.textContent = I18n.t("total");
     labelEl.removeAttribute("title");
     return;
   }
@@ -533,36 +552,57 @@ function renderSiteTable() {
         const share = summary.totalMs ? site.durationMs / summary.totalMs * 100 : 0;
         return `<tr>
           <td><div class="site-cell"><span class="favicon" style="background:${color}">${escapeHtml(site.host[0] || "·")}</span><strong title="${escapeHtml(site.host)}">${escapeHtml(site.host)}</strong></div></td>
-          <td>${escapeHtml(Core.formatDuration(site.durationMs))}</td>
+          <td class="duration-cell">${escapeHtml(displayDuration(site.durationMs))}</td>
           <td><div class="share-cell"><div class="share-track"><span class="share-bar" style="width:${Math.max(2, share)}%;background:${color}"></span></div><div class="share-spacer"></div><span class="share-value">${share.toFixed(1)}%</span></div></td>
-          <td class="visits-cell">${site.visits.toLocaleString("zh-CN")}</td>
+          <td class="visits-cell">${I18n.formatNumber(site.visits)}</td>
           <td><div class="visit-cell"><strong class="visit-title" title="${escapeHtml(site.title)}">${escapeHtml(site.title)}</strong><span class="site-url" title="${escapeHtml(site.url || "—")}">${escapeHtml(site.url || "—")}</span></div></td>
         </tr>`;
       }).join("")
-    : "<tr><td colspan=\"5\" class=\"empty\">没有匹配的数据</td></tr>";
+    : `<tr><td colspan="5" class="empty">${escapeHtml(I18n.t("noMatchingData"))}</td></tr>`;
   document.getElementById("sitePageSummary").textContent = sites.length
-    ? `第 ${appState.sitePage} / ${totalPages} 页 · 共 ${sites.length.toLocaleString("zh-CN")} 个网站`
-    : "共 0 个网站";
+    ? I18n.t("sitePageSummary", String(appState.sitePage), String(totalPages), I18n.formatNumber(sites.length))
+    : I18n.t("sitePageEmpty");
   document.getElementById("previousSitePage").disabled = appState.sitePage <= 1;
   document.getElementById("nextSitePage").disabled = appState.sitePage >= totalPages;
+}
+
+function reportMetaHtml(report) {
+  const siteCount = report.sites?.length || 0;
+  const items = [
+    `${report.periodStart} ${I18n.isEnglish() ? "to" : "至"} ${report.periodEnd}`,
+    I18n.t("reportSiteCount", I18n.formatNumber(siteCount)),
+    displayDuration(report.totalMs),
+    I18n.t("reportVisits", I18n.formatNumber(report.totalVisits || 0))
+  ];
+  const meta = items.map((item) => `<span class="report-meta-item">${escapeHtml(item)}</span>`).join("");
+  return report.sendError
+    ? `${meta}<span class="report-meta-item report-meta-error">${escapeHtml(report.sendError)}</span>`
+    : meta;
 }
 
 function renderReports() {
   const container = document.getElementById("reportCards");
   container.innerHTML = appState.reports.length
     ? appState.reports.map((report) => {
-        const statusText = report.status === "sent" ? "已邮件备份" : report.status === "failed" ? "发送失败" : "已保存在本地";
+        const statusText = report.status === "sent"
+          ? I18n.t("reportStatusSent")
+          : report.status === "failed"
+            ? I18n.t("reportStatusFailed")
+            : I18n.t("reportStatusSaved");
         return `<article class="report-card" data-report-id="${escapeHtml(report.id)}">
-          <div class="report-main"><div class="report-heading"><h3>${escapeHtml(report.label || Core.labelForType(report.type))} · ${escapeHtml(report.periodStart)}</h3><span class="status${report.status === "failed" ? " failed" : ""}">${statusText}</span></div><p>${escapeHtml(report.periodStart)} 至 ${escapeHtml(report.periodEnd)} · ${report.sites?.length || 0} 个网站${report.sendError ? ` · ${escapeHtml(report.sendError)}` : ""}</p></div>
-          <div class="report-stat"><strong>${escapeHtml(Core.formatDuration(report.totalMs))}</strong><small>${Number(report.totalVisits || 0).toLocaleString("zh-CN")} 次访问</small></div>
-          <div class="report-actions"><button data-export="csv">CSV</button><button data-export="json">JSON</button><button type="button" data-action="delete" title="删除此报告">删除报告</button></div>
+          <div class="report-main">
+            <h3 class="report-title">${escapeHtml(Core.labelForType(report.type))} · ${escapeHtml(report.periodStart)} <span class="status${report.status === "failed" ? " failed" : ""}">${statusText}</span></h3>
+            <p class="report-meta">${reportMetaHtml(report)}</p>
+          </div>
+          <div class="report-actions"><button data-export="csv">CSV</button><button data-export="json">JSON</button><button type="button" data-action="delete" title="${escapeHtml(I18n.t("reportDelete"))}">${escapeHtml(I18n.t("reportDelete"))}</button></div>
         </article>`;
       }).join("")
-    : "<article class=\"panel empty\">还没有报告。你可以立即生成本周期报告，或等待自动任务运行。</article>";
+    : `<article class="panel empty">${escapeHtml(I18n.t("reportEmpty"))}</article>`;
 }
 
 function fillSettings() {
   const settings = appState.settings;
+  document.getElementById("uiLocale").value = settings.uiLocale || "auto";
   document.getElementById("idleThreshold").value = settings.idleThresholdSeconds || 60;
   document.getElementById("excludedHosts").value = (settings.excludedHosts || []).join("\n");
   document.getElementById("scheduleWeekly").checked = settings.schedules?.weekly !== false;
@@ -664,7 +704,7 @@ window.addEventListener("resize", () => {
 document.getElementById("generateReport").addEventListener("click", async () => {
   const button = document.getElementById("generateReport");
   button.disabled = true;
-  button.textContent = "正在生成…";
+  button.textContent = I18n.t("reportGenerating");
   try {
     const response = await sendMessage({
       type: "generate-report",
@@ -674,12 +714,17 @@ document.getElementById("generateReport").addEventListener("click", async () => 
     });
     appState.reports = [response.report, ...appState.reports.filter((item) => item.id !== response.report.id)];
     renderReports();
-    showToast(response.report.status === "failed" ? `报告已保存，但邮件发送失败：${response.report.sendError}` : "报告已生成并保存", response.report.status === "failed");
+    showToast(
+      response.report.status === "failed"
+        ? I18n.t("reportSavedEmailFailed", response.report.sendError)
+        : I18n.t("reportGenerated"),
+      response.report.status === "failed"
+    );
   } catch (error) {
     showToast(error.message, true);
   } finally {
     button.disabled = false;
-    button.textContent = "生成报告";
+    button.textContent = I18n.t("reportGenerate");
   }
 });
 
@@ -691,13 +736,13 @@ document.getElementById("reportCards").addEventListener("click", async (event) =
   if (!report) return;
 
   if (button.dataset.action === "delete") {
-    const label = report.label || Core.labelForType(report.type);
-    if (!confirm(`确定删除「${label} · ${report.periodStart}」吗？此操作不可撤销。`)) return;
+    const label = Core.labelForType(report.type);
+    if (!confirm(I18n.t("confirmDeleteReport", label, report.periodStart))) return;
     try {
       await sendMessage({ type: "delete-report", reportId: id });
       appState.reports = appState.reports.filter((item) => item.id !== id);
       renderReports();
-      showToast("报告已删除");
+      showToast(I18n.t("reportDeleted"));
     } catch (error) {
       showToast(error.message, true);
     }
@@ -718,36 +763,38 @@ document.getElementById("exportJson").addEventListener("click", async () => {
     reports: stored.reports || [],
     settings: stored.settings || {}
   }, null, 2), "application/json");
-  showToast("完整备份已导出");
+  showToast(I18n.t("backupExported"));
 });
 
 async function importBackup(mode) {
   const file = document.getElementById("importFile").files[0];
-  if (!file) return showToast("请先选择 JSON 备份文件", true);
-  if (mode === "replace" && !confirm("确定要用备份完全替换当前访问记录和报告吗？此操作不可撤销。")) return;
+  if (!file) return showToast(I18n.t("selectBackupFirst"), true);
+  if (mode === "replace" && !confirm(I18n.t("confirmReplaceImport"))) return;
   try {
     const payload = JSON.parse(await file.text());
-    if (!payload || typeof payload !== "object" || !payload.dailyStats) throw new Error("文件中缺少 dailyStats，可能不是有效备份");
+    if (!payload || typeof payload !== "object" || !payload.dailyStats) throw new Error(I18n.t("invalidBackup"));
     await sendMessage({ type: "import-data", mode, payload });
     await loadState();
-    showToast(mode === "replace" ? "备份已恢复" : "备份已合并");
+    showToast(mode === "replace" ? I18n.t("backupRestored") : I18n.t("backupMerged"));
   } catch (error) {
-    showToast(`导入失败：${error.message}`, true);
+    showToast(I18n.t("importFailed", error.message), true);
   }
 }
 
 document.getElementById("mergeImport").addEventListener("click", () => importBackup("merge"));
 document.getElementById("replaceImport").addEventListener("click", () => importBackup("replace"));
 document.getElementById("deleteAll").addEventListener("click", async () => {
-  if (!confirm("确定清除全部访问记录和周期报告吗？此操作不可撤销。")) return;
+  if (!confirm(I18n.t("confirmDeleteAll"))) return;
   await sendMessage({ type: "delete-all-data" });
   await loadState();
-  showToast("统计数据已清除");
+  showToast(I18n.t("dataCleared"));
 });
 
 document.getElementById("settingsForm").addEventListener("submit", async (event) => {
   event.preventDefault();
+  const previousLocale = appState.settings?.uiLocale || "auto";
   const settings = {
+    uiLocale: document.getElementById("uiLocale").value,
     idleThresholdSeconds: Math.min(3600, Math.max(15, Number(document.getElementById("idleThreshold").value) || 60)),
     excludedHosts: document.getElementById("excludedHosts").value.split(/\r?\n|,/).map((value) => value.trim()).filter(Boolean),
     schedules: {
@@ -764,16 +811,26 @@ document.getElementById("settingsForm").addEventListener("submit", async (event)
     }
   };
   if (settings.email.enabled && (!settings.email.endpoint || !settings.email.recipient)) {
-    return showToast("启用邮件备份前，请填写网关 URL 和收件邮箱", true);
+    return showToast(I18n.t("emailConfigRequired"), true);
   }
   try {
     const response = await sendMessage({ type: "save-settings", settings });
     appState.settings = response.settings;
-    document.getElementById("saveStatus").textContent = `已保存于 ${new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
-    showToast("设置已保存");
+    await I18n.init(appState.settings);
+    I18n.apply();
+    if ((previousLocale || "auto") !== (appState.settings.uiLocale || "auto")) {
+      renderOverview();
+      renderReports();
+      fillSettings();
+    }
+    document.getElementById("saveStatus").textContent = I18n.t(
+      "savedAt",
+      new Date().toLocaleTimeString(I18n.localeTag(), { hour: "2-digit", minute: "2-digit" })
+    );
+    showToast(I18n.t("settingsSaved"));
   } catch (error) {
     showToast(error.message, true);
   }
 });
 
-loadState().catch((error) => showToast(`加载数据失败：${error.message}`, true));
+loadState().catch((error) => showToast(I18n.t("loadFailed", error.message), true));

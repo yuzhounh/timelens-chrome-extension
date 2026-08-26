@@ -22,9 +22,10 @@ button { cursor: pointer; }
 .logo { display: flex; align-items: center; gap: 12px; padding: 0 8px; font: 700 20px/1.1 "Microsoft YaHei", "微软雅黑", sans-serif; }
 .logo > img { display: block; width: 40px; height: 40px; border-radius: 11px; box-shadow: 0 5px 16px #6b9b8b24; }
 .logo small { display: block; margin-top: 5px; color: #8aa097; font: 600 11px/1 "Microsoft YaHei", "微软雅黑", sans-serif; letter-spacing: .16em; }
+html[lang="en"] .logo small { display: none; }
 nav { display: grid; gap: 7px; margin-top: 52px; }
 .nav-item { padding: 13px 14px; border: 0; border-radius: 9px; color: #6f887e; background: transparent; text-align: left; transition: .18s ease; font-size: 14px; }
-.nav-item span { display: inline-block; width: 28px; font-size: 16px; }
+.nav-item .nav-icon { display: inline-block; width: 28px; font-size: 16px; }
 .nav-item:hover { color: #42695b; background: #dcece6; }
 .nav-item.active { color: #42695b; background: #ffffff; box-shadow: inset 3px 0 #7da998, 0 5px 16px #6b9b8b18; }
 .privacy-note { display: flex; gap: 10px; margin-top: auto; padding: 15px 10px 0; border-top: 1px solid #cfe1da; }
@@ -129,8 +130,10 @@ table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 
 .share-column { width: 16%; }
 .visits-column { width: 8%; }
 .url-column { width: 43%; }
+th.duration-head, .duration-cell { text-align: right; }
 th { padding: 11px 10px; color: #8a958d; font-size: 12px; letter-spacing: .07em; text-align: left; text-transform: uppercase; white-space: nowrap; }
 td { padding: 13px 10px; border-top: 1px solid #e8ebe5; }
+.duration-cell { font-variant-numeric: tabular-nums; }
 .visits-head { padding-right: 22px; text-align: right; }
 .site-cell { display: flex; min-width: 0; align-items: center; gap: 10px; }
 .favicon { display: grid; flex: 0 0 auto; width: 27px; height: 27px; place-items: center; border-radius: 8px; color: #fff; background: var(--forest); font-weight: 700; text-transform: uppercase; }
@@ -159,17 +162,16 @@ input:focus, textarea:focus, select:focus { border-color: #799c83; box-shadow: 0
 .primary, .data-card button, .button-row button, .danger, .danger-outline { padding: 11px 16px; border: 1px solid var(--forest); border-radius: 8px; font-weight: 700; }
 .primary { color: #fff; background: var(--forest); }
 .report-list { display: grid; gap: 12px; margin-top: 18px; }
-.report-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "main stat" "actions actions"; align-items: center; gap: 14px 20px; padding: 20px 24px; border: 1px solid var(--line); border-radius: 13px; background: var(--panel); }
-.report-main { grid-area: main; min-width: 0; }
-.report-heading { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
-.report-card h3 { margin: 0; font: 500 17px "Microsoft YaHei", "微软雅黑", sans-serif; }
-.report-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
-.report-stat { grid-area: stat; text-align: right; white-space: nowrap; }
-.report-stat strong, .report-stat small { display: block; }
-.report-stat small { margin-top: 4px; color: var(--muted); font-size: 12px; }
-.status { flex-shrink: 0; padding: 6px 10px; border-radius: 20px; color: #3e6e4d; background: #e4f1e5; font-size: 12px; line-height: 1.4; white-space: nowrap; }
+.report-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 20px; padding: 20px 24px; border: 1px solid var(--line); border-radius: 13px; background: var(--panel); }
+.report-main { min-width: 0; }
+.report-title { margin: 0; font: 500 17px/1.45 "Microsoft YaHei", "微软雅黑", sans-serif; }
+.report-title .status { margin-left: 6px; padding: 4px 8px; vertical-align: middle; font-size: 12px; font-weight: 400; }
+.report-meta { display: flex; flex-wrap: wrap; align-items: center; margin: 8px 0 0; color: var(--muted); font-size: 15px; font-weight: 400; line-height: 1.55; }
+.report-meta-item + .report-meta-item::before { margin: 0 10px; color: #c5cdc4; content: "·"; }
+.report-meta-error { color: #954b3b; }
+.status { flex-shrink: 0; display: inline-block; padding: 6px 10px; border-radius: 20px; color: #3e6e4d; background: #e4f1e5; font-size: 12px; line-height: 1.4; white-space: nowrap; }
 .status.failed { color: #954b3b; background: #f8e7e2; }
-.report-actions { grid-area: actions; display: flex; align-self: stretch; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding-top: 4px; border-top: 1px solid #edf3f0; }
+.report-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
 .report-actions button { min-width: 72px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 12px; text-align: center; }
 .report-actions button[data-action="delete"] { min-width: 88px; border-color: #e3b8ad; color: #a04436; font-weight: 700; }
 .report-actions button[data-action="delete"]:hover { background: #fff8f5; }
@@ -222,7 +224,7 @@ input:focus, textarea:focus, select:focus { border-color: #799c83; box-shadow: 0
   .logo { display: none; }
   nav { grid-template-columns: repeat(4, 1fr); margin: 0; }
   .nav-item { padding: 10px 6px; text-align: center; font-size: 12px; }
-  .nav-item span { display: block; width: auto; margin-bottom: 4px; }
+  .nav-item .nav-icon { display: block; width: auto; margin-bottom: 4px; }
   .privacy-note { display: none; }
   .content { margin-left: 0; padding: 28px 16px 60px; }
   .page-header { align-items: flex-start; flex-direction: column; }
@@ -231,8 +233,7 @@ input:focus, textarea:focus, select:focus { border-color: #799c83; box-shadow: 0
   .metrics { grid-template-columns: 1fr; }
   .table-pagination { align-items: stretch; flex-direction: column; padding: 14px 24px 20px; }
   .pagination-actions button { flex: 1; }
-  .report-builder, .report-card, .danger-zone { align-items: stretch; grid-template-columns: 1fr; grid-template-areas: "main" "stat" "actions"; flex-direction: column; }
-  .report-stat { text-align: left; }
+  .report-builder, .report-card, .danger-zone { align-items: stretch; grid-template-columns: 1fr; flex-direction: column; }
   .report-actions { justify-content: flex-start; }
   .form-section { grid-template-columns: 1fr; gap: 25px; }
 }

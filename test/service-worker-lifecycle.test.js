@@ -5,6 +5,7 @@ const vm = require("node:vm");
 
 const projectRoot = path.resolve(__dirname, "..");
 const backgroundSource = fs.readFileSync(path.join(projectRoot, "background.js"), "utf8");
+const i18nSource = fs.readFileSync(path.join(projectRoot, "i18n.js"), "utf8");
 const librarySource = fs.readFileSync(path.join(projectRoot, "lib.js"), "utf8");
 
 const shared = {
@@ -87,6 +88,10 @@ function createChromeMock() {
       onStartup: createEvent(),
       onMessage: createEvent()
     },
+    i18n: {
+      getUILanguage: () => "zh-CN",
+      getMessage: () => ""
+    },
     commands: { onCommand: createEvent() }
   };
 }
@@ -100,9 +105,12 @@ function startWorker() {
     clearTimeout
   });
   context.self = context;
-  context.importScripts = (file) => {
-    if (file !== "lib.js") throw new Error(`Unexpected import: ${file}`);
-    vm.runInContext(librarySource, context, { filename: "lib.js" });
+  context.importScripts = (...files) => {
+    for (const file of files) {
+      if (file === "i18n.js") vm.runInContext(i18nSource, context, { filename: "i18n.js" });
+      else if (file === "lib.js") vm.runInContext(librarySource, context, { filename: "lib.js" });
+      else throw new Error(`Unexpected import: ${file}`);
+    }
   };
   vm.runInContext(backgroundSource, context, { filename: "background.js" });
   return context;

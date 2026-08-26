@@ -10,7 +10,9 @@ release/
 node_modules/
 .wrangler/
 email-worker/preview.html
+email-worker/preview-en.html
 timelens-chrome-extension-v*.zip
+release/
 .dev.vars
 .env
 .env.*

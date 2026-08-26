@@ -3,22 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>时光镜</title>
+    <title>Time Lens</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <main>
-      <div class="brand"><img class="brand-mark" src="icons/timer.svg" alt="" /><span>时光镜</span></div>
-      <p class="eyebrow">今日有效浏览</p>
+      <div class="brand"><img class="brand-mark" src="icons/timer.svg" alt="" /><span data-i18n="popupBrand">时光镜</span></div>
+      <p class="eyebrow" data-i18n="popupTodayBrowsing">今日有效浏览</p>
       <p id="todayTotal" class="total">—</p>
       <div class="bar"><span id="progress"></span></div>
       <div class="meta">
-        <span id="siteCount">— 个网站</span>
-        <span id="activeSite">正在读取…</span>
+        <span id="siteCount">—</span>
+        <span id="activeSite" data-i18n="popupReading">正在读取…</span>
       </div>
       <ol id="topSites" class="top-sites"></ol>
-      <button id="openDashboard">打开完整仪表盘 <span>↗</span></button>
+      <button id="openDashboard" data-i18n="popupOpenDashboard">打开完整仪表盘</button>
     </main>
+    <script src="i18n.js"></script>
     <script src="lib.js"></script>
     <script src="popup.js"></script>
   </body>

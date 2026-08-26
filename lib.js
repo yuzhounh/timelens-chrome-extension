@@ -3,6 +3,40 @@
 
   const DAY_MS = 24 * 60 * 60 * 1000;
 
+  function msg(key, ...substitutions) {
+    try {
+      const text = root.TimeLensI18n?.t?.(key, ...substitutions)
+        || (typeof chrome !== "undefined" && chrome.i18n?.getMessage?.(key, substitutions.map(String)));
+      if (text) return text;
+    } catch {
+      // Fall through to Chinese defaults used by node tests.
+    }
+    return null;
+  }
+
+  function isEnglish() {
+    try {
+      if (root.TimeLensI18n?.isEnglish) return root.TimeLensI18n.isEnglish();
+      return typeof chrome !== "undefined" && chrome.i18n?.getUILanguage?.().toLowerCase().startsWith("en");
+    } catch {
+      return false;
+    }
+  }
+
+  function formatMonthYear(date) {
+    if (isEnglish()) {
+      return date.toLocaleDateString("en-US", { year: "numeric", month: "long" });
+    }
+    return `${date.getFullYear()}年${date.getMonth() + 1}月`;
+  }
+
+  function formatDayDate(date) {
+    if (isEnglish()) {
+      return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    }
+    return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+  }
+
   function pad(value) {
     return String(value).padStart(2, "0");
   }
@@ -52,14 +86,21 @@
       start = new Date(now.getFullYear() + offset, 0, 1);
       end = new Date(start.getFullYear(), 11, 31);
     } else {
-      throw new Error(`未知报告类型：${type}`);
+      throw new Error(msg("errUnknownReportType", type) || `未知报告类型：${type}`);
     }
 
     return { start: dateKey(start), end: dateKey(end) };
   }
 
   function labelForType(type) {
-    return ({ daily: "日报", weekly: "周报", monthly: "月报", quarterly: "季报", yearly: "年报" })[type] || type;
+    const key = ({
+      daily: "reportTypeDaily",
+      weekly: "reportTypeWeekly",
+      monthly: "reportTypeMonthly",
+      quarterly: "reportTypeQuarterly",
+      yearly: "reportTypeYearly"
+    })[type];
+    return (key && msg(key)) || ({ daily: "日报", weekly: "周报", monthly: "月报", quarterly: "季报", yearly: "年报" })[type] || type;
   }
 
   function isoWeekInfo(date) {
@@ -74,15 +115,20 @@
 
   function periodLabel(type, start, end) {
     const startDate = parseDate(start);
-    if (type === "daily") return `${startDate.getFullYear()}年${startDate.getMonth() + 1}月${startDate.getDate()}日`;
+    if (type === "daily") return formatDayDate(startDate);
     if (type === "weekly") {
       const info = isoWeekInfo(startDate);
-      return `${info.year}年第${info.week}周 · ${start} — ${end}`;
+      return msg("periodWeek", String(info.week), String(info.year), start, end)
+        || `${info.year}年第${info.week}周 · ${start} — ${end}`;
     }
-    if (type === "monthly") return `${startDate.getFullYear()}年${startDate.getMonth() + 1}月`;
-    if (type === "quarterly") return `${startDate.getFullYear()}年第${Math.floor(startDate.getMonth() / 3) + 1}季度`;
-    if (type === "yearly") return `${startDate.getFullYear()}年`;
-    if (type === "all") return `所有时间 · ${start} — ${end}`;
+    if (type === "monthly") return formatMonthYear(startDate);
+    if (type === "quarterly") {
+      const quarter = Math.floor(startDate.getMonth() / 3) + 1;
+      return msg("periodQuarter", String(quarter), String(startDate.getFullYear()))
+        || `${startDate.getFullYear()}年第${quarter}季度`;
+    }
+    if (type === "yearly") return isEnglish() ? String(startDate.getFullYear()) : `${startDate.getFullYear()}年`;
+    if (type === "all") return msg("periodAllTime", start, end) || `所有时间 · ${start} — ${end}`;
     return `${start} — ${end}`;
   }
 
@@ -144,8 +190,16 @@
     const hours = Math.floor(minutes / 60);
     const remainder = minutes % 60;
     if (compact) return hours ? `${hours}h ${remainder}m` : `${remainder}m`;
-    if (!hours) return `${remainder} 分钟`;
-    return remainder ? `${hours} 小时 ${remainder} 分钟` : `${hours} 小时`;
+    if (!hours) {
+      return msg(compact ? "durationMinutes" : "durationMinutesLong", String(remainder))
+        || `${remainder} 分钟`;
+    }
+    if (!remainder) {
+      return msg(compact ? "durationHours" : "durationHoursLong", String(hours))
+        || `${hours} 小时`;
+    }
+    return msg(compact ? "durationHoursMinutes" : "durationHoursMinutesLong", String(hours), String(remainder))
+      || `${hours} 小时 ${remainder} 分钟`;
   }
 
   function csvEscape(value) {
@@ -155,7 +209,13 @@
 
   function reportToCsv(report) {
     const rows = [
-      ["网站", "访问时长（分钟）", "访问次数", "最近标题", "最近网址"],
+      [
+        msg("csvHeaderWebsite") || "网站",
+        msg("csvHeaderDuration") || "访问时长（分钟）",
+        msg("csvHeaderVisits") || "访问次数",
+        msg("csvHeaderTitle") || "最近标题",
+        msg("csvHeaderUrl") || "最近网址"
+      ],
       ...report.sites.map((site) => [
         site.host,
         Math.round(site.durationMs / 60000),

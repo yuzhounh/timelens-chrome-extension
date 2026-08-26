@@ -5,9 +5,10 @@ import { createServer } from "node:http";
 
 import { renderEmail } from "./worker.js";
 
+const baseDir = dirname(fileURLToPath(import.meta.url));
+
 const sampleReport = {
   id: "weekly-2026-08-17",
-  label: "周报",
   periodStart: "2026-08-17",
   periodEnd: "2026-08-23",
   totalMs: (44 * 60 + 30) * 60000,
@@ -19,15 +20,31 @@ const sampleReport = {
   ]
 };
 
-const html = renderEmail(sampleReport);
-const outputPath = join(dirname(fileURLToPath(import.meta.url)), "preview.html");
-writeFileSync(outputPath, html, "utf8");
+const previews = {
+  zh: {
+    file: "preview.html",
+    html: renderEmail({ ...sampleReport, label: "周报" }, "zh")
+  },
+  en: {
+    file: "preview-en.html",
+    html: renderEmail({ ...sampleReport, label: "Weekly report" }, "en")
+  }
+};
+
+for (const { file, html } of Object.values(previews)) {
+  writeFileSync(join(baseDir, file), html, "utf8");
+}
 
 const port = 8765;
-createServer((_request, response) => {
+createServer((request, response) => {
+  const path = request.url?.split("?")[0] || "/";
+  const locale = path === "/en" ? "en" : "zh";
   response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-  response.end(html);
+  response.end(previews[locale].html);
 }).listen(port, () => {
-  console.log(`邮件预览已生成: ${outputPath}`);
-  console.log(`本地预览地址: http://127.0.0.1:${port}`);
+  console.log(`中文预览: ${join(baseDir, previews.zh.file)}`);
+  console.log(`英文预览: ${join(baseDir, previews.en.file)}`);
+  console.log(`本地预览地址:`);
+  console.log(`  中文  http://127.0.0.1:${port}/`);
+  console.log(`  英文  http://127.0.0.1:${port}/en`);
 });

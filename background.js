@@ -1,6 +1,7 @@
-importScripts("lib.js");
+importScripts("i18n.js", "lib.js");
 
 const Core = self.TimeLensCore;
+const I18n = self.TimeLensI18n;
 const ALARM_TICK = "tracking-tick";
 const ALARM_WEEKLY = "report-weekly";
 const ALARM_MONTHLY = "report-monthly";
@@ -9,6 +10,7 @@ const ALARM_YEARLY = "report-yearly";
 const SESSION_KEY = "activeSession";
 
 const DEFAULT_SETTINGS = {
+  uiLocale: "auto",
   idleThresholdSeconds: 60,
   excludedHosts: [],
   schedules: { weekly: true, monthly: true, quarterly: true, yearly: true },
@@ -186,8 +188,9 @@ async function scheduleAlarms({ force = false } = {}) {
 async function sendReportEmail(report, settings) {
   const email = settings.email;
   if (!email.enabled) return { status: "disabled" };
-  if (!email.endpoint || !email.recipient) throw new Error("邮件网关地址或收件人未配置");
+  if (!email.endpoint || !email.recipient) throw new Error(I18n.t("errEmailNotConfigured"));
 
+  const locale = I18n.isEnglish() ? "en" : "zh";
   const headers = { "Content-Type": "application/json" };
   if (email.token) headers.Authorization = `Bearer ${email.token}`;
   const response = await fetch(email.endpoint, {
@@ -197,12 +200,13 @@ async function sendReportEmail(report, settings) {
       recipient: email.recipient,
       report,
       csv: Core.reportToCsv(report),
+      locale,
       source: "timelens-chrome-extension"
     })
   });
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new Error(`邮件网关返回 ${response.status}${detail ? `：${detail.slice(0, 200)}` : ""}`);
+    throw new Error(I18n.t("errEmailGateway", String(response.status), detail ? `: ${detail.slice(0, 200)}` : ""));
   }
   return { status: "sent", sentAt: new Date().toISOString() };
 }
@@ -225,6 +229,7 @@ async function createPeriodicReport(type, { sendEmail = true, offset = -1 } = {}
     getSettings()
   ]);
   const range = Core.rangeFor(type, offset);
+  await I18n.init(settings);
   const report = Core.generateReport(dailyStats, type, range.start, range.end);
   try {
     const emailResult = sendEmail
@@ -242,8 +247,10 @@ async function createPeriodicReport(type, { sendEmail = true, offset = -1 } = {}
 
 async function initialize() {
   const stored = await chrome.storage.local.get(["settings", "dailyStats", "reports"]);
+  const settings = mergeSettings(stored.settings);
+  await I18n.init(settings);
   await chrome.storage.local.set({
-    settings: mergeSettings(stored.settings),
+    settings,
     dailyStats: Core.normalizeDailyStats(stored.dailyStats),
     reports: Array.isArray(stored.reports) ? stored.reports : [],
     schemaVersion: 1
@@ -312,6 +319,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       } else if (message.type === "save-settings") {
         const settings = mergeSettings(message.settings);
         await chrome.storage.local.set({ settings });
+        await I18n.init(settings);
         await scheduleAlarms({ force: true });
         await refreshActiveTab();
         sendResponse({ ok: true, settings });
@@ -337,7 +345,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
         sendResponse({ ok: true, report });
       } else if (message.type === "delete-report") {
-        if (!message.reportId) throw new Error("缺少报告 ID");
+        if (!message.reportId) throw new Error(I18n.t("errMissingReportId"));
         await deleteReport(message.reportId);
         sendResponse({ ok: true });
       } else if (message.type === "delete-all-data") {
@@ -346,10 +354,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         await refreshActiveTab();
         sendResponse({ ok: true });
       } else {
-        sendResponse({ ok: false, error: "未知请求" });
+        sendResponse({ ok: false, error: I18n.t("errUnknownRequest") });
       }
     } catch (error) {
-      sendResponse({ ok: false, error: error.message || "后台操作失败" });
+      sendResponse({ ok: false, error: error.message || I18n.t("errBackgroundOperation") });
     }
   });
   return true;

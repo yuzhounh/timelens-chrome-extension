@@ -1,0 +1,281 @@
+{
+  "extName": {
+    "message": "时光镜 · 网站访问统计"
+  },
+  "extDescription": {
+    "message": "统计有效网站访问时间，提供可视化、数据导入导出与周期报告邮件备份。"
+  },
+  "commandOpenDashboard": {
+    "message": "打开统计仪表盘"
+  },
+  "popupBrand": { "message": "时光镜" },
+  "popupTodayBrowsing": { "message": "今日有效浏览" },
+  "popupSiteCount": {
+    "message": "$COUNT$ 个网站",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popupReading": { "message": "正在读取…" },
+  "popupTracking": {
+    "message": "正在统计 $HOST$",
+    "placeholders": { "host": { "content": "$1" } }
+  },
+  "popupNotTracking": { "message": "当前未统计" },
+  "popupNoRecords": { "message": "今天还没有访问记录" },
+  "popupOpenDashboard": { "message": "打开完整仪表盘" },
+  "popupReadError": { "message": "暂时无法读取" },
+  "navOverview": { "message": "概览" },
+  "navReports": { "message": "周期报告" },
+  "navData": { "message": "数据管理" },
+  "navSettings": { "message": "设置" },
+  "privacyLocalFirst": { "message": "本地优先" },
+  "privacyLocalFirstHint": { "message": "浏览数据默认只保存在本机" },
+  "overviewKicker": { "message": "YOUR DIGITAL RHYTHM" },
+  "overviewTitle": { "message": "时间都去了哪里？" },
+  "periodToolbarLabel": { "message": "统计周期" },
+  "periodTypeLabel": { "message": "选择统计周期" },
+  "periodDaily": { "message": "日" },
+  "periodWeekly": { "message": "周" },
+  "periodMonthly": { "message": "月" },
+  "periodQuarterly": { "message": "季度" },
+  "periodYearly": { "message": "年" },
+  "periodAll": { "message": "所有时间" },
+  "periodPrevious": { "message": "上一周期" },
+  "periodNext": { "message": "下一周期" },
+  "periodCurrent": { "message": "当前查看" },
+  "periodJumpDate": { "message": "跳转到指定日期" },
+  "periodReset": { "message": "回到本期" },
+  "metricTotalTime": { "message": "总浏览时长" },
+  "metricDailyAverage": { "message": "日均时长" },
+  "metricEffectiveOnly": { "message": "仅统计有效访问" },
+  "metricVisitCount": { "message": "访问次数" },
+  "metricActiveDays": {
+    "message": "$COUNT$ 个活跃日",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "trendLabel": { "message": "趋势" },
+  "trendDaily": { "message": "每日有效浏览" },
+  "trendMonthly": { "message": "每月有效浏览" },
+  "trendChartLabel": { "message": "每日浏览时长趋势图" },
+  "compositionLabel": { "message": "构成" },
+  "compositionTitle": { "message": "时间分布" },
+  "donutChartLabel": { "message": "网站时间分布图" },
+  "detailsLabel": { "message": "明细" },
+  "siteRankingTitle": { "message": "网站排行" },
+  "siteSearchPlaceholder": { "message": "搜索网站" },
+  "tableWebsite": { "message": "网站" },
+  "tableDuration": { "message": "时长" },
+  "tableShare": { "message": "占比" },
+  "tableVisits": { "message": "访问次数" },
+  "tableLastVisit": { "message": "最近访问" },
+  "paginationPrevious": { "message": "上一页" },
+  "paginationNext": { "message": "下一页" },
+  "sitePageSummary": {
+    "message": "第 $PAGE$ / $TOTAL$ 页 · 共 $COUNT$ 个网站",
+    "placeholders": {
+      "page": { "content": "$1" },
+      "total": { "content": "$2" },
+      "count": { "content": "$3" }
+    }
+  },
+  "sitePageEmpty": { "message": "共 0 个网站" },
+  "reportsKicker": { "message": "PERIODIC ARCHIVE" },
+  "reportsTitle": { "message": "周期报告" },
+  "reportsSubtitle": { "message": "生成月报、季报或年报，并按需发送邮件备份。" },
+  "reportTypeLabel": { "message": "报告周期" },
+  "reportWeekly": { "message": "本周周报" },
+  "reportMonthly": { "message": "本月月报" },
+  "reportQuarterly": { "message": "本季度报告" },
+  "reportYearly": { "message": "本年度报告" },
+  "reportSendEmail": { "message": "同时发送到已配置邮箱" },
+  "reportGenerate": { "message": "生成报告" },
+  "reportGenerating": { "message": "正在生成…" },
+  "dataKicker": { "message": "PORTABLE BY DESIGN" },
+  "dataTitle": { "message": "数据管理" },
+  "dataSubtitle": { "message": "备份、迁移或恢复所有统计记录。" },
+  "exportTitle": { "message": "导出备份" },
+  "exportDesc": { "message": "导出 JSON 文件，包含完整的访问记录、设置和已生成报告。" },
+  "exportButton": { "message": "导出 JSON" },
+  "importTitle": { "message": "导入备份" },
+  "importDesc": { "message": "选择时光镜 JSON 备份文件，可合并或完全替换当前记录。" },
+  "importMerge": { "message": "合并导入" },
+  "importReplace": { "message": "替换导入" },
+  "deleteAllTitle": { "message": "清除全部统计数据" },
+  "deleteAllDesc": { "message": "删除本机上的所有访问记录和报告，设置会保留。此操作不可撤销。" },
+  "deleteAllButton": { "message": "清除数据" },
+  "settingsKicker": { "message": "QUIET AUTOMATION" },
+  "settingsTitle": { "message": "设置" },
+  "settingsSubtitle": { "message": "控制统计方式和自动邮件备份。" },
+  "languageTitle": { "message": "界面语言" },
+  "languageDesc": { "message": "选择时光镜的显示语言。" },
+  "languageLabel": { "message": "语言" },
+  "languageAuto": { "message": "跟随 Chrome 语言" },
+  "languageZh": { "message": "中文（简体）" },
+  "languageEn": { "message": "English" },
+  "rulesTitle": { "message": "统计规则" },
+  "rulesDesc": { "message": "离开电脑后暂停计时，避免把挂机时间算进去。" },
+  "idleThresholdLabel": { "message": "空闲暂停时间（秒）" },
+  "excludedHostsLabel": { "message": "不统计的网站" },
+  "excludedHostsPlaceholder": { "message": "每行一个域名，例如：\nlocalhost\nexample.com" },
+  "excludedHostsHint": { "message": "填写主域名后，其子域名也会被排除。" },
+  "autoReportsTitle": { "message": "自动报告" },
+  "autoReportsDesc": { "message": "周期结束后几分钟内生成上一周期报告。" },
+  "scheduleWeekly": { "message": "每周自动生成周报" },
+  "scheduleMonthly": { "message": "每月自动生成月报" },
+  "scheduleQuarterly": { "message": "每季度自动生成季报" },
+  "scheduleYearly": { "message": "每年自动生成年报" },
+  "emailTitle": { "message": "邮件备份" },
+  "emailDesc": { "message": "通过你自己的安全邮件网关发送。API 密钥应保存在网关端，不要放进插件。" },
+  "emailEnabled": { "message": "启用自动邮件备份" },
+  "emailEndpointLabel": { "message": "邮件网关 URL" },
+  "emailRecipientLabel": { "message": "收件邮箱" },
+  "emailTokenLabel": { "message": "网关访问令牌" },
+  "emailTokenPlaceholder": { "message": "与网关 BACKUP_SECRET 一致" },
+  "emailWorkerHint": { "message": "仓库中的 email-worker/ 提供可直接部署的 Cloudflare Worker 示例。" },
+  "saveSettings": { "message": "保存设置" },
+  "savedAt": {
+    "message": "已保存于 $TIME$",
+    "placeholders": { "time": { "content": "$1" } }
+  },
+  "otherSites": { "message": "其他" },
+  "total": { "message": "总计" },
+  "noData": { "message": "暂无数据" },
+  "noMatchingData": { "message": "没有匹配的数据" },
+  "trendEmpty": { "message": "还没有足够的数据，开始浏览后这里会出现趋势" },
+  "tooltipNoVisitsMonth": { "message": "该月没有有效访问记录" },
+  "tooltipNoVisitsDay": { "message": "当日没有有效访问记录" },
+  "tooltipVisits": {
+    "message": "$COUNT$ 次访问",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "reportStatusSent": { "message": "已邮件备份" },
+  "reportStatusFailed": { "message": "发送失败" },
+  "reportStatusSaved": { "message": "已保存在本地" },
+  "reportRange": {
+    "message": "$START$ 至 $END$ · $COUNT$ 个网站",
+    "placeholders": {
+      "start": { "content": "$1" },
+      "end": { "content": "$2" },
+      "count": { "content": "$3" }
+    }
+  },
+  "reportSiteCount": {
+    "message": "$COUNT$ 个网站",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "reportVisits": {
+    "message": "$COUNT$ 次访问",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "reportDelete": { "message": "删除报告" },
+  "reportEmpty": { "message": "还没有报告。你可以立即生成本周期报告，或等待自动任务运行。" },
+  "reportGenerated": { "message": "报告已生成并保存" },
+  "reportSavedEmailFailed": {
+    "message": "报告已保存，但邮件发送失败：$ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "reportDeleted": { "message": "报告已删除" },
+  "confirmDeleteReport": {
+    "message": "确定删除「$LABEL$ · $DATE$」吗？此操作不可撤销。",
+    "placeholders": {
+      "label": { "content": "$1" },
+      "date": { "content": "$2" }
+    }
+  },
+  "backupExported": { "message": "完整备份已导出" },
+  "selectBackupFirst": { "message": "请先选择 JSON 备份文件" },
+  "confirmReplaceImport": { "message": "确定要用备份完全替换当前访问记录和报告吗？此操作不可撤销。" },
+  "backupRestored": { "message": "备份已恢复" },
+  "backupMerged": { "message": "备份已合并" },
+  "importFailed": {
+    "message": "导入失败：$ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "confirmDeleteAll": { "message": "确定清除全部访问记录和周期报告吗？此操作不可撤销。" },
+  "dataCleared": { "message": "统计数据已清除" },
+  "emailConfigRequired": { "message": "启用邮件备份前，请填写网关 URL 和收件邮箱" },
+  "settingsSaved": { "message": "设置已保存" },
+  "loadFailed": {
+    "message": "加载数据失败：$ERROR$",
+    "placeholders": { "error": { "content": "$1" } }
+  },
+  "operationFailed": { "message": "操作失败" },
+  "invalidBackup": { "message": "文件中缺少 dailyStats，可能不是有效备份" },
+  "reportTypeDaily": { "message": "日报" },
+  "reportTypeWeekly": { "message": "周报" },
+  "reportTypeMonthly": { "message": "月报" },
+  "reportTypeQuarterly": { "message": "季报" },
+  "reportTypeYearly": { "message": "年报" },
+  "durationMinutes": {
+    "message": "$MIN$ 分钟",
+    "placeholders": { "min": { "content": "$1" } }
+  },
+  "durationHours": {
+    "message": "$HOURS$ 小时",
+    "placeholders": { "hours": { "content": "$1" } }
+  },
+  "durationHoursMinutes": {
+    "message": "$HOURS$ 小时 $MIN$ 分钟",
+    "placeholders": {
+      "hours": { "content": "$1" },
+      "min": { "content": "$2" }
+    }
+  },
+  "durationMinutesLong": {
+    "message": "$MIN$ 分钟",
+    "placeholders": { "min": { "content": "$1" } }
+  },
+  "durationHoursLong": {
+    "message": "$HOURS$ 小时",
+    "placeholders": { "hours": { "content": "$1" } }
+  },
+  "durationHoursMinutesLong": {
+    "message": "$HOURS$ 小时 $MIN$ 分钟",
+    "placeholders": {
+      "hours": { "content": "$1" },
+      "min": { "content": "$2" }
+    }
+  },
+  "periodAllTime": {
+    "message": "所有时间 · $START$ — $END$",
+    "placeholders": {
+      "start": { "content": "$1" },
+      "end": { "content": "$2" }
+    }
+  },
+  "periodWeek": {
+    "message": "$YEAR$年第$WEEK$周 · $START$ — $END$",
+    "placeholders": {
+      "week": { "content": "$1" },
+      "year": { "content": "$2" },
+      "start": { "content": "$3" },
+      "end": { "content": "$4" }
+    }
+  },
+  "periodQuarter": {
+    "message": "$YEAR$年第$QUARTER$季度",
+    "placeholders": {
+      "quarter": { "content": "$1" },
+      "year": { "content": "$2" }
+    }
+  },
+  "csvHeaderWebsite": { "message": "网站" },
+  "csvHeaderDuration": { "message": "访问时长（分钟）" },
+  "csvHeaderVisits": { "message": "访问次数" },
+  "csvHeaderTitle": { "message": "最近标题" },
+  "csvHeaderUrl": { "message": "最近网址" },
+  "errUnknownReportType": {
+    "message": "未知报告类型：$TYPE$",
+    "placeholders": { "type": { "content": "$1" } }
+  },
+  "errEmailNotConfigured": { "message": "邮件网关地址或收件人未配置" },
+  "errEmailGateway": {
+    "message": "邮件网关返回 $STATUS$$DETAIL$",
+    "placeholders": {
+      "status": { "content": "$1" },
+      "detail": { "content": "$2" }
+    }
+  },
+  "errMissingReportId": { "message": "缺少报告 ID" },
+  "errUnknownRequest": { "message": "未知请求" },
+  "errBackgroundOperation": { "message": "后台操作失败" }
+}
