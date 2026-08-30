@@ -580,21 +580,26 @@ function reportMetaHtml(report) {
     : meta;
 }
 
+function reportStatusBadges(report) {
+  const badges = [`<span class="status">${escapeHtml(I18n.t("reportStatusSaved"))}</span>`];
+  if (report.status === "sent") {
+    badges.push(`<span class="status">${escapeHtml(I18n.t("reportStatusSent"))}</span>`);
+  } else if (report.status === "failed") {
+    badges.push(`<span class="status failed">${escapeHtml(I18n.t("reportStatusFailed"))}</span>`);
+  }
+  return `<span class="status-group">${badges.join("")}</span>`;
+}
+
 function renderReports() {
   const container = document.getElementById("reportCards");
   container.innerHTML = appState.reports.length
     ? appState.reports.map((report) => {
-        const statusText = report.status === "sent"
-          ? I18n.t("reportStatusSent")
-          : report.status === "failed"
-            ? I18n.t("reportStatusFailed")
-            : I18n.t("reportStatusSaved");
         return `<article class="report-card" data-report-id="${escapeHtml(report.id)}">
           <div class="report-main">
-            <h3 class="report-title">${escapeHtml(Core.labelForType(report.type))} · ${escapeHtml(report.periodStart)} <span class="status${report.status === "failed" ? " failed" : ""}">${statusText}</span></h3>
+            <h3 class="report-title">${escapeHtml(Core.labelForType(report.type))} · ${escapeHtml(report.periodStart)} ${reportStatusBadges(report)}</h3>
             <p class="report-meta">${reportMetaHtml(report)}</p>
           </div>
-          <div class="report-actions"><button data-export="csv">CSV</button><button data-export="json">JSON</button><button type="button" data-action="delete" title="${escapeHtml(I18n.t("reportDelete"))}">${escapeHtml(I18n.t("reportDelete"))}</button></div>
+          <div class="report-actions"><button data-export="json">JSON</button><button type="button" data-action="delete" title="${escapeHtml(I18n.t("reportDelete"))}">${escapeHtml(I18n.t("reportDelete"))}</button></div>
         </article>`;
       }).join("")
     : `<article class="panel empty">${escapeHtml(I18n.t("reportEmpty"))}</article>`;
@@ -749,8 +754,7 @@ document.getElementById("reportCards").addEventListener("click", async (event) =
     return;
   }
 
-  if (button.dataset.export === "csv") download(`${report.id}.csv`, Core.reportToCsv(report), "text/csv;charset=utf-8");
-  else if (button.dataset.export === "json") download(`${report.id}.json`, JSON.stringify(report, null, 2), "application/json");
+  if (button.dataset.export === "json") download(`${report.id}.json`, JSON.stringify(report, null, 2), "application/json");
 });
 
 document.getElementById("exportJson").addEventListener("click", async () => {
@@ -790,10 +794,8 @@ document.getElementById("deleteAll").addEventListener("click", async () => {
   showToast(I18n.t("dataCleared"));
 });
 
-document.getElementById("settingsForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const previousLocale = appState.settings?.uiLocale || "auto";
-  const settings = {
+function readSettingsForm() {
+  return {
     uiLocale: document.getElementById("uiLocale").value,
     idleThresholdSeconds: Math.min(3600, Math.max(15, Number(document.getElementById("idleThreshold").value) || 60)),
     excludedHosts: document.getElementById("excludedHosts").value.split(/\r?\n|,/).map((value) => value.trim()).filter(Boolean),
@@ -810,9 +812,28 @@ document.getElementById("settingsForm").addEventListener("submit", async (event)
       token: document.getElementById("emailToken").value
     }
   };
+}
+
+let settingsSaveTimer = null;
+let settingsSaveInFlight = false;
+let settingsSaveQueued = false;
+
+async function saveSettingsAutomatically() {
+  const form = document.getElementById("settingsForm");
+  if (!form.checkValidity()) return;
+  if (settingsSaveInFlight) {
+    settingsSaveQueued = true;
+    return;
+  }
+
+  const previousLocale = appState.settings?.uiLocale || "auto";
+  const settings = readSettingsForm();
   if (settings.email.enabled && (!settings.email.endpoint || !settings.email.recipient)) {
     return showToast(I18n.t("emailConfigRequired"), true);
   }
+
+  settingsSaveInFlight = true;
+  document.getElementById("saveStatus").textContent = I18n.t("savingSettings");
   try {
     const response = await sendMessage({ type: "save-settings", settings });
     appState.settings = response.settings;
@@ -821,16 +842,36 @@ document.getElementById("settingsForm").addEventListener("submit", async (event)
     if ((previousLocale || "auto") !== (appState.settings.uiLocale || "auto")) {
       renderOverview();
       renderReports();
-      fillSettings();
     }
     document.getElementById("saveStatus").textContent = I18n.t(
       "savedAt",
       new Date().toLocaleTimeString(I18n.localeTag(), { hour: "2-digit", minute: "2-digit" })
     );
-    showToast(I18n.t("settingsSaved"));
   } catch (error) {
+    document.getElementById("saveStatus").textContent = "";
     showToast(error.message, true);
+  } finally {
+    settingsSaveInFlight = false;
+    if (settingsSaveQueued) {
+      settingsSaveQueued = false;
+      void saveSettingsAutomatically();
+    }
   }
+}
+
+function scheduleSettingsSave(immediate = false) {
+  clearTimeout(settingsSaveTimer);
+  settingsSaveTimer = setTimeout(() => void saveSettingsAutomatically(), immediate ? 0 : 500);
+}
+
+const settingsForm = document.getElementById("settingsForm");
+settingsForm.addEventListener("input", (event) => {
+  const immediate = event.target.matches("select, input[type='checkbox'], input[type='radio']");
+  scheduleSettingsSave(immediate);
+});
+settingsForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  scheduleSettingsSave(true);
 });
 
 loadState().catch((error) => showToast(I18n.t("loadFailed", error.message), true));

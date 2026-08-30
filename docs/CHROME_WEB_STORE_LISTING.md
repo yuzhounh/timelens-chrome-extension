@@ -16,7 +16,7 @@ Use the sections below when submitting **Time Lens / 时光镜** to the [Chrome 
 **Time Lens · Website Tracker**
 
 ### Short description (132 chars max)
-Track active browsing time by website. Local-first stats, charts, CSV/JSON export, and optional email reports.
+Track active browsing time by website. Local-first stats, charts, JSON exports, and optional email reports.
 
 ### Detailed description
 
@@ -38,12 +38,12 @@ Time is counted only when a tab is focused in the active window and your compute
 
 **Reports & export**  
 - Generate weekly, monthly, quarterly, or yearly reports  
-- Export CSV or JSON anytime  
-- Full backup import/export (merge or replace)  
+- Download individual reports as JSON
+- Export and restore full JSON backups (merge or replace)
 - Optional automatic reports at period end
 
 **Optional email backup**  
-Send HTML reports with CSV/JSON attachments through **your own** secure email gateway. API keys stay on your server—not in the extension.
+Send HTML reports with JSON attachments through **your own** secure email gateway. API keys stay on your server—not in the extension.
 
 **You stay in control**  
 Exclude domains, adjust idle threshold, delete all data, or uninstall anytime.
@@ -69,10 +69,10 @@ This extension tracks how much active time the user spends on each website they 
 
 ### Suggested screenshots (1280×800 or 640×400)
 
-1. **Overview dashboard** — metrics, trend chart, donut chart (the screenshot you already have)  
+1. **Overview dashboard** — metrics, trend chart, and donut chart
 2. **Site ranking table** — top websites with duration and visit counts  
-3. **Periodic reports** — report cards with CSV/JSON export  
-4. **Settings** — idle threshold, exclusions, optional email backup  
+3. **Periodic reports** — saved report cards with JSON download
+4. **Settings** — auto-save, language, tracking rules, and optional email backup
 5. **Popup** — today’s total and top 5 sites
 
 ---
@@ -83,7 +83,7 @@ This extension tracks how much active time the user spends on each website they 
 **时光镜 · 网站访问统计**
 
 ### 简短说明（132 字以内）
-统计有效网站访问时间，本地保存。提供趋势图表、CSV/JSON 导出与可选邮件周期报告。
+统计有效网站访问时间并在本机保存，提供趋势图表、JSON 导出与可选邮件周期报告。
 
 ### 详细说明
 
@@ -105,12 +105,12 @@ This extension tracks how much active time the user spends on each website they 
 
 **报告与导出**  
 - 手动或自动生成周报、月报、季报、年报  
-- 随时导出 CSV / JSON  
-- 完整 JSON 备份的导入、合并与替换  
+- 单独下载周期报告 JSON
+- 导出完整 JSON 备份，并支持合并或替换恢复
 - 周期结束后可自动生成上一份报告
 
 **可选邮件备份**  
-通过**您自己的**安全邮件网关发送 HTML 报告及 CSV/JSON 附件，API 密钥保存在服务端。
+通过**您自己的**安全邮件网关发送 HTML 报告及 JSON 附件，API 密钥保存在服务端。
 
 **您完全掌控**  
 排除指定网站、调整空闲阈值、一键清除数据，随时卸载。
@@ -122,14 +122,50 @@ This extension tracks how much active time the user spends on each website they 
 
 ---
 
+## Privacy form guidance
+
+- **Remote code:** Select **No, I am not using remote code**. The optional email gateway receives report data but does not provide executable code to the extension.
+- **Data disclosure:** Disclose browsing activity such as visited domains, page URLs/titles, visit counts, and active duration. This data is stored locally by default.
+- **Optional transfer:** Explain that reports leave the device only when the user enables email backup and supplies their own gateway URL, recipient, and access token.
+- **Privacy policy:** Ensure the URL above is publicly accessible without signing in, and keep the dashboard disclosure consistent with both privacy-policy files.
+
+---
+
+## Reviewer test instructions
+
+No account, credentials, or external service is required to test the core extension.
+
+1. Install the extension and open a regular `http` or `https` page.
+2. Keep the tab focused briefly, then click the toolbar icon to view today's tracked time and top sites.
+3. Click **Open full dashboard** to inspect daily statistics, charts, site ranking, reports, and data management.
+4. Open **Settings**, change the idle threshold, exclusions, report toggles, or interface language; changes save and apply automatically.
+5. Generate a report without selecting email delivery, then use its **JSON** button to download it.
+6. Email backup is optional and requires a user-owned gateway. Reviewers can leave it disabled; all other features remain available.
+
+---
+
+## Release notes — 1.6.8
+
+- Settings now save and apply automatically; the manual save button was removed.
+- Updated interface-language labels in Chinese and English.
+- Report downloads and email attachments now use JSON only.
+- Improved bilingual store-submission and privacy guidance.
+
+---
+
 ## Store checklist before upload
 
+- [ ] Enable 2-Step Verification on the publishing Google account
 - [ ] Register Chrome Web Store developer account ($5 one-time)  
+- [ ] Verify the publisher contact email
 - [ ] Upload zip built with `node scripts/package-store.mjs`  
 - [ ] Add 128×128 icon (`icons/timer-128.png`)  
 - [ ] Add at least 1 screenshot (1280×800 recommended)  
+- [ ] Add a 440×280 small promotional image
 - [ ] Paste privacy policy URL  
 - [ ] Fill permission justifications  
+- [ ] Declare that no remote code is used and complete data-use disclosures
+- [ ] Paste the reviewer test instructions above
 - [ ] Set visibility to Public or Unlisted for testing  
 
 ---

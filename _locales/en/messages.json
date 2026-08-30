@@ -108,8 +108,8 @@
   "languageTitle": { "message": "Language" },
   "languageDesc": { "message": "Choose the interface language for Time Lens." },
   "languageLabel": { "message": "Interface language" },
-  "languageAuto": { "message": "Follow Chrome language" },
-  "languageZh": { "message": "中文（简体）" },
+  "languageAuto": { "message": "Auto (Browser language)" },
+  "languageZh": { "message": "简体中文" },
   "languageEn": { "message": "English" },
   "rulesTitle": { "message": "Tracking rules" },
   "rulesDesc": { "message": "Pause tracking when you leave the computer to avoid counting idle time." },
@@ -132,6 +132,8 @@
   "emailTokenPlaceholder": { "message": "Same as gateway BACKUP_SECRET" },
   "emailWorkerHint": { "message": "The email-worker/ folder includes a deployable Cloudflare Worker example." },
   "saveSettings": { "message": "Save settings" },
+  "autoSaveHint": { "message": "Changes save automatically" },
+  "savingSettings": { "message": "Saving…" },
   "savedAt": {
     "message": "Saved at $TIME$",
     "placeholders": { "time": { "content": "$1" } }
@@ -166,7 +168,7 @@
     "message": "$COUNT$ visits",
     "placeholders": { "count": { "content": "$1" } }
   },
-  "reportDelete": { "message": "Delete report" },
+  "reportDelete": { "message": "Delete" },
   "reportEmpty": { "message": "No reports yet. Generate one now or wait for automatic scheduling." },
   "reportGenerated": { "message": "Report generated and saved" },
   "reportSavedEmailFailed": {
@@ -258,11 +260,6 @@
       "year": { "content": "$2" }
     }
   },
-  "csvHeaderWebsite": { "message": "Website" },
-  "csvHeaderDuration": { "message": "Duration (minutes)" },
-  "csvHeaderVisits": { "message": "Visits" },
-  "csvHeaderTitle": { "message": "Latest title" },
-  "csvHeaderUrl": { "message": "Latest URL" },
   "errUnknownReportType": {
     "message": "Unknown report type: $TYPE$",
     "placeholders": { "type": { "content": "$1" } }

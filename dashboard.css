@@ -165,6 +165,8 @@ input:focus, textarea:focus, select:focus { border-color: #799c83; box-shadow: 0
 .report-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 20px; padding: 20px 24px; border: 1px solid var(--line); border-radius: 13px; background: var(--panel); }
 .report-main { min-width: 0; }
 .report-title { margin: 0; font: 500 17px/1.45 "Microsoft YaHei", "微软雅黑", sans-serif; }
+.report-title .status-group { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-left: 6px; vertical-align: middle; }
+.report-title .status-group .status { margin-left: 0; }
 .report-title .status { margin-left: 6px; padding: 4px 8px; vertical-align: middle; font-size: 12px; font-weight: 400; }
 .report-meta { display: flex; flex-wrap: wrap; align-items: center; margin: 8px 0 0; color: var(--muted); font-size: 15px; font-weight: 400; line-height: 1.55; }
 .report-meta-item + .report-meta-item::before { margin: 0 10px; color: #c5cdc4; content: "·"; }
@@ -172,8 +174,8 @@ input:focus, textarea:focus, select:focus { border-color: #799c83; box-shadow: 0
 .status { flex-shrink: 0; display: inline-block; padding: 6px 10px; border-radius: 20px; color: #3e6e4d; background: #e4f1e5; font-size: 12px; line-height: 1.4; white-space: nowrap; }
 .status.failed { color: #954b3b; background: #f8e7e2; }
 .report-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
-.report-actions button { min-width: 72px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 12px; text-align: center; }
-.report-actions button[data-action="delete"] { min-width: 88px; border-color: #e3b8ad; color: #a04436; font-weight: 700; }
+.report-actions button { min-width: 80px; padding: 9px 14px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 12px; text-align: center; }
+.report-actions button[data-action="delete"] { border-color: #e3b8ad; color: #a04436; font-weight: 700; }
 .report-actions button[data-action="delete"]:hover { background: #fff8f5; }
 .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .data-card { display: flex; align-items: flex-start; flex-direction: column; padding: 25px; }
@@ -205,6 +207,7 @@ input:focus, textarea:focus, select:focus { border-color: #799c83; box-shadow: 0
 .fields small { color: var(--muted); font-size: 12px; font-weight: 400; line-height: 1.6; }
 .toggle-list label { display: flex; align-items: center; gap: 9px; padding: 6px 0; }
 .form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 15px; }
+.auto-save-hint { color: var(--muted); font-size: 13px; }
 #saveStatus { color: #547060; font-size: 13px; }
 .toast { position: fixed; right: 30px; bottom: 28px; z-index: 5; max-width: 420px; padding: 13px 17px; border-radius: 9px; color: #fff; background: #5f8e7d; box-shadow: 0 10px 40px #5f8e7d36; opacity: 0; transform: translateY(15px); pointer-events: none; transition: .25s ease; font-size: 14px; }
 .toast.show { opacity: 1; transform: none; }

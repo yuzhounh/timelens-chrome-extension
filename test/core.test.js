@@ -42,7 +42,7 @@ assert.deepEqual(quarterly, { start: "2026-07-01", end: "2026-09-30" });
 assert.equal(Core.periodLabel("quarterly", quarterly.start, quarterly.end), "2026年第3季度");
 
 const report = Core.generateReport(stats, "monthly", "2026-08-01", "2026-08-31");
-assert.match(Core.reportToCsv(report), /example\.com/);
+assert.equal(report.sites[0].host, "example.com");
 assert.equal(Core.generateReport(stats, "weekly", weekly.start, weekly.end).label, "周报");
 assert.equal(Core.normalizeDailyStats({ invalid: {} }).invalid, undefined);
 

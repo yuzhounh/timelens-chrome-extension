@@ -199,7 +199,6 @@ async function sendReportEmail(report, settings) {
     body: JSON.stringify({
       recipient: email.recipient,
       report,
-      csv: Core.reportToCsv(report),
       locale,
       source: "timelens-chrome-extension"
     })

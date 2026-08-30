@@ -202,31 +202,6 @@
       || `${hours} 小时 ${remainder} 分钟`;
   }
 
-  function csvEscape(value) {
-    const text = String(value ?? "");
-    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-  }
-
-  function reportToCsv(report) {
-    const rows = [
-      [
-        msg("csvHeaderWebsite") || "网站",
-        msg("csvHeaderDuration") || "访问时长（分钟）",
-        msg("csvHeaderVisits") || "访问次数",
-        msg("csvHeaderTitle") || "最近标题",
-        msg("csvHeaderUrl") || "最近网址"
-      ],
-      ...report.sites.map((site) => [
-        site.host,
-        Math.round(site.durationMs / 60000),
-        site.visits,
-        site.title,
-        site.url
-      ])
-    ];
-    return "\uFEFF" + rows.map((row) => row.map(csvEscape).join(",")).join("\n");
-  }
-
   function normalizeDailyStats(value) {
     const output = {};
     if (!value || typeof value !== "object" || Array.isArray(value)) return output;
@@ -279,7 +254,6 @@
     aggregate,
     generateReport,
     formatDuration,
-    reportToCsv,
     normalizeDailyStats,
     mergeDailyStats
   };

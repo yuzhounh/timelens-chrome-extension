@@ -1,6 +1,7 @@
 # Time Lens (时光镜) Privacy Policy
 
-**Last updated:** August 26, 2026  
+**Last updated:** August 30, 2026
+
 **Contact:** [GitHub Issues](https://github.com/yuzhounh/timelens-chrome-extension/issues)
 
 ---
@@ -68,7 +69,8 @@ If you enable **Email backup** in Settings, the extension sends periodic reports
 When enabled, the following may be transmitted **only to your configured gateway**:
 
 - Report summary (period, totals, top sites)
-- CSV and JSON attachments of the report
+- A JSON attachment containing the report
+- The recipient address and gateway access token you configured, as required to authorize and deliver the email
 
 The extension **does not** embed email API keys. You control the gateway, recipient address, and access token.
 
@@ -86,13 +88,12 @@ If you configure an optional email gateway (e.g. Resend via Cloudflare Worker), 
 
 ## Data sharing
 
-We do **not** sell, rent, or share your browsing data.
+We do **not** sell, rent, or share your browsing data. The extension does not automatically transmit browsing statistics off your device.
 
-Data leaves your device only if **you**:
+- A manual export places a copy of the data in a JSON file you choose to download.
+- Browsing statistics are transmitted off-device only if you enable email backup and provide your own gateway.
 
-1. Export a backup file manually
-2. Enable email backup to your own gateway
-3. Use Chrome sync (if you sync extension storage—depends on your Chrome settings; this extension does not add separate cloud sync)
+The extension uses `chrome.storage.local`, not `chrome.storage.sync`, and does not automatically sync browsing statistics through your Google account.
 
 ---
 

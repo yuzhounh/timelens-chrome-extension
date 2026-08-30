@@ -42,10 +42,6 @@ export default {
           html: renderEmail(report, locale),
           attachments: [
             {
-              filename: `timelens-${report.id}.csv`,
-              content: toBase64(payload.csv || "")
-            },
-            {
               filename: `timelens-${report.id}.json`,
               content: toBase64(JSON.stringify(report, null, 2))
             }
@@ -107,7 +103,7 @@ const EMAIL_COPY = {
     tableDuration: "时长",
     tableVisits: "次数",
     emptySites: "本周期暂无记录",
-    attachmentNote: "完整数据已作为 CSV 和 JSON 附件随邮件发送。",
+    attachmentNote: "完整数据已作为 JSON 附件随邮件发送。",
     fontFamily: "'Microsoft YaHei','微软雅黑',sans-serif"
   },
   en: {
@@ -121,7 +117,7 @@ const EMAIL_COPY = {
     tableDuration: "Duration",
     tableVisits: "Visits",
     emptySites: "No records for this period",
-    attachmentNote: "Full data is attached as CSV and JSON files.",
+    attachmentNote: "Full data is attached as a JSON file.",
     fontFamily: "system-ui,-apple-system,'Segoe UI',sans-serif"
   }
 };

@@ -108,8 +108,8 @@
   "languageTitle": { "message": "界面语言" },
   "languageDesc": { "message": "选择时光镜的显示语言。" },
   "languageLabel": { "message": "语言" },
-  "languageAuto": { "message": "跟随 Chrome 语言" },
-  "languageZh": { "message": "中文（简体）" },
+  "languageAuto": { "message": "自动（跟随浏览器）" },
+  "languageZh": { "message": "简体中文" },
   "languageEn": { "message": "English" },
   "rulesTitle": { "message": "统计规则" },
   "rulesDesc": { "message": "离开电脑后暂停计时，避免把挂机时间算进去。" },
@@ -132,6 +132,8 @@
   "emailTokenPlaceholder": { "message": "与网关 BACKUP_SECRET 一致" },
   "emailWorkerHint": { "message": "仓库中的 email-worker/ 提供可直接部署的 Cloudflare Worker 示例。" },
   "saveSettings": { "message": "保存设置" },
+  "autoSaveHint": { "message": "修改后自动保存" },
+  "savingSettings": { "message": "正在保存…" },
   "savedAt": {
     "message": "已保存于 $TIME$",
     "placeholders": { "time": { "content": "$1" } }
@@ -166,7 +168,7 @@
     "message": "$COUNT$ 次访问",
     "placeholders": { "count": { "content": "$1" } }
   },
-  "reportDelete": { "message": "删除报告" },
+  "reportDelete": { "message": "删除" },
   "reportEmpty": { "message": "还没有报告。你可以立即生成本周期报告，或等待自动任务运行。" },
   "reportGenerated": { "message": "报告已生成并保存" },
   "reportSavedEmailFailed": {
@@ -258,11 +260,6 @@
       "year": { "content": "$2" }
     }
   },
-  "csvHeaderWebsite": { "message": "网站" },
-  "csvHeaderDuration": { "message": "访问时长（分钟）" },
-  "csvHeaderVisits": { "message": "访问次数" },
-  "csvHeaderTitle": { "message": "最近标题" },
-  "csvHeaderUrl": { "message": "最近网址" },
   "errUnknownReportType": {
     "message": "未知报告类型：$TYPE$",
     "placeholders": { "type": { "content": "$1" } }
