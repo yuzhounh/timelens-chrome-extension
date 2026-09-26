@@ -6,9 +6,13 @@
 
 <p align="center"><strong>Chrome 网站访问时间统计、可视化与周期报告</strong></p>
 
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-f59e0b.svg" alt="License: MIT"></a>
+</p>
+
 一个本地优先的 Chrome Manifest V3 扩展。它只累计“当前窗口中激活的网页”且电脑处于非空闲状态时的访问时间，并按网站域名汇总。
 
-## 已实现
+## 亮点特性 (Features)
 
 - 有效访问计时：切换标签、切换窗口或电脑空闲时自动暂停
 - 今日弹窗：快速查看今日总时长和前五网站
@@ -21,7 +25,9 @@
 - 通过安全邮件网关自动发送 HTML 报告及 JSON 附件
 - 排除指定网站、调整空闲阈值、独立开关各类自动报告
 
-## 安装插件
+## 快速上手 (Quick Start)
+
+先下载并解压仓库 ZIP，或运行 `git clone https://github.com/yuzhounh/timelens-chrome-extension.git` 获取代码。
 
 1. 打开 `chrome://extensions/`。
 2. 打开右上角“开发者模式”。
@@ -90,6 +96,11 @@ node test/email-worker.test.mjs
 ```
 
 修改后台脚本后，在 `chrome://extensions/` 点击该扩展的“重新加载”。
+
+## 相关项目
+
+- [soft-trace](https://github.com/yuzhounh/soft-trace)：统计 Windows 软件使用时间；时光镜侧重网站访问时间。
+- [focus-pace](https://github.com/yuzhounh/focus-pace)：提供专注与休息节奏提醒。
 
 ## 开源许可
 
