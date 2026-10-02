@@ -574,6 +574,7 @@ function reportMetaHtml(report) {
     displayDuration(report.totalMs),
     I18n.t("reportVisits", I18n.formatNumber(report.totalVisits || 0))
   ];
+  if (report.device?.name || report.device?.id) items.push(report.device.name || report.device.id);
   const meta = items.map((item) => `<span class="report-meta-item">${escapeHtml(item)}</span>`).join("");
   return report.sendError
     ? `${meta}<span class="report-meta-item report-meta-error">${escapeHtml(report.sendError)}</span>`
@@ -586,6 +587,8 @@ function reportStatusBadges(report) {
     badges.push(`<span class="status">${escapeHtml(I18n.t("reportStatusSent"))}</span>`);
   } else if (report.status === "failed") {
     badges.push(`<span class="status failed">${escapeHtml(I18n.t("reportStatusFailed"))}</span>`);
+  } else if (report.status === "queued") {
+    badges.push(`<span class="status">${escapeHtml(I18n.t("reportStatusQueued"))}</span>`);
   }
   return `<span class="status-group">${badges.join("")}</span>`;
 }
@@ -607,6 +610,7 @@ function renderReports() {
 
 function fillSettings() {
   const settings = appState.settings;
+  document.getElementById("deviceName").value = settings.deviceName || "";
   document.getElementById("uiLocale").value = settings.uiLocale || "auto";
   document.getElementById("idleThreshold").value = settings.idleThresholdSeconds || 60;
   document.getElementById("excludedHosts").value = (settings.excludedHosts || []).join("\n");
@@ -717,12 +721,13 @@ document.getElementById("generateReport").addEventListener("click", async () => 
       sendEmail: document.getElementById("sendReportEmail").checked,
       offset: 0
     });
-    appState.reports = [response.report, ...appState.reports.filter((item) => item.id !== response.report.id)];
+    const stored = await chrome.storage.local.get("reports");
+    appState.reports = stored.reports || [];
     renderReports();
     showToast(
       response.report.status === "failed"
         ? I18n.t("reportSavedEmailFailed", response.report.sendError)
-        : I18n.t("reportGenerated"),
+        : I18n.t(response.report.status === "queued" ? "reportSavedEmailQueued" : "reportGenerated"),
       response.report.status === "failed"
     );
   } catch (error) {
@@ -796,6 +801,7 @@ document.getElementById("deleteAll").addEventListener("click", async () => {
 
 function readSettingsForm() {
   return {
+    deviceName: document.getElementById("deviceName").value.trim(),
     uiLocale: document.getElementById("uiLocale").value,
     idleThresholdSeconds: Math.min(3600, Math.max(15, Number(document.getElementById("idleThreshold").value) || 60)),
     excludedHosts: document.getElementById("excludedHosts").value.split(/\r?\n|,/).map((value) => value.trim()).filter(Boolean),
@@ -872,6 +878,13 @@ settingsForm.addEventListener("input", (event) => {
 settingsForm.addEventListener("submit", (event) => {
   event.preventDefault();
   scheduleSettingsSave(true);
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.reports) {
+    appState.reports = changes.reports.newValue || [];
+    renderReports();
+  }
 });
 
 loadState().catch((error) => showToast(I18n.t("loadFailed", error.message), true));

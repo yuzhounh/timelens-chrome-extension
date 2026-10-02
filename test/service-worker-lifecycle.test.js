@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const crypto = require("node:crypto");
 
 const projectRoot = path.resolve(__dirname, "..");
 const backgroundSource = fs.readFileSync(path.join(projectRoot, "background.js"), "utf8");
@@ -96,13 +97,16 @@ function createChromeMock() {
   };
 }
 
-function startWorker() {
+function startWorker(overrides = {}) {
   const context = vm.createContext({
     chrome: createChromeMock(),
+    crypto,
+    AbortController,
     console,
     URL,
     setTimeout,
-    clearTimeout
+    clearTimeout,
+    ...overrides
   });
   context.self = context;
   context.importScripts = (...files) => {
@@ -129,12 +133,39 @@ function localDateKey(date = new Date()) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-(async () => {
-  startWorker();
+if (require.main === module) (async () => {
+  const firstWorker = startWorker();
   await waitFor(() => shared.session.activeSession, "first worker did not start a session");
   assert.equal(shared.session.activeSession.host, "example.com");
   assert.equal(shared.session.activeSession.countVisit, true);
   assert.ok(shared.alarms["report-weekly"], "weekly report alarm was not scheduled");
+
+  const send = (worker, message) => new Promise((resolve) => {
+    worker.chrome.runtime.onMessage.listeners[0](message, {}, resolve);
+  });
+  const generated = await send(firstWorker, { type: "generate-report", reportType: "weekly" });
+  assert.equal(generated.ok, true);
+  const deviceId = generated.report.device.id;
+  assert.match(deviceId, /^[0-9a-f-]{36}$/);
+  assert.equal(generated.report.device.name, `Time Lens ${deviceId.slice(0, 8)}`);
+  await send(firstWorker, {
+    type: "save-settings", settings: { deviceName: "  办公室电脑\n  " }
+  });
+  assert.equal(shared.local.settings.deviceName, "办公室电脑");
+  const named = await send(firstWorker, { type: "generate-report", reportType: "monthly" });
+  assert.equal(named.report.device.name, "办公室电脑");
+  assert.equal(named.report.device.id, deviceId);
+  assert.equal(shared.local.reports.find((report) => report.type === "weekly").device.name,
+    generated.report.device.name, "renaming must preserve the identity snapshot in old reports");
+
+  // Imported backup identity must not replace this browser's identity/name.
+  await send(firstWorker, { type: "import-data", mode: "merge", payload: {
+    deviceId: "another-device", settings: { deviceName: "家用笔记本" }, dailyStats: {}, reports: []
+  } });
+  assert.equal(shared.local.deviceId, deviceId);
+  assert.equal(shared.local.settings.deviceName, "办公室电脑");
+  shared.local.dailyStats = {};
+  shared.session.activeSession.countVisit = true;
 
   // 模拟后台休眠：内存上下文消失，但 chrome.storage.session 保留。
   shared.session.activeSession.startedAt -= 125000;
@@ -157,8 +188,34 @@ function localDateKey(date = new Date()) {
   assert.equal(shared.local.dailyStats[date]["example.com"].visits, 1);
   assert.equal(shared.session.activeSession.countVisit, false);
 
+  const restarted = startWorker();
+  let emailPayload;
+  restarted.fetch = async (url, options) => {
+    if (url.startsWith("chrome-extension://")) return { ok: false };
+    emailPayload = JSON.parse(options.body);
+    return { ok: true, text: async () => "" };
+  };
+  await send(restarted, { type: "save-settings", settings: {
+    deviceName: "家用笔记本",
+    email: { enabled: true, endpoint: "https://gateway.example/report", recipient: "owner@example.com" }
+  } });
+  const emailed = await send(restarted, { type: "generate-report", reportType: "yearly", sendEmail: true });
+  assert.equal(emailed.report.status, "queued");
+  await waitFor(() => shared.local.reports.find((report) => report.id === emailed.report.id)?.status === "sent",
+    "background email did not complete");
+  assert.equal(emailPayload.report.device.id, deviceId, "ID must survive worker restarts and renames");
+  assert.equal(emailPayload.report.device.name, "家用笔记本");
+  assert.equal(named.report.device.name, "办公室电脑");
+
+  // A fresh browser profile receives a different ID even with the same name.
+  delete shared.local.deviceId;
+  const other = await send(restarted, { type: "generate-report", reportType: "weekly" });
+  assert.notEqual(other.report.device.id, deviceId);
+
   console.log("service-worker-lifecycle.test.js: all assertions passed");
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+module.exports = { shared, startWorker, waitFor };

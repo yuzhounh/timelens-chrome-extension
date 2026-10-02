@@ -28,12 +28,16 @@ export default {
       }
 
       const locale = payload.locale === "en" ? "en" : "zh";
+      const deliveryId = typeof payload.deliveryId === "string" && /^[a-zA-Z0-9-]{1,80}$/.test(payload.deliveryId)
+        ? payload.deliveryId : "";
 
       const response = await fetch(RESEND_ENDPOINT, {
         method: "POST",
+        signal: AbortSignal.timeout(12000),
         headers: {
           Authorization: `Bearer ${env.RESEND_API_KEY}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          ...(deliveryId ? { "Idempotency-Key": `timelens/${deliveryId}` } : {})
         },
         body: JSON.stringify({
           from: env.REPORT_FROM_EMAIL,
@@ -95,6 +99,8 @@ const EMAIL_COPY = {
   zh: {
     brand: "TIME LENS · 时光镜",
     defaultLabel: "周期报告",
+    device: "设备",
+    deviceId: "设备 ID",
     activeBrowsing: "有效浏览",
     visits: "访问次数",
     websites: "网站数量",
@@ -109,6 +115,8 @@ const EMAIL_COPY = {
   en: {
     brand: "TIME LENS",
     defaultLabel: "Periodic report",
+    device: "Device",
+    deviceId: "Device ID",
     activeBrowsing: "Active browsing",
     visits: "Visits",
     websites: "Websites",
@@ -122,17 +130,28 @@ const EMAIL_COPY = {
   }
 };
 
+function deviceText(value) {
+  return typeof value === "string" ? value.replace(/[\x00-\x1f\x7f]/g, " ").trim().slice(0, 80) : "";
+}
+
 export function emailSubject(report, locale = "zh") {
   const copy = EMAIL_COPY[locale === "en" ? "en" : "zh"];
   const label = report.label || copy.defaultLabel;
+  const device = deviceText(report.device?.name) || deviceText(report.device?.id);
+  const prefix = device ? `[${device}] ` : "";
   if (locale === "en") {
-    return `Time Lens ${label} | ${report.periodStart} — ${report.periodEnd}`;
+    return `${prefix}Time Lens ${label} | ${report.periodStart} — ${report.periodEnd}`;
   }
-  return `时光镜${label}｜${report.periodStart} — ${report.periodEnd}`;
+  return `${prefix}时光镜${label}｜${report.periodStart} — ${report.periodEnd}`;
 }
 
 export function renderEmail(report, locale = "zh") {
   const copy = EMAIL_COPY[locale === "en" ? "en" : "zh"];
+  const deviceName = deviceText(report.device?.name);
+  const deviceId = deviceText(report.device?.id);
+  const deviceHtml = deviceName || deviceId
+    ? `<div style="margin-top:12px;color:#fff;overflow-wrap:anywhere">${copy.device}: ${escapeHtml(deviceName || deviceId)}${deviceId ? `<br><small>${copy.deviceId}: ${escapeHtml(deviceId)}</small>` : ""}</div>`
+    : "";
   const rows = report.sites.slice(0, 20).map((site, index) => `
     <tr>
       <td style="padding:12px 8px;border-top:1px solid #e5e9e2">${index + 1}. ${escapeHtml(site.host)}</td>
@@ -146,6 +165,7 @@ export function renderEmail(report, locale = "zh") {
         <div style="font-size:12px;letter-spacing:2px;color:#e1f0eb">${copy.brand}</div>
         <h1 style="margin:20px 0 8px;font-family:${copy.fontFamily};font-size:30px">${escapeHtml(report.label || copy.defaultLabel)}</h1>
         <div style="color:#aebeb2">${escapeHtml(report.periodStart)} — ${escapeHtml(report.periodEnd)}</div>
+        ${deviceHtml}
       </div>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8faf6;border-collapse:collapse">
         <tr>

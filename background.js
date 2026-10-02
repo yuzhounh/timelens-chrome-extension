@@ -8,9 +8,13 @@ const ALARM_MONTHLY = "report-monthly";
 const ALARM_QUARTERLY = "report-quarterly";
 const ALARM_YEARLY = "report-yearly";
 const SESSION_KEY = "activeSession";
+const EMAIL_TIMEOUT_MS = 15000;
+const EMAIL_MAX_ATTEMPTS = 3;
+const EMAIL_RETRY_WINDOW_MS = 23 * 60 * 60 * 1000;
 
 const DEFAULT_SETTINGS = {
   uiLocale: "auto",
+  deviceName: "",
   idleThresholdSeconds: 60,
   excludedHosts: [],
   schedules: { weekly: true, monthly: true, quarterly: true, yearly: true },
@@ -23,6 +27,7 @@ const DEFAULT_SETTINGS = {
 };
 
 let operationQueue = Promise.resolve();
+let emailRunner = null;
 
 function enqueue(task) {
   operationQueue = operationQueue.then(task, task).catch((error) => {
@@ -35,6 +40,9 @@ function mergeSettings(settings = {}) {
   return {
     ...DEFAULT_SETTINGS,
     ...settings,
+    deviceName: typeof settings.deviceName === "string"
+      ? settings.deviceName.replace(/[\x00-\x1f\x7f]/g, " ").trim().slice(0, 80)
+      : "",
     schedules: { ...DEFAULT_SETTINGS.schedules, ...(settings.schedules || {}) },
     email: { ...DEFAULT_SETTINGS.email, ...(settings.email || {}) },
     excludedHosts: Array.isArray(settings.excludedHosts) ? settings.excludedHosts : []
@@ -44,6 +52,16 @@ function mergeSettings(settings = {}) {
 async function getSettings() {
   const { settings } = await chrome.storage.local.get("settings");
   return mergeSettings(settings);
+}
+
+// Separate from settings/backups: this identifies this browser profile only.
+async function getReportDevice(settings) {
+  let { deviceId } = await chrome.storage.local.get("deviceId");
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    await chrome.storage.local.set({ deviceId });
+  }
+  return { id: deviceId, name: settings.deviceName || `Time Lens ${deviceId.slice(0, 8)}` };
 }
 
 async function getActiveSession() {
@@ -190,24 +208,93 @@ async function sendReportEmail(report, settings) {
   if (!email.enabled) return { status: "disabled" };
   if (!email.endpoint || !email.recipient) throw new Error(I18n.t("errEmailNotConfigured"));
 
-  const locale = I18n.isEnglish() ? "en" : "zh";
+  const { emailJob, status, sendError, sentAt, ...snapshot } = report;
+  if (email.endpoint !== emailJob.endpoint || email.recipient !== emailJob.recipient) {
+    throw Object.assign(new Error(I18n.t("errEmailSettingsChanged")), { retryable: false });
+  }
   const headers = { "Content-Type": "application/json" };
   if (email.token) headers.Authorization = `Bearer ${email.token}`;
-  const response = await fetch(email.endpoint, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      recipient: email.recipient,
-      report,
-      locale,
-      source: "timelens-chrome-extension"
-    })
-  });
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error(I18n.t("errEmailGateway", String(response.status), detail ? `: ${detail.slice(0, 200)}` : ""));
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), EMAIL_TIMEOUT_MS);
+  try {
+    const response = await fetch(email.endpoint, {
+      method: "POST",
+      headers,
+      signal: controller.signal,
+      body: JSON.stringify({
+        recipient: emailJob.recipient,
+        report: snapshot,
+        locale: emailJob.locale,
+        deliveryId: emailJob.id,
+        source: "timelens-chrome-extension"
+      })
+    });
+    // Read under the same timeout, including slow error/success bodies.
+    const detail = await response.text();
+    if (!response.ok) {
+      throw Object.assign(new Error(I18n.t("errEmailGateway", String(response.status), detail ? `: ${detail.slice(0, 200)}` : "")), {
+        retryable: response.status >= 500 || [408, 429].includes(response.status)
+      });
+    }
+    return { status: "sent", sentAt: new Date().toISOString() };
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error(I18n.t("errEmailTimeout"));
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-  return { status: "sent", sentAt: new Date().toISOString() };
+}
+
+// Only short storage operations share the tracking queue; network work never does.
+function kickEmailQueue() {
+  if (emailRunner) return emailRunner;
+  emailRunner = drainEmailQueue().catch((error) => {
+    console.error("Time Lens email queue failed", error);
+  }).finally(() => { emailRunner = null; });
+  return emailRunner;
+}
+
+async function drainEmailQueue() {
+  while (true) {
+    const claimed = await enqueue(async () => {
+      const { reports = [], deviceId } = await chrome.storage.local.get(["reports", "deviceId"]);
+      const report = reports.find((item) => item.status === "queued" && item.emailJob
+        && item.device?.id === deviceId && item.emailJob.nextAttemptAt <= Date.now());
+      if (!report) return null;
+      if (report.emailJob.attempts >= EMAIL_MAX_ATTEMPTS || report.emailJob.expiresAt <= Date.now()) {
+        report.status = "failed";
+        report.sendError = I18n.t("errEmailRetryStopped");
+        await saveReport(report);
+        return { skipped: true };
+      }
+      report.emailJob.attempts += 1;
+      // A terminated worker can retry this persisted lease on a later tick.
+      report.emailJob.nextAttemptAt = Date.now() + 60000;
+      await saveReport(report);
+      return { report, settings: await getSettings() };
+    });
+    if (!claimed) return;
+    if (claimed.skipped) continue;
+    const { report, settings } = claimed;
+    let result;
+    try {
+      result = { ...await sendReportEmail(report, settings), sendError: "" };
+    } catch (error) {
+      result = {
+        status: error.retryable !== false && report.emailJob.attempts < EMAIL_MAX_ATTEMPTS ? "queued" : "failed",
+        sendError: error.message
+      };
+    }
+    await enqueue(async () => {
+      const { reports = [] } = await chrome.storage.local.get("reports");
+      const current = reports.find((item) => item.id === report.id && item.emailJob?.id === report.emailJob.id);
+      // Deletion, import or regeneration must not be undone by a late response.
+      if (!current) return;
+      Object.assign(current, result);
+      current.emailJob.nextAttemptAt = Date.now() + 60000 * current.emailJob.attempts;
+      await saveReport(current);
+    });
+  }
 }
 
 async function saveReport(report) {
@@ -230,17 +317,23 @@ async function createPeriodicReport(type, { sendEmail = true, offset = -1 } = {}
   const range = Core.rangeFor(type, offset);
   await I18n.init(settings);
   const report = Core.generateReport(dailyStats, type, range.start, range.end);
-  try {
-    const emailResult = sendEmail
-      ? await sendReportEmail(report, settings)
-      : { status: "not-requested" };
-    Object.assign(report, emailResult);
-    report.sendError = "";
-  } catch (error) {
-    report.status = "failed";
-    report.sendError = error.message;
+  report.device = await getReportDevice(settings);
+  const { reports = [] } = await chrome.storage.local.get("reports");
+  const pending = reports.find((item) => item.id === report.id && item.status === "queued"
+    && item.emailJob && item.device?.id === report.device.id);
+  if (pending) return pending;
+  report.status = sendEmail ? (settings.email.enabled ? "queued" : "disabled") : "not-requested";
+  report.sendError = "";
+  if (report.status === "queued") {
+    report.emailJob = {
+      id: crypto.randomUUID(), attempts: 0, nextAttemptAt: Date.now(),
+      expiresAt: Date.now() + EMAIL_RETRY_WINDOW_MS,
+      locale: I18n.isEnglish() ? "en" : "zh",
+      endpoint: settings.email.endpoint, recipient: settings.email.recipient
+    };
   }
   await saveReport(report);
+  void kickEmailQueue();
   return report;
 }
 
@@ -256,6 +349,7 @@ async function initialize() {
   });
   await scheduleAlarms();
   await refreshActiveTab();
+  void kickEmailQueue();
 }
 
 chrome.runtime.onInstalled.addListener(() => enqueue(initialize));
@@ -291,6 +385,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   enqueue(async () => {
     if (alarm.name === ALARM_TICK) {
       await flushActive({ continueSession: true });
+      void kickEmailQueue();
       return;
     }
     const type = alarm.name.replace("report-", "");
@@ -326,12 +421,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         await flushActive();
         const current = await chrome.storage.local.get(["dailyStats", "reports"]);
         const incoming = message.payload || {};
+        // Imported reports are archives, never instructions to send email.
+        const importedReports = (Array.isArray(incoming.reports) ? incoming.reports : []).map((item) => {
+          const { emailJob, ...archived } = item;
+          if (archived.status === "queued") archived.status = "not-requested";
+          return archived;
+        });
         const dailyStats = message.mode === "replace"
           ? Core.normalizeDailyStats(incoming.dailyStats)
           : Core.mergeDailyStats(current.dailyStats, incoming.dailyStats);
         const reports = message.mode === "replace"
-          ? (Array.isArray(incoming.reports) ? incoming.reports : [])
-          : [...(current.reports || []), ...(Array.isArray(incoming.reports) ? incoming.reports : [])]
+          ? importedReports
+          : [...(current.reports || []), ...importedReports]
               .filter((item, index, array) => array.findIndex((other) => other.id === item.id) === index)
               .slice(0, 100);
         await chrome.storage.local.set({ dailyStats, reports });
