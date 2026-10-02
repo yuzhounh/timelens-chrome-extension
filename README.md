@@ -1,18 +1,25 @@
 <p align="center">
-  <img src="icons/timer.svg" width="112" alt="时光镜图标" />
+  <img src="icons/timer.svg" width="112" alt="Time Lens · 时光镜 logo">
 </p>
 
-<h1 align="center">时光镜</h1>
+<h1 align="center">Time Lens · 时光镜</h1>
 
-<p align="center"><strong>Chrome 网站访问时间统计、可视化与周期报告</strong></p>
+<p align="center"><strong>本地优先的网站访问计时、可视化与周期报告。</strong></p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-f59e0b.svg" alt="License: MIT"></a>
+  <a href="https://github.com/yuzhounh/timelens-chrome-extension/releases/latest"><img src="https://img.shields.io/github/v/release/yuzhounh/timelens-chrome-extension?style=flat&amp;color=0969da&amp;label=Release" alt="Latest stable release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-f59e0b?style=flat" alt="License: MIT"></a>
+  <a href="https://chromewebstore.google.com/detail/idihkkiapagakajacljibnpekkfpiacm"><img src="https://img.shields.io/badge/Platform-Chrome%20MV3-4285f4?style=flat&amp;logo=googlechrome&amp;logoColor=white" alt="Platform: Chrome MV3"></a>
+  <img src="https://img.shields.io/badge/JavaScript-Browser-f7df1e?style=flat&amp;logo=javascript&amp;logoColor=white" alt="JavaScript: Browser">
+</p>
+
+<p align="center">
+  <a href="https://chromewebstore.google.com/detail/idihkkiapagakajacljibnpekkfpiacm">安装扩展</a> · <a href="https://github.com/yuzhounh/timelens-chrome-extension/releases/latest">下载发布版</a> · <a href="#快速开始">快速开始</a> · <a href="LICENSE">开源协议</a>
 </p>
 
 一个本地优先的 Chrome Manifest V3 扩展。它只累计“当前窗口中激活的网页”且电脑处于非空闲状态时的访问时间，并按网站域名汇总。
 
-## 亮点特性 (Features)
+## 功能特点
 
 - 有效访问计时：切换标签、切换窗口或电脑空闲时自动暂停
 - 今日弹窗：快速查看今日总时长和前五网站
@@ -25,7 +32,7 @@
 - 通过安全邮件网关自动发送 HTML 报告及 JSON 附件
 - 排除指定网站、调整空闲阈值、独立开关各类自动报告
 
-## 快速上手 (Quick Start)
+## 快速开始
 
 先下载并解压仓库 ZIP，或运行 `git clone https://github.com/yuzhounh/timelens-chrome-extension.git` 获取代码。
 
@@ -102,6 +109,6 @@ node test/email-worker.test.mjs
 - [soft-trace](https://github.com/yuzhounh/soft-trace)：统计 Windows 软件使用时间；时光镜侧重网站访问时间。
 - [focus-pace](https://github.com/yuzhounh/focus-pace)：提供专注与休息节奏提醒。
 
-## 开源许可
+## 开源协议
 
 本项目基于 [MIT License](LICENSE) 开源。
