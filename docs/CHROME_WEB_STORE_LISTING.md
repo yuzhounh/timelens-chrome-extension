@@ -144,7 +144,14 @@ No account, credentials, or external service is required to test the core extens
 
 ---
 
-## Release notes — 1.6.8
+## Release notes — 1.6.9
+
+- Name each browser profile to identify its reports in email subjects, messages and JSON attachments.
+- Save reports before sending email, so a slow gateway never blocks browsing-time collection.
+- Recover pending email after background restarts, with request timeouts, bounded retries and delivery deduplication.
+- Keep archived report device names unchanged and prevent imported backups from sending email.
+
+## Previous release — 1.6.8
 
 - Settings now save and apply automatically; the manual save button was removed.
 - Updated interface-language labels in Chinese and English.

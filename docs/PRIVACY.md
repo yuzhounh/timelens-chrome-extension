@@ -1,6 +1,6 @@
 # Time Lens (时光镜) Privacy Policy
 
-**Last updated:** August 30, 2026
+**Last updated:** October 3, 2026
 
 **Contact:** [GitHub Issues](https://github.com/yuzhounh/timelens-chrome-extension/issues)
 
@@ -22,6 +22,8 @@ When you browse the web, the extension may record, **per website domain**:
 | Active browsing duration | Measure time spent on each site |
 | Visit count | Count how often a site is opened |
 | Page title and URL | Show “last visit” details in the dashboard |
+
+You may set a device name. A random identifier is generated locally for each browser profile to distinguish its reports; it is not a hardware identifier. These fields stay local unless you export a report or enable email backup. The identifier survives renaming and extension updates, and is regenerated after uninstalling or clearing extension storage.
 
 ### What is **not** collected by default
 
@@ -69,6 +71,7 @@ If you enable **Email backup** in Settings, the extension sends periodic reports
 When enabled, the following may be transmitted **only to your configured gateway**:
 
 - Report summary (period, totals, top sites)
+- Your custom device name (or generated label), local profile identifier, and a random delivery identifier used to deduplicate retries
 - A JSON attachment containing the report
 - The recipient address and gateway access token you configured, as required to authorize and deliver the email
 

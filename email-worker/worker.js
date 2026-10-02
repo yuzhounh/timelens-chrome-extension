@@ -1,11 +1,13 @@
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
+const GATEWAY_VERSION = "1.6.9";
 
 export default {
   async fetch(request, env) {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "authorization, content-type",
-      "Access-Control-Allow-Methods": "POST, OPTIONS"
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "X-TimeLens-Version": GATEWAY_VERSION
     };
 
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });

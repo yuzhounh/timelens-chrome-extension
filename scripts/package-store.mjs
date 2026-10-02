@@ -1,7 +1,7 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const releaseDir = join(root, "release");
@@ -57,8 +57,10 @@ function createZip() {
   mkdirSync(releaseDir, { recursive: true });
   if (existsSync(zipPath)) rmSync(zipPath, { force: true });
   if (process.platform === "win32") {
-    execSync(
-      `powershell -NoProfile -Command "Compress-Archive -Path '${stageDir.replace(/'/g, "''")}\\*' -DestinationPath '${zipPath.replace(/'/g, "''")}' -Force"`,
+    execFileSync(
+      "powershell",
+      ["-NoProfile", "-NonInteractive", "-Command",
+        `Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::CreateFromDirectory('${stageDir.replace(/'/g, "''")}', '${zipPath.replace(/'/g, "''")}')`],
       { stdio: "inherit" }
     );
   } else {

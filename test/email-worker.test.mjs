@@ -42,6 +42,7 @@ try {
   });
 
   assert.equal(response.status, 200);
+  assert.equal(response.headers.get("X-TimeLens-Version"), "1.6.9");
   assert.equal(resendHeaders["Idempotency-Key"], "timelens/delivery-test-123");
   assert.ok(resendPayload.subject.startsWith(`[${report.device.name}] Time Lens`));
   assert.ok(resendPayload.html.includes("Device: 办公室电脑 &lt;A&amp;B&gt;"));
@@ -55,6 +56,14 @@ try {
   const legacy = { ...report, device: undefined };
   assert.equal(emailSubject(legacy, "en"), "Time Lens Weekly report | 2026-08-24 — 2026-08-30");
   assert.equal(renderEmail(legacy, "en").includes("Device ID:"), false);
+  const legacyResponse = await worker.fetch(new Request("https://worker.example.com/report", {
+    method: "POST",
+    headers: { Authorization: "Bearer test-secret", "Content-Type": "application/json" },
+    body: JSON.stringify({ recipient: "owner@example.com", report: legacy, locale: "en" })
+  }), { BACKUP_SECRET: "test-secret", RESEND_API_KEY: "resend-key", REPORT_FROM_EMAIL: "Time Lens <report@example.com>" });
+  assert.equal(legacyResponse.status, 200, "older installed extensions must remain compatible");
+  assert.equal(resendHeaders["Idempotency-Key"], undefined);
+  assert.ok(resendPayload.subject.startsWith("Time Lens Weekly report"));
   const unnamed = { ...report, device: { id: "fallback-id", name: "" } };
   assert.ok(emailSubject(unnamed, "en").startsWith("[fallback-id]"));
   assert.ok(!emailSubject({ ...report, device: { name: "PC\r\nHeader" } }).includes("\n"));
