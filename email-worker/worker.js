@@ -1,5 +1,5 @@
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
-const GATEWAY_VERSION = "1.6.9";
+const GATEWAY_VERSION = "1.6.10";
 
 export default {
   async fetch(request, env) {
