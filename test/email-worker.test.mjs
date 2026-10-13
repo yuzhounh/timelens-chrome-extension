@@ -42,7 +42,7 @@ try {
   });
 
   assert.equal(response.status, 200);
-  assert.equal(response.headers.get("X-TimeLens-Version"), "1.6.9");
+  assert.equal(response.headers.get("X-TimeLens-Version"), "1.6.10");
   assert.equal(resendHeaders["Idempotency-Key"], "timelens/delivery-test-123");
   assert.ok(resendPayload.subject.startsWith(`[${report.device.name}] Time Lens`));
   assert.ok(resendPayload.html.includes("Device: 办公室电脑 &lt;A&amp;B&gt;"));

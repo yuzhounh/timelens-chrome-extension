@@ -144,7 +144,11 @@ No account, credentials, or external service is required to test the core extens
 
 ---
 
-## Release notes — 1.6.9
+## Release notes — 1.6.10
+
+- Update extension and email gateway version metadata to 1.6.10; runtime behavior is unchanged.
+
+## Previous release — 1.6.9
 
 - Name each browser profile to identify its reports in email subjects, messages and JSON attachments.
 - Save reports before sending email, so a slow gateway never blocks browsing-time collection.
