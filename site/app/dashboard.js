@@ -15,7 +15,7 @@ const donut = { sites: [], layout: null, hoverIndex: null, scale: 0, targetScale
 let appState = {
   dailyStats: {},
   settings: {},
-  periodType: "monthly",
+  periodType: "daily",
   anchorDate: Core.dateKey(new Date()),
   sitePage: 1,
   sitePageSize: 20,
@@ -86,8 +86,23 @@ function renderAppVersion() {
   document.getElementById("appVersion").textContent = version || "";
 }
 
+function requestedRange() {
+  if(appState.periodType==='all')return{start:null,end:Core.dateKey(new Date())};
+  const range=resolvePeriod();return{start:range.start,end:range.end};
+}
+
+let periodRequest=0,periodLoading=false;
+async function loadPeriod() {
+  const request=++periodRequest;periodLoading=true;
+  try {
+    await sendMessage({type:'get-summary',range:requestedRange()});
+    if(request===periodRequest)await refreshDataView();
+  } catch(error) { if(request===periodRequest)showToast(I18n.errorMessage(error),true); }
+  finally { if(request===periodRequest)periodLoading=false; }
+}
+
 async function loadState() {
-  await sendMessage({ type: "get-summary" }).catch(() => null);
+  await sendMessage({ type: "get-summary", range:requestedRange() }).catch(() => null);
   const stored = await chrome.storage.local.get(["dailyStats", "reports", "settings", "cloudCache", "viewScope", "deviceId", "cloudDevices"]);
   appState.settings = stored.settings || {};
   await I18n.init(appState.settings);
@@ -754,27 +769,27 @@ function shiftPeriod(direction) {
   }
   appState.anchorDate = Core.dateKey(anchor);
   appState.sitePage = 1;
-  renderOverview();
+  void loadPeriod();
 }
 
 document.getElementById("periodAnchor").max = Core.dateKey(new Date());
 document.getElementById("periodType").addEventListener("change", (event) => {
   appState.periodType = event.target.value;
   appState.sitePage = 1;
-  renderOverview();
+  void loadPeriod();
 });
 document.getElementById("periodAnchor").addEventListener("change", (event) => {
   if (!event.target.value) return;
   appState.anchorDate = event.target.value;
   appState.sitePage = 1;
-  renderOverview();
+  void loadPeriod();
 });
 document.getElementById("previousPeriod").addEventListener("click", () => shiftPeriod(-1));
 document.getElementById("nextPeriod").addEventListener("click", () => shiftPeriod(1));
 document.getElementById("resetPeriod").addEventListener("click", () => {
   appState.anchorDate = Core.dateKey(new Date());
   appState.sitePage = 1;
-  renderOverview();
+  void loadPeriod();
 });
 
 document.getElementById("siteSearch").addEventListener("input", () => {
@@ -796,7 +811,7 @@ function openTrendBucket(index) {
   appState.periodType = bucket.date.length === 7 ? 'monthly' : 'daily';
   appState.anchorDate = bucket.date.length === 7 ? bucket.date + '-01' : bucket.date;
   appState.sitePage = 1; document.getElementById('periodType').value = appState.periodType;
-  renderOverview();
+  void loadPeriod();
 }
 document.getElementById('trendChart').addEventListener('click', event => openTrendBucket(trendIndexAt(event.currentTarget,event.clientX)));
 document.getElementById('trendChart').addEventListener('keydown', event => {
@@ -974,7 +989,7 @@ settingsForm.addEventListener("submit", (event) => {
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "local") return;
-  if (changes.reports || changes.dailyStats || changes.cloudCache || changes.cloudDevices) void refreshDataView();
+  if (!periodLoading&&(changes.reports || changes.dailyStats || changes.cloudCache || changes.cloudDevices)) void refreshDataView();
   if (changes.cloudCache || changes.cloudDevices || changes.cloudAuth) void renderDevices();
   if (changes.cloudStatus || changes.cloudAuth) void renderCloud();
   if (changes.settings) {
