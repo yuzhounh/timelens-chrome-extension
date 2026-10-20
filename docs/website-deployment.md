@@ -12,3 +12,15 @@
 - 普通 GitHub 推送提交保留 `[skip netlify]`。
 
 现有应用功能改动未纳入本次网站提交；网站下载链接指向现有公开发行版。原 Firebase Hosting 站点 timelens-chrome-extension 和现有登录回调保持独立。
+
+## 当前发布状态（2026-10-20）
+
+网站源码提交：`b0091fdfc57ab1034d4921bb6e6ac783cef51e12`。
+
+- GitHub Pages：https://yuzhounh.github.io/timelens-chrome-extension/；工作流 `39373857743` 成功。
+- Cloudflare Pages：https://timelens-extension.pages.dev/；部署 `36dce57a`。
+- Vercel：https://timelens-extension.vercel.app/；部署 `dpl_4SJhYzzKV6RcK51t3Bjhe5S1cBP4` Ready。
+- Firebase Hosting：https://timelens-extension.web.app/；工程 `timelens-chrome-extension` 下的独立产品介绍站。
+- Netlify：https://timelens-extension.netlify.app/；站点 `8c4966b4-8362-403e-895b-728033f8f62e` 已注册，未连接 Git、未部署。用户仅批准注册例外，部署仍暂停至 2026-10-21 15:00。
+
+四个正式首页、隐私页、CSS、图标和发布清单均核验通过，共 20 项资源哈希与本地构建一致。平台回执及验证结果保存于 `results/website/`。GitHub Pages 沿用现有仓库路径，没有重命名仓库或创建第二个源码仓库。
