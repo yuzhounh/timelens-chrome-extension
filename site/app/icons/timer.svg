@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="时光镜计时器">
+  <path d="M25 4h14" fill="none" stroke="#477767" stroke-width="6" stroke-linecap="round"/>
+  <path d="M32 6v8M49 17l4-4" fill="none" stroke="#477767" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="32" cy="38" r="23" fill="#DCEFEA" stroke="#568A79" stroke-width="5"/>
+  <circle cx="32" cy="38" r="17" fill="#FFFFFF"/>
+  <path d="M32 23v15l10 6" fill="none" stroke="#477767" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="38" r="3.5" fill="#F2A67F"/>
+</svg>

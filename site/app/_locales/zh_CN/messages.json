@@ -1,0 +1,947 @@
+{
+  "extName": {
+    "message": "时光镜 · 网站访问统计"
+  },
+  "extDescription": {
+    "message": "网站访问计时与可视化，通过 Google 账户自动同步多台设备，支持离线计时和 JSON 备份。"
+  },
+  "commandOpenDashboard": {
+    "message": "打开统计仪表盘"
+  },
+  "popupBrand": {
+    "message": "时光镜"
+  },
+  "popupTodayBrowsing": {
+    "message": "今日有效浏览"
+  },
+  "popupSiteCount": {
+    "message": "$COUNT$ 个网站",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupReading": {
+    "message": "正在读取…"
+  },
+  "popupTracking": {
+    "message": "正在统计 $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupNotTracking": {
+    "message": "当前未统计"
+  },
+  "popupPausedIdle": {
+    "message": "空闲或锁屏，已暂停"
+  },
+  "popupPausedInactive": {
+    "message": "Chrome 未处于前台，已暂停"
+  },
+  "popupUnsupported": {
+    "message": "当前页面不计时"
+  },
+  "popupExcluded": {
+    "message": "此网站已排除统计"
+  },
+  "popupNoRecords": {
+    "message": "今天还没有访问记录"
+  },
+  "popupOpenDashboard": {
+    "message": "打开完整仪表盘"
+  },
+  "popupReadError": {
+    "message": "暂时无法读取"
+  },
+  "navOverview": {
+    "message": "概览"
+  },
+  "navReports": {
+    "message": "周期报告"
+  },
+  "navData": {
+    "message": "数据管理"
+  },
+  "navSettings": {
+    "message": "设置"
+  },
+  "overviewKicker": {
+    "message": "浏览时光"
+  },
+  "overviewTitle": {
+    "message": "时间都去了哪里？"
+  },
+  "periodToolbarLabel": {
+    "message": "统计周期"
+  },
+  "periodTypeLabel": {
+    "message": "选择统计周期"
+  },
+  "periodDaily": {
+    "message": "日"
+  },
+  "periodWeekly": {
+    "message": "周"
+  },
+  "periodMonthly": {
+    "message": "月"
+  },
+  "periodQuarterly": {
+    "message": "季度"
+  },
+  "periodYearly": {
+    "message": "年"
+  },
+  "periodAll": {
+    "message": "所有时间"
+  },
+  "periodPrevious": {
+    "message": "上一周期"
+  },
+  "periodNext": {
+    "message": "下一周期"
+  },
+  "periodCurrent": {
+    "message": "当前查看"
+  },
+  "periodJumpDate": {
+    "message": "跳转到指定日期"
+  },
+  "periodReset": {
+    "message": "回到本期"
+  },
+  "metricTotalTime": {
+    "message": "总浏览时长"
+  },
+  "metricDailyAverage": {
+    "message": "日均时长"
+  },
+  "metricEffectiveOnly": {
+    "message": "按有记录日计算，无记录日期不补零"
+  },
+  "metricVisitCount": {
+    "message": "访问次数"
+  },
+  "metricActiveDays": {
+    "message": "$COUNT$ 个活跃日",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "trendLabel": {
+    "message": "趋势"
+  },
+  "trendDaily": {
+    "message": "每日有效浏览"
+  },
+  "trendMonthly": {
+    "message": "每月有效浏览"
+  },
+  "trendChartLabel": {
+    "message": "每日浏览时长趋势图"
+  },
+  "compositionLabel": {
+    "message": "构成"
+  },
+  "compositionTitle": {
+    "message": "时间分布"
+  },
+  "donutChartLabel": {
+    "message": "网站时间分布图"
+  },
+  "detailsLabel": {
+    "message": "明细"
+  },
+  "siteRankingTitle": {
+    "message": "网站排行"
+  },
+  "siteSearchPlaceholder": {
+    "message": "搜索网站"
+  },
+  "tableWebsite": {
+    "message": "网站"
+  },
+  "tableDuration": {
+    "message": "时长"
+  },
+  "tableShare": {
+    "message": "占比"
+  },
+  "tableVisits": {
+    "message": "访问次数"
+  },
+  "tableLastVisit": {
+    "message": "最近访问"
+  },
+  "paginationPrevious": {
+    "message": "上一页"
+  },
+  "paginationNext": {
+    "message": "下一页"
+  },
+  "sitePageSummary": {
+    "message": "第 $PAGE$ / $TOTAL$ 页 · 共 $COUNT$ 个网站",
+    "placeholders": {
+      "page": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      },
+      "count": {
+        "content": "$3"
+      }
+    }
+  },
+  "sitePageEmpty": {
+    "message": "共 0 个网站"
+  },
+  "reportsKicker": {
+    "message": "周期归档"
+  },
+  "reportsTitle": {
+    "message": "周期报告"
+  },
+  "reportsSubtitle": {
+    "message": "生成月报、季报或年报，并按需发送邮件备份。"
+  },
+  "reportTypeLabel": {
+    "message": "报告周期"
+  },
+  "reportWeekly": {
+    "message": "本周周报"
+  },
+  "reportMonthly": {
+    "message": "本月月报"
+  },
+  "reportQuarterly": {
+    "message": "本季度报告"
+  },
+  "reportYearly": {
+    "message": "本年度报告"
+  },
+  "reportSendEmail": {
+    "message": "同时发送到已配置邮箱"
+  },
+  "reportGenerate": {
+    "message": "生成报告"
+  },
+  "reportGenerating": {
+    "message": "正在生成…"
+  },
+  "dataKicker": {
+    "message": "同步与备份"
+  },
+  "dataTitle": {
+    "message": "数据管理"
+  },
+  "dataSubtitle": {
+    "message": "查看同步状态，备份、恢复或清理本机记录。"
+  },
+  "exportTitle": {
+    "message": "本机备份"
+  },
+  "exportDesc": {
+    "message": "备份本机产生的访问记录和设置，不受概览统计范围影响。"
+  },
+  "exportButton": {
+    "message": "导出本机备份"
+  },
+  "importTitle": {
+    "message": "恢复本机备份"
+  },
+  "importDesc": {
+    "message": "选择备份以合并或替换本机记录，导入后自动同步；重复合并同一备份会重复累计。"
+  },
+  "importMerge": {
+    "message": "合并导入"
+  },
+  "importReplace": {
+    "message": "替换恢复"
+  },
+  "deleteAllTitle": {
+    "message": "清除本机数据"
+  },
+  "deleteAllDesc": {
+    "message": "删除本机产生的访问记录和历史报告，设置保留。登录时会同步此变化，其他设备记录保留。"
+  },
+  "deleteAllButton": {
+    "message": "清除数据"
+  },
+  "settingsKicker": {
+    "message": "个性化设置"
+  },
+  "settingsTitle": {
+    "message": "设置"
+  },
+  "settingsSubtitle": {
+    "message": "调整统计规则、管理设备名称和界面偏好。"
+  },
+  "languageTitle": {
+    "message": "界面"
+  },
+  "languageDesc": {
+    "message": "选择时光镜的显示语言。"
+  },
+  "languageLabel": {
+    "message": "语言"
+  },
+  "languageAuto": {
+    "message": "自动（跟随浏览器）"
+  },
+  "languageZh": {
+    "message": "简体中文"
+  },
+  "languageEn": {
+    "message": "英语"
+  },
+  "rulesTitle": {
+    "message": "统计规则"
+  },
+  "rulesDesc": {
+    "message": "离开电脑后暂停计时，避免把挂机时间算进去。"
+  },
+  "idleThresholdLabel": {
+    "message": "空闲暂停时间（秒）"
+  },
+  "excludedHostsLabel": {
+    "message": "不统计的网站"
+  },
+  "excludedHostsPlaceholder": {
+    "message": "每行一个域名，例如：\nlocalhost\nexample.com"
+  },
+  "excludedHostsHint": {
+    "message": "填写主域名后，其子域名也会被排除。"
+  },
+  "autoReportsTitle": {
+    "message": "自动报告"
+  },
+  "autoReportsDesc": {
+    "message": "周期结束后几分钟内生成上一周期报告。"
+  },
+  "scheduleWeekly": {
+    "message": "每周自动生成周报"
+  },
+  "scheduleMonthly": {
+    "message": "每月自动生成月报"
+  },
+  "scheduleQuarterly": {
+    "message": "每季度自动生成季报"
+  },
+  "scheduleYearly": {
+    "message": "每年自动生成年报"
+  },
+  "emailTitle": {
+    "message": "邮件备份"
+  },
+  "deviceTitle": {
+    "message": "设备管理"
+  },
+  "reportStatusQueued": {
+    "message": "邮件待发送"
+  },
+  "reportSavedEmailQueued": {
+    "message": "报告已保存，邮件将在后台发送。"
+  },
+  "errEmailTimeout": {
+    "message": "邮件请求超时，将按重试上限处理。"
+  },
+  "errEmailSettingsChanged": {
+    "message": "邮件地址或网关已更改，请重新生成报告发送。"
+  },
+  "errEmailRetryStopped": {
+    "message": "已达到重试次数或时限，自动发送已停止。"
+  },
+  "deviceDesc": {
+    "message": "管理当前账户关联的设备名称。名称跨设备同步，设备 ID 保持不变。"
+  },
+  "deviceNameLabel": {
+    "message": "设备名"
+  },
+  "deviceNamePlaceholder": {
+    "message": "例如：办公室电脑、家用笔记本"
+  },
+  "deviceNameHint": {
+    "message": "设备名用于标识云端记录来源。留空时使用自动生成的名称；每个浏览器配置独立设置。"
+  },
+  "emailDesc": {
+    "message": "通过你自己的安全邮件网关发送。API 密钥应保存在网关端，不要放进插件。"
+  },
+  "emailEnabled": {
+    "message": "启用自动邮件备份"
+  },
+  "emailEndpointLabel": {
+    "message": "邮件网关 URL"
+  },
+  "emailRecipientLabel": {
+    "message": "收件邮箱"
+  },
+  "emailTokenLabel": {
+    "message": "网关访问令牌"
+  },
+  "emailTokenPlaceholder": {
+    "message": "与网关 BACKUP_SECRET 一致"
+  },
+  "emailWorkerHint": {
+    "message": "仓库中的 email-worker/ 提供可直接部署的 Cloudflare Worker 示例。"
+  },
+  "saveSettings": {
+    "message": "保存设置"
+  },
+  "autoSaveHint": {
+    "message": "修改后自动保存"
+  },
+  "savingSettings": {
+    "message": "正在保存…"
+  },
+  "savedAt": {
+    "message": "已保存于 $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "otherSites": {
+    "message": "其他"
+  },
+  "total": {
+    "message": "总计"
+  },
+  "noData": {
+    "message": "暂无数据"
+  },
+  "noMatchingData": {
+    "message": "没有匹配的数据"
+  },
+  "trendEmpty": {
+    "message": "还没有足够的数据，开始浏览后这里会出现趋势"
+  },
+  "tooltipNoVisitsMonth": {
+    "message": "该月没有有效访问记录"
+  },
+  "tooltipNoVisitsDay": {
+    "message": "当日没有有效访问记录"
+  },
+  "tooltipVisits": {
+    "message": "$COUNT$ 次访问",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportStatusSent": {
+    "message": "已邮件备份"
+  },
+  "reportStatusFailed": {
+    "message": "发送失败"
+  },
+  "reportStatusSaved": {
+    "message": "已保存在本地"
+  },
+  "reportRange": {
+    "message": "$START$ 至 $END$ · $COUNT$ 个网站",
+    "placeholders": {
+      "start": {
+        "content": "$1"
+      },
+      "end": {
+        "content": "$2"
+      },
+      "count": {
+        "content": "$3"
+      }
+    }
+  },
+  "reportSiteCount": {
+    "message": "$COUNT$ 个网站",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportVisits": {
+    "message": "$COUNT$ 次访问",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportDelete": {
+    "message": "删除"
+  },
+  "reportEmpty": {
+    "message": "还没有报告。你可以立即生成本周期报告，或等待自动任务运行。"
+  },
+  "reportGenerated": {
+    "message": "报告已生成并保存"
+  },
+  "reportSavedEmailFailed": {
+    "message": "报告已保存，但邮件发送失败：$ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportDeleted": {
+    "message": "报告已删除"
+  },
+  "confirmDeleteReport": {
+    "message": "确定删除「$LABEL$ · $DATE$」吗？此操作不可撤销。",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "date": {
+        "content": "$2"
+      }
+    }
+  },
+  "backupExported": {
+    "message": "完整备份已导出"
+  },
+  "selectBackupFirst": {
+    "message": "请先选择 JSON 备份文件"
+  },
+  "confirmReplaceImport": {
+    "message": "确定要用备份完全替换当前访问记录和报告吗？此操作不可撤销。"
+  },
+  "backupRestored": {
+    "message": "备份已恢复"
+  },
+  "backupMerged": {
+    "message": "备份已合并"
+  },
+  "importFailed": {
+    "message": "导入失败：$ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmDeleteAll": {
+    "message": "确定清除本机产生的全部记录吗？此变化将同步到云端，其他设备记录不受影响。此操作不可撤销。"
+  },
+  "dataCleared": {
+    "message": "统计数据已清除"
+  },
+  "emailConfigRequired": {
+    "message": "启用邮件备份前，请填写网关 URL 和收件邮箱"
+  },
+  "settingsSaved": {
+    "message": "设置已保存"
+  },
+  "loadFailed": {
+    "message": "加载数据失败：$ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "operationFailed": {
+    "message": "操作失败"
+  },
+  "invalidBackup": {
+    "message": "文件中缺少 dailyStats，可能不是有效备份"
+  },
+  "reportTypeDaily": {
+    "message": "日报"
+  },
+  "reportTypeWeekly": {
+    "message": "周报"
+  },
+  "reportTypeMonthly": {
+    "message": "月报"
+  },
+  "reportTypeQuarterly": {
+    "message": "季报"
+  },
+  "reportTypeYearly": {
+    "message": "年报"
+  },
+  "durationMinutes": {
+    "message": "$MIN$ 分钟",
+    "placeholders": {
+      "min": {
+        "content": "$1"
+      }
+    }
+  },
+  "durationHours": {
+    "message": "$HOURS$ 小时",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      }
+    }
+  },
+  "durationHoursMinutes": {
+    "message": "$HOURS$ 小时 $MIN$ 分钟",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      },
+      "min": {
+        "content": "$2"
+      }
+    }
+  },
+  "durationMinutesLong": {
+    "message": "$MIN$ 分钟",
+    "placeholders": {
+      "min": {
+        "content": "$1"
+      }
+    }
+  },
+  "durationHoursLong": {
+    "message": "$HOURS$ 小时",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      }
+    }
+  },
+  "durationHoursMinutesLong": {
+    "message": "$HOURS$ 小时 $MIN$ 分钟",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      },
+      "min": {
+        "content": "$2"
+      }
+    }
+  },
+  "periodAllTime": {
+    "message": "所有时间 · $START$ — $END$",
+    "placeholders": {
+      "start": {
+        "content": "$1"
+      },
+      "end": {
+        "content": "$2"
+      }
+    }
+  },
+  "periodWeek": {
+    "message": "$YEAR$年第$WEEK$周 · $START$ — $END$",
+    "placeholders": {
+      "week": {
+        "content": "$1"
+      },
+      "year": {
+        "content": "$2"
+      },
+      "start": {
+        "content": "$3"
+      },
+      "end": {
+        "content": "$4"
+      }
+    }
+  },
+  "periodQuarter": {
+    "message": "$YEAR$年第$QUARTER$季度",
+    "placeholders": {
+      "quarter": {
+        "content": "$1"
+      },
+      "year": {
+        "content": "$2"
+      }
+    }
+  },
+  "errUnknownReportType": {
+    "message": "未知报告类型：$TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "errEmailNotConfigured": {
+    "message": "邮件网关地址或收件人未配置"
+  },
+  "errEmailGateway": {
+    "message": "邮件网关返回 $STATUS$$DETAIL$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      },
+      "detail": {
+        "content": "$2"
+      }
+    }
+  },
+  "errMissingReportId": {
+    "message": "缺少报告 ID"
+  },
+  "errUnknownRequest": {
+    "message": "未知请求"
+  },
+  "errBackgroundOperation": {
+    "message": "后台操作失败"
+  },
+  "cloudTitle": {
+    "message": "云端同步"
+  },
+  "cloudDesc": {
+    "message": "同一 Google 账户下的设备自动同步，离线继续计时，联网后补传。"
+  },
+  "cloudHint": {
+    "message": "查看原设备已同步的记录，采集继续由原设备完成。"
+  },
+  "cloudView": {
+    "message": "统计范围"
+  },
+  "cloudAll": {
+    "message": "所有设备"
+  },
+  "cloudLocal": {
+    "message": "仅本机"
+  },
+  "cloudSignIn": {
+    "message": "使用 Google 登录"
+  },
+  "cloudSyncNow": {
+    "message": "刷新云端记录"
+  },
+  "cloudSignOut": {
+    "message": "退出账户"
+  },
+  "cloudSignedOut": {
+    "message": "未登录 · 同步已暂停"
+  },
+  "cloudSyncing": {
+    "message": "正在同步"
+  },
+  "cloudSynced": {
+    "message": "已同步"
+  },
+  "cloudError": {
+    "message": "同步暂未完成，将自动重试"
+  },
+  "cloudArchive": {
+    "message": "其他设备归档"
+  },
+  "cloudAccountLabel": {
+    "message": "账户"
+  },
+  "cloudPrivacyHint": {
+    "message": "已启用 Google 账户同步"
+  },
+  "cloudDetails": {
+    "message": "查看同步详情"
+  },
+  "cloudLastSync": {
+    "message": "最近成功同步"
+  },
+  "cloudDevices": {
+    "message": "已同步设备"
+  },
+  "cloudLoginHint": {
+    "message": "登录后跨设备同步"
+  },
+  "cloudLoginFromSidebar": {
+    "message": "在此登录 Google，即可启用多设备同步。"
+  },
+  "cloudOffline": {
+    "message": "离线，等待同步"
+  },
+  "cloudWaiting": {
+    "message": "等待同步"
+  },
+  "cloudRetrying": {
+    "message": "等待重试"
+  },
+  "aboutTitle": {
+    "message": "关于 Time Lens"
+  },
+  "localEdition": {
+    "message": "本地版"
+  },
+  "importSyncHint": {
+    "message": "导入的数据会作为本机记录同步。重复合并同一备份会重复累计。"
+  },
+  "deleteConfirmTitle": {
+    "message": "确认清除本机数据？"
+  },
+  "deleteCancel": {
+    "message": "取消"
+  },
+  "deleteConfirm": {
+    "message": "确认清除"
+  },
+  "chooseFile": {
+    "message": "选择文件"
+  },
+  "noFileChosen": {
+    "message": "未选择文件"
+  },
+  "cloudSignInRequired": {
+    "message": "请先登录 Google 账户"
+  },
+  "cloudAccountSignedOut": {
+    "message": "账户已退出"
+  },
+  "cloudDataIncomplete": {
+    "message": "云端数据尚未完整，请稍后重试"
+  },
+  "cloudDataInvalid": {
+    "message": "云端数据校验失败，请稍后重试"
+  },
+  "cloudWrongAccount": {
+    "message": "本机数据已绑定另一个 Google 账户，请使用原账户登录"
+  },
+  "cloudLoginOpen": {
+    "message": "登录窗口已打开"
+  },
+  "cloudLoginTimeout": {
+    "message": "登录已超时，请重试"
+  },
+  "cloudLoginPending": {
+    "message": "请先完成或关闭当前登录"
+  },
+  "errorSignInCancelled": {
+    "message": "已取消登录"
+  },
+  "errorNetwork": {
+    "message": "网络暂不可用，请稍后重试"
+  },
+  "errorSyncPermission": {
+    "message": "暂时无法访问同步数据，请检查账户或重新登录"
+  },
+  "errorSignInExpired": {
+    "message": "登录已失效，请重新登录"
+  },
+  "errorReloadExtension": {
+    "message": "扩展已更新，请刷新当前页面"
+  },
+  "deleteConfirmWait": {
+    "message": "确认清除（$1 秒）"
+  },
+  "deviceThis": {
+    "message": "本机"
+  },
+  "deviceLinked": {
+    "message": "已关联设备"
+  },
+  "deviceIdLabel": {
+    "message": "设备 ID"
+  },
+  "cloudDeviceMissing": {
+    "message": "未找到该设备，请先同步后重试"
+  },
+  "settingsGeneral": {
+    "message": "常规"
+  },
+  "settingsAccount": {
+    "message": "账户与同步"
+  },
+  "settingsClose": {
+    "message": "关闭设置"
+  },
+  "settingsCategories": {
+    "message": "设置分类"
+  },
+  "trendGuidance": {
+    "message": "完整显示所选周期；灰色短线表示无记录，虚线表示未来。点击柱形查看对应日期或月份。"
+  },
+  "patternMissing": {
+    "message": "无记录"
+  },
+  "patternFuture": {
+    "message": "未来日期"
+  },
+  "patternsKicker": {
+    "message": "规律"
+  },
+  "patternsTitle": {
+    "message": "浏览规律"
+  },
+  "patternsCoverage": {
+    "message": "$1 个有记录日 · $2 天无记录"
+  },
+  "patternHourly": {
+    "message": "24 小时分布"
+  },
+  "patternWeekday": {
+    "message": "星期规律"
+  },
+  "patternAcademic": {
+    "message": "学期与寒暑假"
+  },
+  "patternSites": {
+    "message": "网站习惯"
+  },
+  "patternHourlyDesc": {
+    "message": "按有小时明细的日期计算各小时的日均浏览时长；跨小时拆分，仅分析已记录部分，不把旧数据推算成小时明细。"
+  },
+  "patternWeekdayDesc": {
+    "message": "比较每个星期的日均浏览时长，按各自有记录日计算；无记录的日期不补零。"
+  },
+  "patternAcademicDesc": {
+    "message": "比较春季、秋季学期和寒暑假的日均浏览时长；按各阶段有记录日计算，不直接比较总量。"
+  },
+  "patternSitesDesc": {
+    "message": "查看网站用时集中度、平均每次访问时长及浏览最多的一天，不据此判断工作效率。"
+  },
+  "patternHourlyCoverage": {
+    "message": "$1 天有小时明细。旧记录仅有每日总量，小时明细从新版开始累计，满两个有明细的日期后显示分布。"
+  },
+  "patternRecordedDays": {
+    "message": "$1 个记录日"
+  },
+  "patternSpring": {
+    "message": "春季学期"
+  },
+  "patternAutumn": {
+    "message": "秋季学期"
+  },
+  "patternWinter": {
+    "message": "寒假轮休期"
+  },
+  "patternSummer": {
+    "message": "暑假轮休期"
+  },
+  "patternUnknown": {
+    "message": "待补校历"
+  },
+  "patternCalendarBasis": {
+    "message": "信阳师范大学谭山校区教职工校历，按报到与轮休日期划分，不代表个人实际休假。"
+  },
+  "patternCalendarSources": {
+    "message": "官方校历"
+  },
+  "patternTopSite": {
+    "message": "首位网站占比"
+  },
+  "patternTopThree": {
+    "message": "前三网站占比"
+  },
+  "patternVisitAverage": {
+    "message": "平均每次访问"
+  },
+  "patternPeakDay": {
+    "message": "浏览最多的一天"
+  },
+  "trendHourly": {
+    "message": "当日小时分布"
+  },
+  "trendHourlyGuidance": {
+    "message": "显示 00–23 时已记录的浏览明细。旧的每日总量不反推到小时；灰色短线表示无小时记录，虚线表示未来。"
+  }
+}

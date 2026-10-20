@@ -1,0 +1,947 @@
+{
+  "extName": {
+    "message": "Time Lens · Website Tracker"
+  },
+  "extDescription": {
+    "message": "Website time tracking and charts with automatic Google account sync across devices, offline tracking, and JSON backups."
+  },
+  "commandOpenDashboard": {
+    "message": "Open dashboard"
+  },
+  "popupBrand": {
+    "message": "Time Lens"
+  },
+  "popupTodayBrowsing": {
+    "message": "Today's active browsing"
+  },
+  "popupSiteCount": {
+    "message": "$COUNT$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupReading": {
+    "message": "Loading…"
+  },
+  "popupTracking": {
+    "message": "Tracking $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupNotTracking": {
+    "message": "Not tracking now"
+  },
+  "popupPausedIdle": {
+    "message": "Paused while idle or locked"
+  },
+  "popupPausedInactive": {
+    "message": "Paused: Chrome is not active"
+  },
+  "popupUnsupported": {
+    "message": "This page is not tracked"
+  },
+  "popupExcluded": {
+    "message": "This site is excluded"
+  },
+  "popupNoRecords": {
+    "message": "No visits recorded today"
+  },
+  "popupOpenDashboard": {
+    "message": "Open full dashboard"
+  },
+  "popupReadError": {
+    "message": "Unable to read data right now"
+  },
+  "navOverview": {
+    "message": "Overview"
+  },
+  "navReports": {
+    "message": "Reports"
+  },
+  "navData": {
+    "message": "Data"
+  },
+  "navSettings": {
+    "message": "Settings"
+  },
+  "overviewKicker": {
+    "message": "YOUR DIGITAL RHYTHM"
+  },
+  "overviewTitle": {
+    "message": "Where does your time go?"
+  },
+  "periodToolbarLabel": {
+    "message": "Time range"
+  },
+  "periodTypeLabel": {
+    "message": "Select time range"
+  },
+  "periodDaily": {
+    "message": "Day"
+  },
+  "periodWeekly": {
+    "message": "Week"
+  },
+  "periodMonthly": {
+    "message": "Month"
+  },
+  "periodQuarterly": {
+    "message": "Quarter"
+  },
+  "periodYearly": {
+    "message": "Year"
+  },
+  "periodAll": {
+    "message": "All time"
+  },
+  "periodPrevious": {
+    "message": "Previous period"
+  },
+  "periodNext": {
+    "message": "Next period"
+  },
+  "periodCurrent": {
+    "message": "Viewing"
+  },
+  "periodJumpDate": {
+    "message": "Jump to date"
+  },
+  "periodReset": {
+    "message": "Back to current"
+  },
+  "metricTotalTime": {
+    "message": "Total browsing time"
+  },
+  "metricDailyAverage": {
+    "message": "Daily average"
+  },
+  "metricEffectiveOnly": {
+    "message": "Per recorded day; missing days are excluded"
+  },
+  "metricVisitCount": {
+    "message": "Visits"
+  },
+  "metricActiveDays": {
+    "message": "$COUNT$ active days",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "trendLabel": {
+    "message": "Trend"
+  },
+  "trendDaily": {
+    "message": "Daily active browsing"
+  },
+  "trendMonthly": {
+    "message": "Monthly active browsing"
+  },
+  "trendChartLabel": {
+    "message": "Daily browsing trend chart"
+  },
+  "compositionLabel": {
+    "message": "Breakdown"
+  },
+  "compositionTitle": {
+    "message": "Time distribution"
+  },
+  "donutChartLabel": {
+    "message": "Website time distribution chart"
+  },
+  "detailsLabel": {
+    "message": "Details"
+  },
+  "siteRankingTitle": {
+    "message": "Top websites"
+  },
+  "siteSearchPlaceholder": {
+    "message": "Search websites"
+  },
+  "tableWebsite": {
+    "message": "Website"
+  },
+  "tableDuration": {
+    "message": "Duration"
+  },
+  "tableShare": {
+    "message": "Share"
+  },
+  "tableVisits": {
+    "message": "Visits"
+  },
+  "tableLastVisit": {
+    "message": "Last visit"
+  },
+  "paginationPrevious": {
+    "message": "Previous page"
+  },
+  "paginationNext": {
+    "message": "Next page"
+  },
+  "sitePageSummary": {
+    "message": "Page $PAGE$ / $TOTAL$ · $COUNT$ sites",
+    "placeholders": {
+      "page": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      },
+      "count": {
+        "content": "$3"
+      }
+    }
+  },
+  "sitePageEmpty": {
+    "message": "0 sites"
+  },
+  "reportsKicker": {
+    "message": "PERIODIC ARCHIVE"
+  },
+  "reportsTitle": {
+    "message": "Periodic reports"
+  },
+  "reportsSubtitle": {
+    "message": "Generate weekly, monthly, quarterly, or yearly reports and optionally email them."
+  },
+  "reportTypeLabel": {
+    "message": "Report period"
+  },
+  "reportWeekly": {
+    "message": "This week"
+  },
+  "reportMonthly": {
+    "message": "This month"
+  },
+  "reportQuarterly": {
+    "message": "This quarter"
+  },
+  "reportYearly": {
+    "message": "This year"
+  },
+  "reportSendEmail": {
+    "message": "Also send to configured email"
+  },
+  "reportGenerate": {
+    "message": "Generate report"
+  },
+  "reportGenerating": {
+    "message": "Generating…"
+  },
+  "dataKicker": {
+    "message": "PORTABLE BY DESIGN"
+  },
+  "dataTitle": {
+    "message": "Data management"
+  },
+  "dataSubtitle": {
+    "message": "Check sync status, back up, restore or clear this device’s records."
+  },
+  "exportTitle": {
+    "message": "Device backup"
+  },
+  "exportDesc": {
+    "message": "Back up visits and settings from this device. The Overview scope does not change this export."
+  },
+  "exportButton": {
+    "message": "Export backup"
+  },
+  "importTitle": {
+    "message": "Restore device backup"
+  },
+  "importDesc": {
+    "message": "Merge or replace this device’s records from a backup and sync the imported data. Merging the same backup repeatedly adds it again."
+  },
+  "importMerge": {
+    "message": "Merge import"
+  },
+  "importReplace": {
+    "message": "Replace records"
+  },
+  "deleteAllTitle": {
+    "message": "Clear this device’s data"
+  },
+  "deleteAllDesc": {
+    "message": "Remove visits and legacy reports generated by this device; settings are retained. While signed in, this change syncs to the cloud. Other devices’ records remain."
+  },
+  "deleteAllButton": {
+    "message": "Delete data"
+  },
+  "settingsKicker": {
+    "message": "YOUR PREFERENCES"
+  },
+  "settingsTitle": {
+    "message": "Settings"
+  },
+  "settingsSubtitle": {
+    "message": "Adjust tracking rules, device names and interface preferences."
+  },
+  "languageTitle": {
+    "message": "Interface"
+  },
+  "languageDesc": {
+    "message": "Choose the interface language for Time Lens."
+  },
+  "languageLabel": {
+    "message": "Interface language"
+  },
+  "languageAuto": {
+    "message": "Auto (Browser language)"
+  },
+  "languageZh": {
+    "message": "Chinese (Simplified)"
+  },
+  "languageEn": {
+    "message": "English"
+  },
+  "rulesTitle": {
+    "message": "Tracking rules"
+  },
+  "rulesDesc": {
+    "message": "Pause tracking when you leave the computer to avoid counting idle time."
+  },
+  "idleThresholdLabel": {
+    "message": "Idle pause threshold (seconds)"
+  },
+  "excludedHostsLabel": {
+    "message": "Excluded websites"
+  },
+  "excludedHostsPlaceholder": {
+    "message": "One domain per line, e.g.:\nlocalhost\nexample.com"
+  },
+  "excludedHostsHint": {
+    "message": "Subdomains of a listed domain are excluded too."
+  },
+  "autoReportsTitle": {
+    "message": "Automatic reports"
+  },
+  "autoReportsDesc": {
+    "message": "Generate the previous period's report a few minutes after it ends."
+  },
+  "scheduleWeekly": {
+    "message": "Generate weekly reports automatically"
+  },
+  "scheduleMonthly": {
+    "message": "Generate monthly reports automatically"
+  },
+  "scheduleQuarterly": {
+    "message": "Generate quarterly reports automatically"
+  },
+  "scheduleYearly": {
+    "message": "Generate yearly reports automatically"
+  },
+  "emailTitle": {
+    "message": "Email backup"
+  },
+  "deviceTitle": {
+    "message": "Devices"
+  },
+  "reportStatusQueued": {
+    "message": "Email queued"
+  },
+  "reportSavedEmailQueued": {
+    "message": "Report saved. Email will be sent in the background."
+  },
+  "errEmailTimeout": {
+    "message": "Email request timed out; the retry limit applies."
+  },
+  "errEmailSettingsChanged": {
+    "message": "The email address or gateway changed. Generate a new report to send."
+  },
+  "errEmailRetryStopped": {
+    "message": "The retry count or time limit was reached. Automatic sending has stopped."
+  },
+  "deviceDesc": {
+    "message": "Rename devices linked to this account. Names sync across computers; device IDs stay unchanged."
+  },
+  "deviceNameLabel": {
+    "message": "Device name"
+  },
+  "deviceNamePlaceholder": {
+    "message": "e.g. Office PC, Home laptop"
+  },
+  "deviceNameHint": {
+    "message": "Identifies this device in cloud records. Leave blank for an automatic name. Set independently for each browser profile."
+  },
+  "emailDesc": {
+    "message": "Send reports through your own secure email gateway. Keep API keys on the server, not in the extension."
+  },
+  "emailEnabled": {
+    "message": "Enable automatic email backup"
+  },
+  "emailEndpointLabel": {
+    "message": "Email gateway URL"
+  },
+  "emailRecipientLabel": {
+    "message": "Recipient email"
+  },
+  "emailTokenLabel": {
+    "message": "Gateway access token"
+  },
+  "emailTokenPlaceholder": {
+    "message": "Same as gateway BACKUP_SECRET"
+  },
+  "emailWorkerHint": {
+    "message": "The email-worker/ folder includes a deployable Cloudflare Worker example."
+  },
+  "saveSettings": {
+    "message": "Save settings"
+  },
+  "autoSaveHint": {
+    "message": "Changes save automatically"
+  },
+  "savingSettings": {
+    "message": "Saving…"
+  },
+  "savedAt": {
+    "message": "Saved at $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "otherSites": {
+    "message": "Other"
+  },
+  "total": {
+    "message": "Total"
+  },
+  "noData": {
+    "message": "No data yet"
+  },
+  "noMatchingData": {
+    "message": "No matching results"
+  },
+  "trendEmpty": {
+    "message": "Not enough data yet. Start browsing and trends will appear here."
+  },
+  "tooltipNoVisitsMonth": {
+    "message": "No active visits this month"
+  },
+  "tooltipNoVisitsDay": {
+    "message": "No active visits this day"
+  },
+  "tooltipVisits": {
+    "message": "$COUNT$ visits",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportStatusSent": {
+    "message": "Emailed"
+  },
+  "reportStatusFailed": {
+    "message": "Send failed"
+  },
+  "reportStatusSaved": {
+    "message": "Saved locally"
+  },
+  "reportRange": {
+    "message": "$START$ to $END$ · $COUNT$ sites",
+    "placeholders": {
+      "start": {
+        "content": "$1"
+      },
+      "end": {
+        "content": "$2"
+      },
+      "count": {
+        "content": "$3"
+      }
+    }
+  },
+  "reportSiteCount": {
+    "message": "$COUNT$ sites",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportVisits": {
+    "message": "$COUNT$ visits",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportDelete": {
+    "message": "Delete"
+  },
+  "reportEmpty": {
+    "message": "No reports yet. Generate one now or wait for automatic scheduling."
+  },
+  "reportGenerated": {
+    "message": "Report generated and saved"
+  },
+  "reportSavedEmailFailed": {
+    "message": "Report saved, but email failed: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "reportDeleted": {
+    "message": "Report deleted"
+  },
+  "confirmDeleteReport": {
+    "message": "Delete \"$LABEL$ · $DATE$\"? This cannot be undone.",
+    "placeholders": {
+      "label": {
+        "content": "$1"
+      },
+      "date": {
+        "content": "$2"
+      }
+    }
+  },
+  "backupExported": {
+    "message": "Full backup exported"
+  },
+  "selectBackupFirst": {
+    "message": "Choose a JSON backup file first"
+  },
+  "confirmReplaceImport": {
+    "message": "Replace all current visit records and reports with this backup? This cannot be undone."
+  },
+  "backupRestored": {
+    "message": "Backup restored"
+  },
+  "backupMerged": {
+    "message": "Backup merged"
+  },
+  "importFailed": {
+    "message": "Import failed: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmDeleteAll": {
+    "message": "Clear all records generated by this device? This change will sync to the cloud. Other devices’ records are unaffected. This cannot be undone."
+  },
+  "dataCleared": {
+    "message": "Statistics cleared"
+  },
+  "emailConfigRequired": {
+    "message": "Enter gateway URL and recipient before enabling email backup"
+  },
+  "settingsSaved": {
+    "message": "Settings saved"
+  },
+  "loadFailed": {
+    "message": "Failed to load data: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "operationFailed": {
+    "message": "Operation failed"
+  },
+  "invalidBackup": {
+    "message": "Missing dailyStats in file; this may not be a valid backup"
+  },
+  "reportTypeDaily": {
+    "message": "Daily report"
+  },
+  "reportTypeWeekly": {
+    "message": "Weekly report"
+  },
+  "reportTypeMonthly": {
+    "message": "Monthly report"
+  },
+  "reportTypeQuarterly": {
+    "message": "Quarterly report"
+  },
+  "reportTypeYearly": {
+    "message": "Yearly report"
+  },
+  "durationMinutes": {
+    "message": "$MIN$ min",
+    "placeholders": {
+      "min": {
+        "content": "$1"
+      }
+    }
+  },
+  "durationHours": {
+    "message": "$HOURS$ hr",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      }
+    }
+  },
+  "durationHoursMinutes": {
+    "message": "$HOURS$ hr $MIN$ min",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      },
+      "min": {
+        "content": "$2"
+      }
+    }
+  },
+  "durationMinutesLong": {
+    "message": "$MIN$ minutes",
+    "placeholders": {
+      "min": {
+        "content": "$1"
+      }
+    }
+  },
+  "durationHoursLong": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      }
+    }
+  },
+  "durationHoursMinutesLong": {
+    "message": "$HOURS$ hours $MIN$ minutes",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      },
+      "min": {
+        "content": "$2"
+      }
+    }
+  },
+  "periodAllTime": {
+    "message": "All time · $START$ — $END$",
+    "placeholders": {
+      "start": {
+        "content": "$1"
+      },
+      "end": {
+        "content": "$2"
+      }
+    }
+  },
+  "periodWeek": {
+    "message": "Week $WEEK$, $YEAR$ · $START$ — $END$",
+    "placeholders": {
+      "week": {
+        "content": "$1"
+      },
+      "year": {
+        "content": "$2"
+      },
+      "start": {
+        "content": "$3"
+      },
+      "end": {
+        "content": "$4"
+      }
+    }
+  },
+  "periodQuarter": {
+    "message": "Q$QUARTER$ $YEAR$",
+    "placeholders": {
+      "quarter": {
+        "content": "$1"
+      },
+      "year": {
+        "content": "$2"
+      }
+    }
+  },
+  "errUnknownReportType": {
+    "message": "Unknown report type: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "errEmailNotConfigured": {
+    "message": "Email gateway URL or recipient is not configured"
+  },
+  "errEmailGateway": {
+    "message": "Email gateway returned $STATUS$$DETAIL$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      },
+      "detail": {
+        "content": "$2"
+      }
+    }
+  },
+  "errMissingReportId": {
+    "message": "Missing report ID"
+  },
+  "errUnknownRequest": {
+    "message": "Unknown request"
+  },
+  "errBackgroundOperation": {
+    "message": "Background operation failed"
+  },
+  "cloudTitle": {
+    "message": "Cloud sync"
+  },
+  "cloudDesc": {
+    "message": "Devices on the same Google account sync automatically. Tracking continues offline and uploads resume when connected."
+  },
+  "cloudHint": {
+    "message": "View records synced by your original devices."
+  },
+  "cloudView": {
+    "message": "Data scope"
+  },
+  "cloudAll": {
+    "message": "All devices"
+  },
+  "cloudLocal": {
+    "message": "This device"
+  },
+  "cloudSignIn": {
+    "message": "Sign in with Google"
+  },
+  "cloudSyncNow": {
+    "message": "Refresh cloud records"
+  },
+  "cloudSignOut": {
+    "message": "Sign out"
+  },
+  "cloudSignedOut": {
+    "message": "Signed out · sync paused"
+  },
+  "cloudSyncing": {
+    "message": "Syncing"
+  },
+  "cloudSynced": {
+    "message": "Synced"
+  },
+  "cloudError": {
+    "message": "Sync incomplete; will retry automatically"
+  },
+  "cloudArchive": {
+    "message": "Other device archive"
+  },
+  "cloudAccountLabel": {
+    "message": "Account"
+  },
+  "cloudPrivacyHint": {
+    "message": "Google account sync is enabled"
+  },
+  "cloudDetails": {
+    "message": "Sync details"
+  },
+  "cloudLastSync": {
+    "message": "Last successful sync"
+  },
+  "cloudDevices": {
+    "message": "Synced devices"
+  },
+  "cloudLoginHint": {
+    "message": "Sign in to sync across devices"
+  },
+  "cloudLoginFromSidebar": {
+    "message": "Sign in with Google here to enable sync across devices."
+  },
+  "cloudOffline": {
+    "message": "Offline · sync pending"
+  },
+  "cloudWaiting": {
+    "message": "Waiting to sync"
+  },
+  "cloudRetrying": {
+    "message": "Waiting to retry"
+  },
+  "aboutTitle": {
+    "message": "About Time Lens"
+  },
+  "localEdition": {
+    "message": "Local edition"
+  },
+  "importSyncHint": {
+    "message": "Imported records sync as this device’s data. Merging the same backup repeatedly adds it repeatedly."
+  },
+  "deleteConfirmTitle": {
+    "message": "Clear this device’s data?"
+  },
+  "deleteCancel": {
+    "message": "Cancel"
+  },
+  "deleteConfirm": {
+    "message": "Confirm clear"
+  },
+  "chooseFile": {
+    "message": "Choose file"
+  },
+  "noFileChosen": {
+    "message": "No file chosen"
+  },
+  "cloudSignInRequired": {
+    "message": "Please sign in with Google first"
+  },
+  "cloudAccountSignedOut": {
+    "message": "The account has been signed out"
+  },
+  "cloudDataIncomplete": {
+    "message": "Cloud data is incomplete. Please try again shortly."
+  },
+  "cloudDataInvalid": {
+    "message": "Cloud data verification failed. Please try again."
+  },
+  "cloudWrongAccount": {
+    "message": "This device’s data belongs to another Google account. Sign in with the original account."
+  },
+  "cloudLoginOpen": {
+    "message": "The sign-in window is already open"
+  },
+  "cloudLoginTimeout": {
+    "message": "Sign-in timed out. Please try again."
+  },
+  "cloudLoginPending": {
+    "message": "Complete or close the current sign-in first"
+  },
+  "errorSignInCancelled": {
+    "message": "Sign-in cancelled"
+  },
+  "errorNetwork": {
+    "message": "The network is unavailable. Please try again shortly."
+  },
+  "errorSyncPermission": {
+    "message": "Unable to access sync data. Check the account or sign in again."
+  },
+  "errorSignInExpired": {
+    "message": "Your sign-in has expired. Please sign in again."
+  },
+  "errorReloadExtension": {
+    "message": "The extension was updated. Please reload this page."
+  },
+  "deleteConfirmWait": {
+    "message": "Confirm clear ($1 seconds)"
+  },
+  "deviceThis": {
+    "message": "This device"
+  },
+  "deviceLinked": {
+    "message": "Linked device"
+  },
+  "deviceIdLabel": {
+    "message": "Device ID"
+  },
+  "cloudDeviceMissing": {
+    "message": "Device not found. Sync and try again."
+  },
+  "settingsGeneral": {
+    "message": "General"
+  },
+  "settingsAccount": {
+    "message": "Account & sync"
+  },
+  "settingsClose": {
+    "message": "Close settings"
+  },
+  "settingsCategories": {
+    "message": "Settings categories"
+  },
+  "trendGuidance": {
+    "message": "The full period is shown. Gray marks indicate missing records; dashed marks indicate future dates. Click a bar to open its day or month."
+  },
+  "patternMissing": {
+    "message": "No records"
+  },
+  "patternFuture": {
+    "message": "Future date"
+  },
+  "patternsKicker": {
+    "message": "PATTERNS"
+  },
+  "patternsTitle": {
+    "message": "Browsing patterns"
+  },
+  "patternsCoverage": {
+    "message": "$1 recorded days · $2 days without records"
+  },
+  "patternHourly": {
+    "message": "24-hour distribution"
+  },
+  "patternWeekday": {
+    "message": "Weekday patterns"
+  },
+  "patternAcademic": {
+    "message": "Terms and holidays"
+  },
+  "patternSites": {
+    "message": "Website habits"
+  },
+  "patternHourlyDesc": {
+    "message": "Average browsing time per hour across dates with hourly detail. Sessions are split across hours. Only recorded portions are analyzed; historical daily totals are not converted into hourly data."
+  },
+  "patternWeekdayDesc": {
+    "message": "Compare daily average browsing time by weekday using each group's recorded dates. Missing days are excluded, not counted as zero."
+  },
+  "patternAcademicDesc": {
+    "message": "Compare daily average browsing time across spring and autumn terms and winter and summer breaks, using recorded days in each group rather than raw totals."
+  },
+  "patternSitesDesc": {
+    "message": "Explore website concentration, average visit duration and the busiest browsing day. These measures do not assess productivity."
+  },
+  "patternHourlyCoverage": {
+    "message": "$1 dates have hourly detail. Older records contain daily totals only. The distribution becomes available after two dates with hourly detail are recorded by this version."
+  },
+  "patternRecordedDays": {
+    "message": "$1 recorded days"
+  },
+  "patternSpring": {
+    "message": "Spring term"
+  },
+  "patternAutumn": {
+    "message": "Autumn term"
+  },
+  "patternWinter": {
+    "message": "Winter break"
+  },
+  "patternSummer": {
+    "message": "Summer break"
+  },
+  "patternUnknown": {
+    "message": "Calendar unavailable"
+  },
+  "patternCalendarBasis": {
+    "message": "Xinyang Normal University, Tanshan campus staff calendar, classified by reporting and rotation dates rather than personal leave."
+  },
+  "patternCalendarSources": {
+    "message": "Official calendars"
+  },
+  "patternTopSite": {
+    "message": "Top website share"
+  },
+  "patternTopThree": {
+    "message": "Top three share"
+  },
+  "patternVisitAverage": {
+    "message": "Average visit"
+  },
+  "patternPeakDay": {
+    "message": "Busiest browsing day"
+  },
+  "trendHourly": {
+    "message": "Browsing by hour"
+  },
+  "trendHourlyGuidance": {
+    "message": "Recorded browsing detail from 00:00 to 23:00. Historical daily totals are not assigned to hours. Gray marks indicate missing hourly records; dashed marks indicate future hours."
+  }
+}
