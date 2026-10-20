@@ -359,7 +359,7 @@
     "message": "The retry count or time limit was reached. Automatic sending has stopped."
   },
   "deviceDesc": {
-    "message": "Rename devices linked to this account. Names sync across computers; device IDs stay unchanged."
+    "message": "View synced devices. Rename them in the extension."
   },
   "deviceNameLabel": {
     "message": "Device name"
@@ -696,13 +696,13 @@
     "message": "Background operation failed"
   },
   "cloudTitle": {
-    "message": "Cloud sync"
+    "message": "Cloud records"
   },
   "cloudDesc": {
     "message": "Devices on the same Google account sync automatically. Tracking continues offline and uploads resume when connected."
   },
   "cloudHint": {
-    "message": "View records synced by your original devices."
+    "message": "Read records synced by your original devices."
   },
   "cloudView": {
     "message": "Data scope"
@@ -747,7 +747,7 @@
     "message": "Sync details"
   },
   "cloudLastSync": {
-    "message": "Last successful sync"
+    "message": "Last refreshed"
   },
   "cloudDevices": {
     "message": "Synced devices"
@@ -921,10 +921,10 @@
     "message": "Calendar unavailable"
   },
   "patternCalendarBasis": {
-    "message": "Xinyang Normal University, Tanshan campus staff calendar, classified by reporting and rotation dates rather than personal leave."
+    "message": "Fixed month groups: winter break in February; summer break in July–August; spring term in March–June; autumn term in September–January."
   },
   "patternCalendarSources": {
-    "message": "Official calendars"
+    "message": "Month groups"
   },
   "patternTopSite": {
     "message": "Top website share"

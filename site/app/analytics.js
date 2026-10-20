@@ -1,13 +1,8 @@
 (function(root){
   'use strict';
   const Core=root.TimeLensCore;
-  // Same verified Tanshan staff reporting / rotation boundaries as SoftTrace; end exclusive.
-  const calendar=[['2024-08-29','2025-01-18','autumn'],['2025-01-18','2025-02-13','winter'],
-    ['2025-02-13','2025-07-05','spring'],['2025-07-05','2025-08-27','summer'],
-    ['2025-08-27','2026-01-17','autumn'],['2026-01-17','2026-02-25','winter'],
-    ['2026-02-25','2026-07-10','spring'],['2026-07-10','2026-08-26','summer'],
-    ['2026-08-26','2027-01-25','autumn'],['2027-01-25','2027-02-17','winter'],['2027-02-17','2027-07-19','spring']];
-  const classify=date=>calendar.find(([start,end])=>date>=start&&date<end)?.[2]||'unknown';
+  // Fixed month groups: February winter, July/August summer.
+  const classify=date=>{const month=Number(date.slice(5,7));return month===2?'winter':month===7||month===8?'summer':month>=3&&month<=6?'spring':'autumn';};
   const monthly=(type,count)=>type==='yearly'||(type==='all'&&count>100);
   function timeline(stats,start,end,today,type,now=new Date()){
     if(type==='daily'&&Object.values(stats[start]||{}).some(site=>Array.isArray(site.hourlyMs))){

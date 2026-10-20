@@ -341,7 +341,7 @@
     "message": "邮件备份"
   },
   "deviceTitle": {
-    "message": "设备管理"
+    "message": "设备信息"
   },
   "reportStatusQueued": {
     "message": "邮件待发送"
@@ -359,7 +359,7 @@
     "message": "已达到重试次数或时限，自动发送已停止。"
   },
   "deviceDesc": {
-    "message": "管理当前账户关联的设备名称。名称跨设备同步，设备 ID 保持不变。"
+    "message": "查看已同步设备。设备名称请在原扩展中修改。"
   },
   "deviceNameLabel": {
     "message": "设备名"
@@ -696,13 +696,13 @@
     "message": "后台操作失败"
   },
   "cloudTitle": {
-    "message": "云端同步"
+    "message": "云端记录"
   },
   "cloudDesc": {
     "message": "同一 Google 账户下的设备自动同步，离线继续计时，联网后补传。"
   },
   "cloudHint": {
-    "message": "查看原设备已同步的记录，采集继续由原设备完成。"
+    "message": "读取原设备已同步的记录，不在此网页采集数据。"
   },
   "cloudView": {
     "message": "统计范围"
@@ -747,7 +747,7 @@
     "message": "查看同步详情"
   },
   "cloudLastSync": {
-    "message": "最近成功同步"
+    "message": "最近刷新"
   },
   "cloudDevices": {
     "message": "已同步设备"
@@ -912,19 +912,19 @@
     "message": "秋季学期"
   },
   "patternWinter": {
-    "message": "寒假轮休期"
+    "message": "寒假"
   },
   "patternSummer": {
-    "message": "暑假轮休期"
+    "message": "暑假"
   },
   "patternUnknown": {
-    "message": "待补校历"
+    "message": "未分类"
   },
   "patternCalendarBasis": {
-    "message": "信阳师范大学谭山校区教职工校历，按报到与轮休日期划分，不代表个人实际休假。"
+    "message": "按固定月份分组：寒假为 2 月；暑假为 7–8 月；春季学期为 3–6 月；秋季学期为 9 月至次年 1 月。"
   },
   "patternCalendarSources": {
-    "message": "官方校历"
+    "message": "月份分组"
   },
   "patternTopSite": {
     "message": "首位网站占比"

@@ -131,13 +131,8 @@ function renderDeviceScope(stored) {
 }
 
 async function renderDevices() {
-  if (document.activeElement?.classList.contains("device-name-input")) return;
-  const stored = await chrome.storage.local.get(["settings", "deviceId", "cloudDevices", "cloudCache", "cloudAuth"]);
-  if (document.activeElement?.classList.contains("device-name-input")) return;
-  document.getElementById("deviceList").innerHTML = deviceEntries(stored).map((device) => {
-    const value = device.isLocal ? stored.settings?.deviceName || "" : device.name;
-    return `<label class="device-item"><span class="device-identity">${escapeHtml(I18n.t(device.isLocal ? "deviceThis" : "deviceLinked"))}</span><input ${device.isLocal ? 'id="deviceName"' : ""} class="device-name-input" data-device-id="${escapeHtml(device.id)}" value="${escapeHtml(value)}" type="text" maxlength="80" placeholder="${escapeHtml(device.name)}" aria-label="${escapeHtml(I18n.t("deviceNameLabel"))}" ${true ? "disabled" : ""} /><small class="device-id" title="${escapeHtml(device.id)}">${escapeHtml(I18n.t("deviceIdLabel"))}: ${escapeHtml(device.id)}</small><small class="device-save-status" aria-live="polite"></small></label>`;
-  }).join("");
+  const stored=await chrome.storage.local.get(['cloudDevices','cloudCache']);
+  document.getElementById('deviceList').innerHTML=deviceEntries(stored).map(device=>'<div class="device-item"><strong>'+escapeHtml(device.name)+'</strong><small>已同步设备</small></div>').join('');
 }
 
 const deviceRenameTimers = new Map();
@@ -204,7 +199,7 @@ async function renderCloud() {
 window.addEventListener("online", () => { void renderCloud(); });
 window.addEventListener("offline", () => { void renderCloud(); });
 function activateSettingsPanel(name, focus = false) {
-  const tabs = [...document.querySelectorAll("[data-settings-tab]")];
+  const tabs = [...document.querySelectorAll("[data-settings-tab]")].filter(tab=>!tab.hidden);
   const selected = tabs.find((tab) => tab.dataset.settingsTab === name);
   if (!selected) return;
   for (const tab of tabs) {
@@ -252,7 +247,7 @@ document.getElementById("settingsDialog").addEventListener("close", () => {
 for (const button of document.querySelectorAll("[data-settings-tab]")) {
   button.addEventListener("click", () => activateSettingsPanel(button.dataset.settingsTab));
   button.addEventListener("keydown", (event) => {
-    const tabs = [...document.querySelectorAll("[data-settings-tab]")];
+    const tabs = [...document.querySelectorAll("[data-settings-tab]")].filter(tab=>!tab.hidden);
     const index = tabs.indexOf(button);
     const target = { ArrowDown: (index + 1) % tabs.length, ArrowUp: (index + tabs.length - 1) % tabs.length,
       ArrowRight: (index + 1) % tabs.length, ArrowLeft: (index + tabs.length - 1) % tabs.length,
@@ -357,8 +352,7 @@ function renderPatterns(range, summary) {
     content.innerHTML = rows(data.weekdays.map(day=>({...day,label:new Date(2026,0,5+day.index).toLocaleDateString(I18n.localeTag(),{weekday:'long'})})));
   } else if (patternMode === 'academic') {
     const labels={spring:'patternSpring',autumn:'patternAutumn',winter:'patternWinter',summer:'patternSummer',unknown:'patternUnknown'};
-    content.innerHTML = rows(data.academic.filter(day=>day.kind!=='unknown'||day.recordedDays).map(day=>({...day,label:I18n.t(labels[day.kind])})))+
-      `<p class="pattern-basis">${escapeHtml(I18n.t('patternCalendarBasis'))}</p><div class="pattern-sources"><span>${escapeHtml(I18n.t('patternCalendarSources'))}</span>${[['2024–2025','16121'],['2025–2026','1067'],['2026–2027','7920']].map(([year,id])=>`<a href="https://www.xynu.edu.cn/info/1059/${id}.htm" target="_blank" rel="noopener noreferrer">${year}</a>`).join('')}</div>`;
+    content.innerHTML = rows(data.academic.filter(day=>day.kind!=='unknown'||day.recordedDays).map(day=>({...day,label:I18n.t(labels[day.kind])})))+'<p class="pattern-basis">'+escapeHtml(I18n.t('patternCalendarBasis'))+'</p>';
   } else {
     const share = ms => (summary.totalMs?ms/summary.totalMs*100:0).toLocaleString(I18n.localeTag(),{maximumFractionDigits:1})+'%';
     const peak=summary.days.filter(day=>day.durationMs>0).sort((a,b)=>b.durationMs-a.durationMs)[0];

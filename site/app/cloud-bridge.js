@@ -5,7 +5,7 @@
   let stored={dailyStats:{},reports:[],settings:{uiLocale:'zh-CN'},cloudCache:{},cloudDevices:[],viewScope:'all',deviceId:'cloud-view'};
   const emit=changes=>{for(const cb of listeners)cb(changes,'local');};
   const local={async get(keys){await CloudAuth.ready;return keys===null?{...stored}:Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(k=>[k,stored[k]]));},
-    async set(values){const changes={};for(const[k,v]of Object.entries(values)){changes[k]={oldValue:stored[k],newValue:v};stored[k]=v;}emit(changes);}};
+    async set(values){const changes={};for(const[k,v]of Object.entries(values)){changes[k]={oldValue:stored[k],newValue:v};stored[k]=v;if(k==='viewScope'&&CloudAuth.user)localStorage.setItem('time-lens-web-scope-'+CloudAuth.user.uid,v);}emit(changes);}};
   async function refresh(force=false){
     await CloudAuth.ready;const user=CloudAuth.requireUser();
     if(!force&&Date.now()-loadedAt<60000)return{ok:true};
@@ -40,6 +40,6 @@
     i18n:{getUILanguage:()=>navigator.language,getMessage:()=>''},
     runtime:{getURL:path=>new URL(path,location.href).href,getManifest:()=>({version:'网页查看版'}),
       sendMessage(message,callback){dispatch(message).then(result=>callback(result)).catch(error=>callback({ok:false,error:error.message}));}}};
-  CloudAuth.onUser(user=>{if(owner!==user?.uid){owner=user?.uid||'';loadedAt=0;stored={dailyStats:{},reports:[],settings:{uiLocale:'zh-CN'},cloudCache:{},cloudDevices:[],viewScope:'all',deviceId:'cloud-view'};}if(user){stored.cloudAuth={uid:user.uid,email:user.email,displayName:user.displayName,photoURL:user.photoURL};emit({cloudAuth:{newValue:stored.cloudAuth}});void refresh().then(()=>window.loadState?.()).catch(()=>{});}});
+  CloudAuth.onUser(user=>{if(owner!==user?.uid){owner=user?.uid||'';loadedAt=0;stored={dailyStats:{},reports:[],settings:{uiLocale:'zh-CN'},cloudCache:{},cloudDevices:[],viewScope:'all',deviceId:'cloud-view'};if(user)stored.viewScope=localStorage.getItem('time-lens-web-scope-'+user.uid)||'all';}if(user){stored.cloudAuth={uid:user.uid,email:user.email,displayName:user.displayName,photoURL:user.photoURL};emit({cloudAuth:{newValue:stored.cloudAuth}});void refresh().then(()=>window.loadState?.()).catch(()=>{});}});
   setInterval(()=>{if(!document.hidden&&CloudAuth.user)void refresh(true).catch(()=>{});},120000);
 })();
