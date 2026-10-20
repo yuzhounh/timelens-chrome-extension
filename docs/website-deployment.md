@@ -1,6 +1,6 @@
 # 产品网站发布
 
-产品网站源码为 `site/`，仅介绍产品和提供安装、下载及隐私入口。桌面程序、Chrome 扩展及其本地数据不作为静态站点上传。
+产品网站源码为 `site/`，包含产品主页、Google 登录与个人云端仪表盘；采集仍由原程序或扩展负责。只发布必要展示资源，不上传本地数据库或登录凭据。
 
 - 网站名称：`timelens-extension`。
 - GitHub 仓库：`yuzhounh/timelens-chrome-extension`；Pages 入口使用现有仓库路径。
@@ -15,15 +15,15 @@
 
 ## 当前发布状态（2026-10-20）
 
-网站源码提交：`b0091fdfc57ab1034d4921bb6e6ac783cef51e12`。
+网站源码提交：`1bb0e9800650524d81d3fff9cdd147dd996eaf98`。
 
-- GitHub Pages：https://yuzhounh.github.io/timelens-chrome-extension/；工作流 `39373857743` 成功。
-- Cloudflare Pages：https://timelens-extension.pages.dev/；部署 `36dce57a`。
-- Vercel：https://timelens-extension.vercel.app/；部署 `dpl_4SJhYzzKV6RcK51t3Bjhe5S1cBP4` Ready。
+- GitHub Pages：https://yuzhounh.github.io/timelens-chrome-extension/；工作流 `39376894585` 成功。
+- Cloudflare Pages：https://timelens-extension.pages.dev/；部署 `9d75ae2b`。
+- Vercel：https://timelens-extension.vercel.app/；部署 `dpl_GvHbz93CbYB48GwcAAAyDiWfvejR` Ready。
 - Firebase Hosting：https://timelens-extension.web.app/；工程 `timelens-chrome-extension` 下的独立产品介绍站。
 - Netlify：https://timelens-extension.netlify.app/；站点 `8c4966b4-8362-403e-895b-728033f8f62e` 已注册，未连接 Git、未部署。用户仅批准注册例外，部署仍暂停至 2026-10-21 15:00。
 
-四个正式首页、隐私页、CSS、图标和发布清单均核验通过，共 20 项资源哈希与本地构建一致。平台回执及验证结果保存于 `results/website/`。GitHub Pages 沿用现有仓库路径，没有重命名仓库或创建第二个源码仓库。
+四个正式首页、隐私页、CSS、图标和发布清单均核验通过，共 84 项公开文件与本地构建一致（Soft Trace 每入口 19 项、Time Lens 每入口 21 项；含发布清单）。平台回执及验证结果保存于 `results/website/`。GitHub Pages 沿用现有仓库路径，没有重命名仓库或创建第二个源码仓库。
 
 ## Google 登录与云端仪表盘
 
@@ -32,3 +32,7 @@
 Soft Trace 按真实活动起止时间查询并分页，兼容旧状态记录的 stateStartUtc/stateEndUtc，时间轴以区间并集计算实际使用。Time Lens 按设备清单读取按日分块记录，校验 SHA-256，保留小时统计和原有图表逻辑。静态包包含页面、展示脚本和公开 Firebase 客户端配置，不包含用户数据或管理凭据。
 
 网页仪表盘以云端已成功同步的记录为准；本机新记录需等待原设备同步。网站安全策略允许界面所需的内联样式，脚本来源仍限定为本站与 Google 官方 SDK；Firebase 托管认证辅助地址不应用页面框架限制。
+
+本轮将账户信息、刷新和退出统一收进设置，移除额外顶栏；主页按钮“打开网页面板”位于两个下载/安装按钮右侧。Time Lens 标签标题为“Time Lens · 时光镜”。Soft Trace 逐段明细的滚动条使用更浅颜色；同一颜色修改已写回本地网页源码。
+
+Google 登录由用户在真实浏览器完成；Soft Trace 已展示云端活动记录。Time Lens 分块校验已对齐扩展现有 SHA-256 前 32 位格式，用户刷新后确认图表和网站排行正常。自动化浏览器连接后续暂时失效，因此本轮不将退出操作标记为真实浏览器验收通过；账号退出逻辑调用 Firebase signOut，原有云端数据不会被删除。静态资源与账户隔离、跨午夜统计/分块完整性检查通过。
