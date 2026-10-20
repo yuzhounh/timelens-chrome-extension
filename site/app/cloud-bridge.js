@@ -12,7 +12,7 @@
     if(pending)return pending;
     const uid=user.uid;
     pending=(async()=>{
-      const notice=document.getElementById('cloud-read-status');if(notice)notice.textContent='正在读取云端记录…';
+      const notice=document.getElementById('cloud-read-status');if(notice)notice.textContent='正在读取云端记录…';const failure=document.getElementById('cloud-read-error');if(failure)failure.hidden=true;
       await local.set({cloudStatus:{state:'syncing'}});
       const devices=await CloudAuth.collection('users/'+uid+'/devices');
       const cache={},registry=[],{readDevice}=await dataModule;
@@ -26,7 +26,7 @@
       await local.set({cloudCache:cache,cloudDevices:registry,cloudAuth:{uid,email:user.email,displayName:user.displayName,photoURL:user.photoURL},cloudStatus:{state:'synced',lastSyncAt:Date.now()}});
       loadedAt=Date.now();if(notice)notice.textContent=registry.length?'云端记录已更新':'当前账号尚无扩展同步记录';return{ok:true};
     })();
-    try{return await pending;}catch(error){const notice=document.getElementById('cloud-read-status');if(notice)notice.textContent=error.message;await local.set({cloudStatus:{state:'error',error:error.message}});throw error;}finally{pending=null;}
+    try{return await pending;}catch(error){const notice=document.getElementById('cloud-read-status');if(notice)notice.textContent=error.message;const failure=document.getElementById('cloud-read-error');if(failure){failure.textContent=error.message;failure.hidden=false;}await local.set({cloudStatus:{state:'error',error:error.message}});throw error;}finally{pending=null;}
   }
   async function dispatch(message){
     if(message.type==='get-summary')return refresh();
@@ -40,6 +40,6 @@
     i18n:{getUILanguage:()=>navigator.language,getMessage:()=>''},
     runtime:{getURL:path=>new URL(path,location.href).href,getManifest:()=>({version:'网页查看版'}),
       sendMessage(message,callback){dispatch(message).then(result=>callback(result)).catch(error=>callback({ok:false,error:error.message}));}}};
-  CloudAuth.onUser(user=>{if(owner!==user?.uid){owner=user?.uid||'';loadedAt=0;stored={dailyStats:{},reports:[],settings:{uiLocale:'zh-CN'},cloudCache:{},cloudDevices:[],viewScope:'all',deviceId:'cloud-view'};}if(user){void refresh().then(()=>window.loadState?.()).catch(()=>{});}});
+  CloudAuth.onUser(user=>{if(owner!==user?.uid){owner=user?.uid||'';loadedAt=0;stored={dailyStats:{},reports:[],settings:{uiLocale:'zh-CN'},cloudCache:{},cloudDevices:[],viewScope:'all',deviceId:'cloud-view'};}if(user){stored.cloudAuth={uid:user.uid,email:user.email,displayName:user.displayName,photoURL:user.photoURL};emit({cloudAuth:{newValue:stored.cloudAuth}});void refresh().then(()=>window.loadState?.()).catch(()=>{});}});
   setInterval(()=>{if(!document.hidden&&CloudAuth.user)void refresh(true).catch(()=>{});},120000);
 })();
