@@ -15,15 +15,17 @@
 
 ## 当前发布状态（2026-10-20）
 
-网站源码提交：`1bb0e9800650524d81d3fff9cdd147dd996eaf98`。
+网站源码提交：`40e51d57fdb22956e6c1c7510725445a7d54ad73`（默认今日、按日期范围加载）。
 
-- GitHub Pages：https://yuzhounh.github.io/timelens-chrome-extension/；工作流 `39376894585` 成功。
-- Cloudflare Pages：https://timelens-extension.pages.dev/；部署 `9d75ae2b`。
-- Vercel：https://timelens-extension.vercel.app/；部署 `dpl_GvHbz93CbYB48GwcAAAyDiWfvejR` Ready。
+- GitHub Pages：https://yuzhounh.github.io/timelens-chrome-extension/；工作流 `39411174020` 成功，包含网站测试及构建。
+- Cloudflare Pages：https://timelens-extension.pages.dev/；部署 `57af778e`。
+- Vercel：https://timelens-extension.vercel.app/；部署 `dpl_Fp4dMxpWEgdUb8h2eF2uR3YktKHA` Ready。
 - Firebase Hosting：https://timelens-extension.web.app/；工程 `timelens-chrome-extension` 下的独立产品介绍站。
-- Netlify：https://timelens-extension.netlify.app/；站点 `8c4966b4-8362-403e-895b-728033f8f62e` 已注册，未连接 Git、未部署。用户仅批准注册例外，部署仍暂停至 2026-10-21 15:00。
+- Netlify：https://timelens-extension.netlify.app/；站点 `8c4966b4-8362-403e-895b-728033f8f62e` 已注册，未连接 Git、未部署。保持原定北京时间 2026-10-21 15:05 一次性发布安排，届时核对额度及滚动 168 小时窗口，使用本次最新已验证网站包。
 
-四个正式首页、隐私页、CSS、图标和发布清单均核验通过，共 84 项公开文件与本地构建一致（Soft Trace 每入口 19 项、Time Lens 每入口 21 项；含发布清单）。平台回执及验证结果保存于 `results/website/`。GitHub Pages 沿用现有仓库路径，没有重命名仓库或创建第二个源码仓库。
+本次复用已通过构建，核对全部 20 项公开资源与提交源码一致，再更新 release.json 中的源码提交。四平台各核验首页、app 入口、三个读取/展示脚本、认证脚本、公开客户端配置及发布清单，32 项检查通过，模块 MIME 正确。结果在 `results/website/verification-demand.json`，平台回执在同目录 `*-demand.log`。未为发布重新扫描个人 Firestore 记录；GitHub Pages 沿用现有仓库路径。
+
+在线版默认今日视图，读取设备日期清单后仅下载选定范围的数据分块。切换日期、周/月/季/年、前后周期、回到本期及图表下钻均触发对应范围加载；显式选择“所有时间”才加载全部历史。已校验且未变化的日期分块复用缓存，相同范围的并发请求合并，不同范围顺序处理，账号切换隔离旧请求。本次仅提交网站展示层与相关测试，本地扩展源码及运行方式未修改。
 
 ## Google 登录与云端仪表盘
 
