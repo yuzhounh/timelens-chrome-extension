@@ -8,12 +8,12 @@
 - GitHub Pages：工作流 `.github/workflows/pages.yml`，只上传静态发布目录。
 - Cloudflare Pages、Vercel：发布同一静态目录；先确认账号、项目及原名地址归属。
 - Firebase：`firebase deploy --config site/firebase.json --only hosting --project timelens-chrome-extension`；仅操作 Hosting 站点 `timelens-extension`，不修改数据库规则、认证或其他站点。
-- Netlify：只注册独立站点且不连接 Git 自动构建。2026-10-21 15:00 Asia/Shanghai 前不部署；之后遵守每项目滚动 168 小时最多一次提交，记录以维护 Hub 的 `review/netlify_deployments.md` 为准。
+- Netlify：使用独立站点，不连接 Git 自动构建；遵守每项目滚动 168 小时最多一次提交，记录以维护 Hub 的 `review/netlify_deployments.md` 为准。
 - 普通 GitHub 推送提交保留 `[skip netlify]`。
 
 现有应用功能改动未纳入本次网站提交；网站下载链接指向现有公开发行版。原 Firebase Hosting 站点 timelens-chrome-extension 和现有登录回调保持独立。
 
-## 当前发布状态（2026-10-20）
+## 当前发布状态（2026-10-22）
 
 网站源码提交：`40e51d57fdb22956e6c1c7510725445a7d54ad73`（默认今日、按日期范围加载）。
 
@@ -21,11 +21,19 @@
 - Cloudflare Pages：https://timelens-extension.pages.dev/；部署 `57af778e`。
 - Vercel：https://timelens-extension.vercel.app/；部署 `dpl_Fp4dMxpWEgdUb8h2eF2uR3YktKHA` Ready。
 - Firebase Hosting：https://timelens-extension.web.app/；工程 `timelens-chrome-extension` 下的独立产品介绍站。
-- Netlify：https://timelens-extension.netlify.app/；站点 `8c4966b4-8362-403e-895b-728033f8f62e` 已注册，未连接 Git、未部署。保持原定北京时间 2026-10-21 15:05 一次性发布安排，届时核对额度及滚动 168 小时窗口，使用本次最新已验证网站包。
+- Netlify：https://timelens-extension.netlify.app/；站点 `8c4966b4-8362-403e-895b-728033f8f62e` 已首次发布，部署 `6ad9613ab5ebaac4b754c7e0` READY；平台创建时间 2026-10-22 09:04:58.872 +08:00，下次最早提交 2026-10-29 09:04:58.872 +08:00。未连接 Git 自动构建。
 
 本次复用已通过构建，核对全部 20 项公开资源与提交源码一致，再更新 release.json 中的源码提交。四平台各核验首页、app 入口、三个读取/展示脚本、认证脚本、公开客户端配置及发布清单，32 项检查通过，模块 MIME 正确。结果在 `results/website/verification-demand.json`，平台回执在同目录 `*-demand.log`。未为发布重新扫描个人 Firestore 记录；GitHub Pages 沿用现有仓库路径。
 
 在线版默认今日视图，读取设备日期清单后仅下载选定范围的数据分块。切换日期、周/月/季/年、前后周期、回到本期及图表下钻均触发对应范围加载；显式选择“所有时间”才加载全部历史。已校验且未变化的日期分块复用缓存，相同范围的并发请求合并，不同范围顺序处理，账号切换隔离旧请求。本次仅提交网站展示层与相关测试，本地扩展源码及运行方式未修改。
+
+## Netlify 首次发布（2026-10-22）
+
+原定 10 月 21 日 15:05 的任务延迟执行，实际平台发布时间为 2026-10-22 09:05:01.876 +08:00。复用网站提交 `40e51d57fdb22956e6c1c7510725445a7d54ad73` 的已验证构建，无重建、无版本变更；每站仅提交一次。发布前确认团队 yuzhounh 额度 300、已用 0，且两个新站点均无既往部署/构建提交。
+
+21 项公开文件通过核验；脚本、样式、公开配置及 release.json 与构建 SHA-256 一致。Netlify 对 HTML 注入免费站点说明和工具条，并将 privacy.html 链接美化为 /privacy；严格剥离这些已识别平台变换后，HTML 与源码一致。隔离空白浏览器验证未登录只显示登录界面，私有 Firestore 请求为 0。未修改数据库或本地程序/扩展，没有收费升级。
+
+一次性任务已删除，不再自动重试。滚动 168 小时窗口以本段记录及维护 Hub review/netlify_deployments.md 为准。发布回执与核验结果在 results/website/netlify-release.json。
 
 ## Google 登录与云端仪表盘
 
