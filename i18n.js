@@ -85,7 +85,9 @@
       if (formatted) return formatted;
     }
     try {
-      const message = chrome?.i18n?.getMessage?.(key, substitutions.map(String));
+      const browserLocale = browserLanguage().toLowerCase().startsWith("en") ? "en" : "zh-CN";
+      const message = (!activeLocale || activeLocale === browserLocale)
+        ? chrome?.i18n?.getMessage?.(key, substitutions.map(String)) : "";
       if (message) return message;
     } catch {
       // Ignore and fall back below.
@@ -98,6 +100,19 @@
 
   function formatNumber(value) {
     return Number(value || 0).toLocaleString(localeTag());
+  }
+
+  function errorMessage(error, fallbackKey = "operationFailed") {
+    const message = typeof error === "string" ? error : error?.message || "";
+    const code = error?.code || message;
+    if (messageTable[code]) return t(code);
+    if (Object.values(messageTable).some((entry) => entry.message === message)) return message;
+    if (/popup-closed|cancelled-popup|canceled|cancelled/i.test(code)) return t("errorSignInCancelled");
+    if (/network|fetch|abort|timeout|timed out/i.test(code)) return t("errorNetwork");
+    if (/PERMISSION_DENIED|insufficient.permission/i.test(code)) return t("errorSyncPermission");
+    if (/TOKEN_EXPIRED|INVALID_ID_TOKEN|INVALID_REFRESH_TOKEN|USER_DISABLED|user-token-expired/i.test(code)) return t("errorSignInExpired");
+    if (/context invalidated|receiving end|message port closed/i.test(code)) return t("errorReloadExtension");
+    return t(fallbackKey);
   }
 
   function apply(root = document) {
@@ -141,6 +156,7 @@
     localeTag,
     t,
     formatNumber,
+    errorMessage,
     apply
   };
 })(typeof self !== "undefined" ? self : globalThis);

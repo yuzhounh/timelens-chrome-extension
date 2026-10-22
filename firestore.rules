@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) {
+      return request.auth != null && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function validPayload() {
+      return request.resource.data.keys().hasOnly(['payload'])
+        && request.resource.data.payload is string
+        && request.resource.data.payload.size() < 900000;
+    }
+    match /users/{uid}/devices/{deviceId} {
+      allow read, delete: if owner(uid);
+      allow create, update: if owner(uid) && validPayload();
+      match /chunks/{chunkId} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validPayload();
+      }
+    }
+    match /users/{uid}/config/shared {
+      allow read: if owner(uid);
+      allow create, update: if owner(uid) && validPayload();
+    }
+  }
+}

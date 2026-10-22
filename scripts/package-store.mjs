@@ -1,5 +1,5 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, statSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync, execSync } from "node:child_process";
 
@@ -12,6 +12,13 @@ const includePaths = [
   "manifest.json",
   "background.js",
   "lib.js",
+  "analytics.js",
+  "firebase-config.js",
+  "sync-core.js",
+  "stats-store.js",
+  "cloud-sync.js",
+  "offscreen.html",
+  "offscreen.js",
   "i18n.js",
   "dashboard.html",
   "dashboard.css",
@@ -38,6 +45,9 @@ const forbiddenPatterns = [
 ];
 
 function resetStage() {
+  if (!resolve(stageDir).startsWith(resolve(root) + sep) || resolve(stageDir) !== resolve(releaseDir, ".stage")) {
+    throw new Error("Refusing a staging cleanup outside this project's release directory");
+  }
   if (existsSync(stageDir)) rmSync(stageDir, { recursive: true, force: true });
   mkdirSync(stageDir, { recursive: true });
 }

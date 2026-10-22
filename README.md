@@ -4,7 +4,7 @@
 
 <h1 align="center">Time Lens · 时光镜</h1>
 
-<p align="center"><strong>本地优先的网站访问计时、可视化与周期报告。</strong></p>
+<p align="center"><strong>网站访问计时、可视化与 Google 账户跨设备同步。</strong></p>
 
 <p align="center">
   <a href="https://github.com/yuzhounh/timelens-chrome-extension/releases/latest"><img src="https://img.shields.io/github/v/release/yuzhounh/timelens-chrome-extension?style=flat&amp;color=0969da&amp;label=Release" alt="Latest stable release"></a>
@@ -17,7 +17,9 @@
   <a href="https://chromewebstore.google.com/detail/idihkkiapagakajacljibnpekkfpiacm">安装扩展</a> · <a href="https://github.com/yuzhounh/timelens-chrome-extension/releases/latest">下载发布版</a> · <a href="#快速开始">快速开始</a> · <a href="LICENSE">开源协议</a>
 </p>
 
-一个本地优先的 Chrome Manifest V3 扩展。它只累计“当前窗口中激活的网页”且电脑处于非空闲状态时的访问时间，并按网站域名汇总。
+一个通过 Google 账户同步多台设备的 Chrome Manifest V3 网站计时扩展。它只累计“当前窗口中激活的网页”且电脑处于非空闲状态时的访问时间，并按网站域名汇总。
+
+当前日常源码为2.1.1，公开发行和商店版本单独维护。统计按日期保存，更新活动只读取、哈希和写入涉及的日期；首次升级先校验历史数据，再发布日期索引，写入中断时保留上一份已提交数据。小时分段、访问次数、原设备身份、账户及JSON备份格式保持。云同步复用未变化日期的摘要，扩展及网页看板在隐藏时合并变更，回到前台刷新；网页单日分块最多并发读取4个。
 
 ## 功能特点
 
@@ -26,11 +28,8 @@
 - 可视化仪表盘：按日、周、月、季度、年或所有时间查看趋势、占比和网站排行
 - 历史追溯：选择任意日期后定位到它所在的周、月、季度或年份，并可前后翻页
 - JSON 完整备份的导入、合并与替换恢复
-- 单个周期报告 JSON 下载
-- 本周、本月、本季度、本年度报告手动生成
-- 周末、月末、季末、年末自动生成上一周期报告并保存在本地
-- 通过安全邮件网关自动发送 HTML 报告及 JSON 附件
-- 排除指定网站、调整空闲阈值、独立开关各类自动报告
+- 排除指定网站、调整空闲阈值
+- Google 账户同步：跨设备同步统计和通用设置，支持离线记录与联网补传
 
 ## 快速开始
 
@@ -40,50 +39,26 @@
 2. 打开右上角“开发者模式”。
 3. 点击“加载已解压的扩展程序”。
 4. 选择本项目根目录。
-5. 正常浏览几分钟，点击工具栏中的“时光镜”查看今日数据，或按 `Ctrl+Shift+Y` 打开完整仪表盘。
+5. 打开完整仪表盘，点击右上角设置 → 账户与同步，登录 Google，同一账户下的设备自动同步。
+6. 正常浏览几分钟，点击工具栏中的“时光镜”查看今日数据，或按 `Ctrl+Shift+Y` 打开完整仪表盘。
 
-插件需要读取标签页 URL 才能按域名统计，并需要访问配置的邮件网关；所有记录默认保存在 `chrome.storage.local`，不会主动上传。Chrome 内部页、扩展页和本地文件不会被统计。
+插件读取活动标签页 URL 以按域名统计；登录 Google 后，访问统计和通用设置自动同步至 Firebase。本机保存记录与缓存，离线时继续计时，联网后补传。Chrome 内部页、扩展页和本地文件不会被统计。
 
-## 配置邮件自动备份
+## Google 账户同步（本地使用版）
 
-浏览器扩展不应直接保存 Resend、SendGrid 或邮箱 SMTP 密钥。本项目提供了一个无第三方依赖的 Cloudflare Worker 示例，将真正的邮件 API 密钥保留在服务端。
+在右上角设置 → 账户与同步中登录 Google，同一账户的数据通过 Firebase 项目 `timelens-chrome-extension` 同步。约每 5 分钟自动同步，也可点击“立即同步”。概览可按设备显示名称筛选或合并查看所有设备；工具栏弹窗继续统计本机。头像、姓名、邮箱和同步状态统一显示在设置弹窗的账户与同步分组。
 
-1. 准备一个 [Resend](https://resend.com/) 账号并验证发件域名。
-2. 进入 `email-worker` 目录，登录并部署：
+其他电脑需要复制当前本地扩展文件并加载已解压的扩展，再登录同一 Google 账户。GitHub 和商店版本尚不包含本地改动。扩展代码不通过 Firebase 更新；更新文件后在 Chrome 扩展管理页重新加载。安装、同步范围、离线行为和验证记录见 [同步说明](docs/cloud-sync.md)。
 
-   ```powershell
-   npx wrangler login
-   npx wrangler secret put RESEND_API_KEY
-   npx wrangler secret put BACKUP_SECRET
-   npx wrangler secret put REPORT_FROM_EMAIL
-   npx wrangler deploy
-   ```
+2.0 主界面只保留概览，移除左侧栏。右上角设置弹窗集中提供常规、账户与同步、设备管理、数据管理四个分类；支持键盘切换分类、关闭按钮和 Esc，清除本机数据仍需 5 秒倒计时确认。修改后的设置自动保存。周期报告、自动报告与邮件备份已停用；旧报告仅作为兼容归档保留在 JSON 备份与云端历史数据中。
 
-   - `RESEND_API_KEY`：Resend API 密钥。
-   - `BACKUP_SECRET`：自行生成的一段长随机字符串。
-   - `REPORT_FROM_EMAIL`：已验证域名下的发件地址，例如 `时光镜 <report@example.com>`。
+## 趋势与浏览规律
 
-3. 在插件“设置 → 邮件备份”中填写：
-   - 邮件网关 URL：部署返回的 Worker URL。
-   - 收件邮箱。
-   - 网关访问令牌：与 `BACKUP_SECRET` 相同。
-4. 设置会在填写后自动保存；然后到“周期报告”勾选“同时发送”，先生成一次报告验证配置。
+趋势参考 SoftTrace：周、月和季度保留完整日历范围，年视图显示十二个月；全部时间在超过 100 天时按月汇总。灰色短线表示无记录，虚线表示未来，均不伪装成零浏览。点击柱形进入对应日/月，也可用左右方向键、Home/End 和 Enter 导航。
 
-若不配置邮件网关，自动报告仍会正常生成并保存在插件本地。
+多日范围提供网站集中度、平均访问时长及浏览最多的日期；实际范围满七天时增加星期规律。年视图及跨度至少一年的全部时间提供学期与寒暑假对比，按固定月份分为寒假（2 月）、暑假（7–8 月）、春季学期（3–6 月）和秋季学期（9 月至次年 1 月），至少有两个阶段存在记录才显示。日均统计排除无记录日期。
 
-### 区分不同设备的邮件
-
-在每台设备的“设置 → 本机名称”填写自定义名称，例如“办公室电脑”或“家用笔记本”，修改后自动保存。新报告的邮件主题会以 `[办公室电脑]` 开头，正文显示设备名和设备 ID，JSON 附件也包含 `device: { id, name }`。
-
-留空时使用 `Time Lens` 加本机 ID 前八位。ID 自动随机生成，按浏览器配置保存在本地，后台重启和改名不会改变；重新安装或清除扩展存储后会重新生成。备份导入不会覆盖本机 ID 或名称，已有报告保留生成时的设备信息。旧报告没有设备信息时仍能正常显示。
-
-升级时需同时更新扩展和 `email-worker/worker.js` 邮件网关，邮件主题及正文才会显示设备信息。自建其他网关可读取 `report.device` 使用相同信息。
-
-### 邮件后台队列
-
-报告先保存在本地，再由独立邮件队列发送；发送期间不阻塞网站计时。扩展请求 15 秒超时，网关访问 Resend 12 秒超时。临时失败最多尝试 3 次，重试间隔为 1、2 分钟，由已有分钟闹钟唤醒；后台重启后继续处理已保存的待发任务。永久请求错误停止重试，页面自动显示待发送、已发送或失败状态。
-
-同一报告的待发任务去重，重试保持相同正文和发送标识；随附网关将标识传给 Resend 的 [Idempotency-Key](https://resend.com/docs/dashboard/emails/idempotency-keys)。自动重试仅在创建后 23 小时内进行，以保持在其 24 小时去重窗口内。其他网关也需处理 `deliveryId` 去重。导入的报告只作为归档，不会触发补发；改变收件邮箱或网关后需重新生成报告。
+新版按设备记录时的本地小时拆分浏览时长，保留每日总量；有小时明细的日视图显示 00–23 时分布，累计至少两个有小时明细的日期后显示多日小时规律。旧记录只有每日总量，不补造小时数据。显示语言跟随设置切换中英文。修改后需重新加载本地扩展并刷新面板，不要卸载扩展。
 
 ## 数据格式
 
@@ -104,7 +79,9 @@
 }
 ```
 
-“合并导入”会将相同日期、相同网站的时长和访问次数相加，适合汇总多台设备，但重复导入同一备份也会重复累计。“替换导入”会覆盖现有访问记录和报告。
+新记录可额外包含 `hourlyMs`（24 项毫秒数组）。此字段只覆盖新版实际记录的小时部分，可小于该日 `durationMs`；旧记录不增加该字段。Firebase 同步、设备汇总和 JSON 导入导出保留小时数组。
+
+“合并导入”会将相同日期、相同网站的时长、访问次数及小时明细相加；重复导入同一备份也会重复累计。“替换导入”会覆盖现有访问记录和报告。
 
 ## 开发校验
 
@@ -113,8 +90,10 @@
 ```powershell
 node test/core.test.js
 node test/service-worker-lifecycle.test.js
-node test/email-queue.test.js
-node test/email-worker.test.mjs
+node test/cloud-sync.test.js
+node test/analytics.test.js
+node test/analytics-view.test.js
+node test/hourly-tracking.test.js
 ```
 
 修改后台脚本后，在 `chrome://extensions/` 点击该扩展的“重新加载”。

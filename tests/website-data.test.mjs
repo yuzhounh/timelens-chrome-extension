@@ -1,6 +1,14 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {digest,readDevice} from '../site/app/data.mjs';
+test('large day chunk loading bounds concurrency, keeps order and stops unsent work after failure',async()=>{
+ const value={'example.com':{durationMs:123,visits:2,title:'x'.repeat(800)}},text=JSON.stringify(value),count=12;
+ const parts=Array.from({length:count},(_,i)=>text.slice(Math.floor(i*text.length/count),Math.floor((i+1)*text.length/count)));
+ const hash=(await digest(value)).slice(0,32),manifest={days:{'2026-10-20':{hash,count}}};let active=0,peak=0;
+ const result=await readDevice(manifest,'device',async key=>{const i=Number(key.split('-').at(-1));active++;peak=Math.max(peak,active);await new Promise(r=>setTimeout(r,(3-i%4)*2));active--;return parts[i];});
+ assert.ok(peak<=4);assert.deepEqual(result.dailyStats['2026-10-20'],value);
+ let started=0;await assert.rejects(readDevice(manifest,'device',async()=>{started++;throw Error('offline');}),/offline/);assert.ok(started<=4);
+});
 test('chunk reads preserve hourly statistics and reject corrupt or incomplete payloads',async()=>{
  const day={'example.com':{durationMs:3600000,visits:3,hourlyMs:Array(24).fill(150000),title:'测试🙂'}};
  const text=JSON.stringify(day),hash=(await digest(day)).slice(0,32),manifest={name:'Laptop',revision:'r1',days:{'2026-10-20':{hash,count:2}}};

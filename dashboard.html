@@ -3,31 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Time Lens</title>
+    <title>Time Lens · 时光镜</title>
     <link rel="stylesheet" href="dashboard.css" />
   </head>
   <body>
-    <div class="shell">
-      <aside class="sidebar">
-        <div class="logo"><img src="icons/timer.svg" alt="" /><div><span data-i18n="popupBrand">时光镜</span><small>TIME LENS</small></div></div>
-        <nav>
-          <button class="nav-item active" data-page="overview"><span class="nav-icon">◫</span> <span class="nav-label" data-i18n="navOverview">概览</span></button>
-          <button class="nav-item" data-page="reports"><span class="nav-icon">◇</span> <span class="nav-label" data-i18n="navReports">周期报告</span></button>
-          <button class="nav-item" data-page="data"><span class="nav-icon">⇄</span> <span class="nav-label" data-i18n="navData">数据管理</span></button>
-          <button class="nav-item" data-page="settings"><span class="nav-icon">⌘</span> <span class="nav-label" data-i18n="navSettings">设置</span></button>
-        </nav>
-        <div class="privacy-note">
-          <span class="pulse"></span>
-          <div><strong data-i18n="privacyLocalFirst">本地优先</strong><small data-i18n="privacyLocalFirstHint">浏览数据默认只保存在本机</small></div>
-        </div>
-        <div class="app-version" id="appVersion"></div>
-      </aside>
-
-      <main class="content">
+    <main class="content">
+      <div class="app-header"><div class="app-brand"><img src="icons/timer.svg" alt="" /><span data-i18n="popupBrand">时光镜</span></div><button id="openSettings" class="icon-button" type="button" data-i18n-title="navSettings" data-i18n-aria="navSettings" aria-label="设置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.5 2.2-1.8 1-2.2-.6-2 3.5 1.7 1.6v2.6l-1.7 1.6 2 3.5 2.2-.6 1.8 1L9 21h6l.5-2.2 1.8-1 2.2.6 2-3.5-1.7-1.6v-2.6l1.7-1.6-2-3.5-2.2.6-1.8-1L15 3Z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
         <section id="overview" class="page active">
           <header class="page-header">
             <div><p class="kicker" data-i18n="overviewKicker">YOUR DIGITAL RHYTHM</p><h1 data-i18n="overviewTitle">时间都去了哪里？</h1></div>
             <div class="period-toolbar" data-i18n-aria="periodToolbarLabel" aria-label="统计周期">
+              <select id="dataScope" data-i18n-aria="cloudView" aria-label="统计范围"><option value="all" data-i18n="cloudAll">所有设备</option><option value="local" data-i18n="cloudLocal">仅本机</option></select>
               <select id="periodType" data-i18n-aria="periodTypeLabel" aria-label="选择统计周期">
                 <option value="daily" data-i18n="periodDaily">日</option>
                 <option value="weekly" data-i18n="periodWeekly">周</option>
@@ -52,7 +38,7 @@
             </div>
             <article class="panel chart-panel">
               <div class="panel-title"><div><small data-i18n="trendLabel">趋势</small><h2 id="trendHeading">—</h2></div><span id="trendTotal" class="chip">—</span></div>
-              <div class="canvas-wrap"><canvas id="trendChart" data-i18n-aria="trendChartLabel" aria-label="每日浏览时长趋势图"></canvas><div id="trendTooltip" class="chart-tooltip" role="tooltip" hidden></div></div>
+              <div class="canvas-wrap"><canvas id="trendChart" tabindex="0" data-i18n-aria="trendChartLabel" aria-label="每日浏览时长趋势图"></canvas><div id="trendTooltip" class="chart-tooltip" role="tooltip" hidden></div></div><p id="trendNote" class="trend-note"></p>
             </article>
             <article class="panel composition-panel">
               <div class="panel-title"><div><small data-i18n="compositionLabel">构成</small><h2 data-i18n="compositionTitle">时间分布</h2></div></div>
@@ -64,6 +50,12 @@
             </article>
           </div>
 
+          <article id="usagePatterns" class="panel usage-patterns" hidden>
+            <div class="panel-title"><div><small data-i18n="patternsKicker">规律</small><h2 data-i18n="patternsTitle">浏览规律</h2></div><span id="patternsCoverage" class="chip"></span></div>
+            <div id="patternTabs" class="pattern-tabs" role="tablist" data-i18n-aria="patternsTitle" aria-label="浏览规律"></div>
+            <p id="patternDescription" class="pattern-description"></p><div id="patternContent" role="tabpanel"></div>
+            <p id="hourlyCoverage" class="pattern-description"></p>
+          </article>
           <article class="panel site-table-panel">
             <div class="panel-title"><div><small data-i18n="detailsLabel">明细</small><h2 data-i18n="siteRankingTitle">网站排行</h2></div><input id="siteSearch" type="search" data-i18n-placeholder="siteSearchPlaceholder" placeholder="搜索网站" /></div>
             <div class="table-wrap">
@@ -82,48 +74,48 @@
             <div class="table-pagination">
               <span id="sitePageSummary">—</span>
               <div class="pagination-actions">
-                <button id="previousSitePage" type="button" data-i18n="paginationPrevious" aria-label="上一页">上一页</button>
-                <button id="nextSitePage" type="button" data-i18n="paginationNext" aria-label="下一页">下一页</button>
+                <button id="previousSitePage" data-i18n-aria="paginationPrevious" type="button" data-i18n="paginationPrevious" aria-label="上一页">上一页</button>
+                <button id="nextSitePage" data-i18n-aria="paginationNext" type="button" data-i18n="paginationNext" aria-label="下一页">下一页</button>
               </div>
             </div>
           </article>
         </section>
-
-        <section id="reports" class="page">
-          <header class="page-header"><div><p class="kicker" data-i18n="reportsKicker">PERIODIC ARCHIVE</p><h1 data-i18n="reportsTitle">周期报告</h1><p class="subtitle" data-i18n="reportsSubtitle">生成月报、季报或年报，并按需发送邮件备份。</p></div></header>
-          <div class="report-builder panel">
-            <div><label for="reportType" data-i18n="reportTypeLabel">报告周期</label><select id="reportType"><option value="weekly" data-i18n="reportWeekly">本周周报</option><option value="monthly" data-i18n="reportMonthly">本月月报</option><option value="quarterly" data-i18n="reportQuarterly">本季度报告</option><option value="yearly" data-i18n="reportYearly">本年度报告</option></select></div>
-            <label class="check"><input id="sendReportEmail" type="checkbox" /> <span data-i18n="reportSendEmail">同时发送到已配置邮箱</span></label>
-            <button id="generateReport" class="primary" data-i18n="reportGenerate">生成报告</button>
-          </div>
-          <div id="reportCards" class="report-list"></div>
+    </main>
+    <dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsDialogTitle">
+      <div class="settings-heading"><h2 id="settingsDialogTitle" data-i18n="navSettings">设置</h2><button id="closeSettings" class="icon-button" type="button" data-i18n-title="settingsClose" data-i18n-aria="settingsClose" aria-label="关闭设置">×</button></div>
+      <div class="settings-tabs" role="tablist" aria-orientation="vertical" data-i18n-aria="settingsCategories" aria-label="设置分类">
+        <button type="button" role="tab" id="tab-preferences" data-settings-tab="preferences" aria-controls="preferencesPanel" aria-selected="true" tabindex="0" data-i18n="settingsGeneral">常规</button>
+        <button type="button" role="tab" id="tab-account" data-settings-tab="account" aria-controls="accountPanel" aria-selected="false" tabindex="-1" data-i18n="settingsAccount">账户与同步</button>
+        <button type="button" role="tab" id="tab-devices" data-settings-tab="devices" aria-controls="devicesPanel" aria-selected="false" tabindex="-1" data-i18n="deviceTitle">设备管理</button>
+        <button type="button" role="tab" id="tab-data" data-settings-tab="data" aria-controls="data" aria-selected="false" tabindex="-1" data-i18n="navData">数据管理</button>
+      </div>
+      <div class="settings-body"><form id="settingsForm">
+        <section id="preferencesPanel" role="tabpanel" data-settings-panel="preferences" aria-labelledby="tab-preferences">
+          <article class="panel form-section"><div class="section-copy"><h2 data-i18n="rulesTitle">统计规则</h2><p data-i18n="rulesDesc">离开电脑后暂停计时，避免把挂机时间算进去。</p></div><div class="fields"><label><span data-i18n="idleThresholdLabel">空闲暂停时间（秒）</span><input id="idleThreshold" type="number" min="15" max="3600" /></label><label><span data-i18n="excludedHostsLabel">不统计的网站</span> <textarea id="excludedHosts" rows="6" data-i18n-placeholder="excludedHostsPlaceholder" placeholder="每行一个域名，例如：&#10;localhost&#10;example.com"></textarea><small data-i18n="excludedHostsHint">填写主域名后，其子域名也会被排除。</small></label></div></article>
+          <article class="panel form-section"><div class="section-copy"><h2 data-i18n="languageTitle">界面</h2><p data-i18n="languageDesc">选择时光镜的显示语言。</p></div><div class="fields"><label><span data-i18n="languageLabel">语言</span><select id="uiLocale"><option value="auto" data-i18n="languageAuto">自动（跟随浏览器）</option><option value="zh-CN" data-i18n="languageZh">简体中文</option><option value="en" data-i18n="languageEn">English</option></select></label></div></article>
         </section>
-
-        <section id="data" class="page">
-          <header class="page-header"><div><p class="kicker" data-i18n="dataKicker">PORTABLE BY DESIGN</p><h1 data-i18n="dataTitle">数据管理</h1><p class="subtitle" data-i18n="dataSubtitle">备份、迁移或恢复所有统计记录。</p></div></header>
-          <div class="data-grid">
-            <article class="panel data-card"><span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4v11" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><path d="M7.5 11.5 12 16l4.5-4.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20h14" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></span><h2 data-i18n="exportTitle">导出备份</h2><p data-i18n="exportDesc">导出 JSON 文件，包含完整的访问记录、设置和已生成报告。</p><button id="exportJson" class="primary" data-i18n="exportButton">导出 JSON</button></article>
-            <article class="panel data-card"><span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20V9" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><path d="M7.5 12.5 12 8l4.5 4.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 4h14" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></span><h2 data-i18n="importTitle">导入备份</h2><p data-i18n="importDesc">选择时光镜 JSON 备份文件，可合并或完全替换当前记录。</p><input id="importFile" type="file" accept="application/json,.json" /><div class="button-row"><button id="mergeImport" data-i18n="importMerge">合并导入</button><button id="replaceImport" class="danger-outline" data-i18n="importReplace">替换导入</button></div></article>
-          </div>
-          <article class="danger-zone"><div><h2 data-i18n="deleteAllTitle">清除全部统计数据</h2><p data-i18n="deleteAllDesc">删除本机上的所有访问记录和报告，设置会保留。此操作不可撤销。</p></div><button id="deleteAll" class="danger" data-i18n="deleteAllButton">清除数据</button></article>
+        <section id="accountPanel" role="tabpanel" data-settings-panel="account" aria-labelledby="tab-account" hidden>
+          <div class="account-profile"><div class="account-card"><span class="account-avatar"><span id="avatarFallback" aria-hidden="true">G</span><img id="accountAvatar" alt="" referrerpolicy="no-referrer" hidden /></span><div class="account-copy"><strong id="accountName"></strong><span id="accountEmail"></span></div></div><div class="account-buttons"><button type="button" id="cloudSignIn" data-i18n="cloudSignIn">使用 Google 登录</button><button type="button" id="cloudSignOut" data-i18n="cloudSignOut" hidden>退出账户</button></div></div>
+          <article class="panel sync-section"><div class="sync-row"><h2 data-i18n="cloudTitle">云端同步</h2><p id="cloudDetail" aria-live="polite"></p><dl class="sync-facts"><div><dt data-i18n="cloudLastSync">最近成功同步</dt><dd id="cloudLastSync">—</dd></div></dl></div><button type="button" id="cloudSyncNow" data-i18n="cloudSyncNow" hidden>立即同步</button><small id="cloudHint" data-i18n="cloudHint">约每 5 分钟自动同步，也可立即同步。每台设备独立计时。</small></article>
         </section>
-
-        <section id="settings" class="page">
-          <header class="page-header"><div><p class="kicker" data-i18n="settingsKicker">QUIET AUTOMATION</p><h1 data-i18n="settingsTitle">设置</h1><p class="subtitle" data-i18n="settingsSubtitle">控制统计方式和自动邮件备份。</p></div></header>
-          <form id="settingsForm">
-            <article class="panel form-section"><div class="section-copy"><h2 data-i18n="deviceTitle">本机名称</h2><p data-i18n="deviceDesc">为这台设备取一个容易识别的名字，区分不同设备的报告邮件。</p></div><div class="fields"><label for="deviceName" data-i18n="deviceNameLabel">设备名</label><input id="deviceName" type="text" maxlength="80" data-i18n-placeholder="deviceNamePlaceholder" placeholder="例如：办公室电脑、家用笔记本" aria-describedby="deviceNameHint" /><small id="deviceNameHint" data-i18n="deviceNameHint">名称会显示在邮件主题、正文和附件中。留空时使用自动生成的本机标识；每个浏览器配置独立保存。</small></div></article>
-            <article class="panel form-section"><div class="section-copy"><h2 data-i18n="languageTitle">界面语言</h2><p data-i18n="languageDesc">选择时光镜的显示语言。</p></div><div class="fields"><label><span data-i18n="languageLabel">语言</span><select id="uiLocale"><option value="auto" data-i18n="languageAuto">自动（跟随浏览器）</option><option value="zh-CN" data-i18n="languageZh">简体中文</option><option value="en" data-i18n="languageEn">English</option></select></label></div></article>
-            <article class="panel form-section"><div class="section-copy"><h2 data-i18n="rulesTitle">统计规则</h2><p data-i18n="rulesDesc">离开电脑后暂停计时，避免把挂机时间算进去。</p></div><div class="fields"><label><span data-i18n="idleThresholdLabel">空闲暂停时间（秒）</span><input id="idleThreshold" type="number" min="15" max="3600" /></label><label><span data-i18n="excludedHostsLabel">不统计的网站</span> <textarea id="excludedHosts" rows="5" data-i18n-placeholder="excludedHostsPlaceholder" placeholder="每行一个域名，例如：&#10;localhost&#10;example.com"></textarea><small data-i18n="excludedHostsHint">填写主域名后，其子域名也会被排除。</small></label></div></article>
-            <article class="panel form-section"><div class="section-copy"><h2 data-i18n="autoReportsTitle">自动报告</h2><p data-i18n="autoReportsDesc">周期结束后几分钟内生成上一周期报告。</p></div><div class="fields toggle-list"><label><input id="scheduleWeekly" type="checkbox" /> <span data-i18n="scheduleWeekly">每周自动生成周报</span></label><label><input id="scheduleMonthly" type="checkbox" /> <span data-i18n="scheduleMonthly">每月自动生成月报</span></label><label><input id="scheduleQuarterly" type="checkbox" /> <span data-i18n="scheduleQuarterly">每季度自动生成季报</span></label><label><input id="scheduleYearly" type="checkbox" /> <span data-i18n="scheduleYearly">每年自动生成年报</span></label></div></article>
-            <article class="panel form-section"><div class="section-copy"><h2 data-i18n="emailTitle">邮件备份</h2><p data-i18n="emailDesc">通过你自己的安全邮件网关发送。API 密钥应保存在网关端，不要放进插件。</p></div><div class="fields"><label class="check"><input id="emailEnabled" type="checkbox" /> <span data-i18n="emailEnabled">启用自动邮件备份</span></label><label><span data-i18n="emailEndpointLabel">邮件网关 URL</span><input id="emailEndpoint" type="url" placeholder="https://your-worker.example.com/report" /></label><label><span data-i18n="emailRecipientLabel">收件邮箱</span><input id="emailRecipient" type="email" placeholder="you@example.com" /></label><label><span data-i18n="emailTokenLabel">网关访问令牌</span><input id="emailToken" type="password" autocomplete="off" data-i18n-placeholder="emailTokenPlaceholder" placeholder="与网关 BACKUP_SECRET 一致" /></label><small data-i18n="emailWorkerHint">仓库中的 <code>email-worker/</code> 提供可直接部署的 Cloudflare Worker 示例。</small></div></article>
-            <div class="form-actions"><span class="auto-save-hint" data-i18n="autoSaveHint">修改后自动保存</span><span id="saveStatus" aria-live="polite"></span></div>
-          </form>
+        <section id="devicesPanel" role="tabpanel" data-settings-panel="devices" aria-labelledby="tab-devices" hidden>
+          <article class="panel form-section device-section"><div class="section-copy"><h2 data-i18n="deviceTitle">设备管理</h2><p data-i18n="deviceDesc">管理当前账户关联的设备名称。名称跨设备同步，设备 ID 保持不变。</p></div><div id="deviceList" class="device-list"></div></article>
         </section>
-      </main>
-    </div>
+        <section id="data" role="tabpanel" data-settings-panel="data" aria-labelledby="tab-data" hidden>
+          <article class="panel data-card"><div class="section-copy"><h2 data-i18n="exportTitle">本机备份</h2><p data-i18n="exportDesc">备份本机产生的访问记录和设置，不受概览统计范围影响。</p></div><div class="data-actions"><button type="button" id="exportJson" class="primary" data-i18n="exportButton">导出本机备份</button></div></article>
+          <article class="panel data-card"><div class="section-copy"><h2 data-i18n="importTitle">恢复本机备份</h2><p data-i18n="importDesc">选择备份以合并或替换本机记录，导入后自动同步；重复合并同一备份会重复累计。</p></div><div class="data-actions"><input id="importFile" type="file" accept="application/json,.json" hidden /><div class="file-picker"><button id="chooseImportFile" type="button" data-i18n="chooseFile">选择文件</button><span id="importFileName" aria-live="polite" hidden></span></div><div class="button-row" id="importActions" hidden><button type="button" id="mergeImport" data-i18n="importMerge">合并导入</button><button type="button" id="replaceImport" class="danger-outline" data-i18n="importReplace">替换恢复</button></div></div></article>
+          <article class="danger-zone"><div><h2 data-i18n="deleteAllTitle">清除本机数据</h2><p data-i18n="deleteAllDesc">删除本机产生的访问记录和历史报告，设置保留。登录时会同步此变化，其他设备记录保留。</p></div><button type="button" id="deleteAll" class="danger-quiet" data-i18n="deleteAllButton">清除数据</button></article>
+        </section>
+      </form></div>
+      <footer class="settings-footer"><span data-i18n="aboutTitle">关于 TimeLens</span><span id="appVersion"></span></footer>
+    </dialog>
+    <dialog id="clearDataDialog" aria-labelledby="clearDialogTitle" aria-describedby="clearDialogDescription"><form method="dialog"><h2 id="clearDialogTitle" data-i18n="deleteConfirmTitle">确认清除本机数据？</h2><p id="clearDialogDescription" data-i18n="confirmDeleteAll">本机记录将被删除，并在登录时同步此变化。其他设备记录保留，此操作不可撤销。</p><div class="clear-dialog-actions"><button value="cancel" class="primary" autofocus data-i18n="deleteCancel">取消</button><button id="clearDataConfirm" value="confirm" class="danger-quiet" disabled></button></div></form></dialog>
     <div id="toast" class="toast" role="status"></div>
     <script src="i18n.js"></script>
     <script src="lib.js"></script>
+    <script src="sync-core.js"></script>
+    <script src="stats-store.js"></script>
+    <script src="analytics.js"></script>
     <script src="dashboard.js"></script>
   </body>
 </html>

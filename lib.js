@@ -214,7 +214,10 @@
           durationMs: Math.max(0, Number(record.durationMs) || 0),
           visits: Math.max(0, Math.floor(Number(record.visits) || 0)),
           title: String(record.title || host).slice(0, 500),
-          url: String(record.url || `https://${host}`).slice(0, 2000)
+          url: String(record.url || `https://${host}`).slice(0, 2000),
+          ...(Array.isArray(record.hourlyMs) && record.hourlyMs.length === 24 ? {
+            hourlyMs: record.hourlyMs.map((value) => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0)
+          } : {})
         };
       }
     }
@@ -233,7 +236,9 @@
               durationMs: previous.durationMs + record.durationMs,
               visits: previous.visits + record.visits,
               title: record.title || previous.title,
-              url: record.url || previous.url
+              url: record.url || previous.url,
+              ...(previous.hourlyMs || record.hourlyMs ? { hourlyMs: Array.from({ length: 24 }, (_, hour) =>
+                (previous.hourlyMs?.[hour] || 0) + (record.hourlyMs?.[hour] || 0)) } : {})
             }
           : record;
       }

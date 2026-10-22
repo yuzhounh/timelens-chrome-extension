@@ -122,11 +122,22 @@ function applyDataView(stored) {
   appState.dailyStats = self.TimeLensSyncCore.stats(stored.dailyStats, stored.cloudCache, scope);
 }
 
+let dataViewRefresh = null, dataViewDirty = false;
 async function refreshDataView() {
-  const stored = await chrome.storage.local.get(["dailyStats", "reports", "cloudCache", "settings", "deviceId", "cloudDevices", "viewScope"]);
-  renderDeviceScope(stored);
-  applyDataView(stored);
-  renderOverview();
+  dataViewDirty = true;
+  if (document.hidden) return;
+  if (dataViewRefresh) return dataViewRefresh;
+  dataViewRefresh = Promise.resolve().then(async () => {
+    while (dataViewDirty && !document.hidden) {
+      dataViewDirty = false;
+      const stored = await chrome.storage.local.get(["dailyStats", "reports", "cloudCache", "settings", "deviceId", "cloudDevices", "viewScope"]);
+      if (document.hidden) { dataViewDirty = true; return; }
+      renderDeviceScope(stored);
+      applyDataView(stored);
+      renderOverview();
+    }
+  }).finally(() => { dataViewRefresh = null; });
+  return dataViewRefresh;
 }
 
 function deviceEntries(stored) {
@@ -987,17 +998,33 @@ settingsForm.addEventListener("submit", (event) => {
   scheduleSettingsSave(true);
 });
 
-chrome.storage.onChanged.addListener((changes, area) => {
+let deferredStorageChanges = {};
+function onStorageChanged(changes, area) {
   if (area !== "local") return;
+  changes = Object.fromEntries(Object.entries(changes).filter(([name]) =>
+    ["reports", "dailyStats", "cloudCache", "cloudDevices", "cloudAuth", "cloudStatus", "settings"].includes(name)));
+  if (!Object.keys(changes).length) return;
+  if (document.hidden) { Object.assign(deferredStorageChanges, changes); return; }
   if (!periodLoading&&(changes.reports || changes.dailyStats || changes.cloudCache || changes.cloudDevices)) void refreshDataView();
   if (changes.cloudCache || changes.cloudDevices || changes.cloudAuth) void renderDevices();
   if (changes.cloudStatus || changes.cloudAuth) void renderCloud();
   if (changes.settings) {
     appState.settings = changes.settings.newValue || {};
     if (!settingsSaveInFlight) {
-      void I18n.init(appState.settings).then(() => { I18n.apply(); renderImportFile(); renderAppVersion(); fillSettings(); void refreshDataView(); void renderDevices(); void renderCloud(); });
+      void I18n.init(appState.settings).then(() => {
+        if (document.hidden) { onStorageChanged({ settings: changes.settings }, "local"); return; }
+        I18n.apply(); renderImportFile(); renderAppVersion(); fillSettings(); void refreshDataView(); void renderDevices(); void renderCloud();
+      });
     }
   }
+}
+chrome.storage.onChanged.addListener(onStorageChanged);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  const pending = deferredStorageChanges;
+  deferredStorageChanges = {};
+  onStorageChanged(pending, "local");
+  if (dataViewDirty) void refreshDataView();
 });
 
 loadState().catch((error) => showToast(I18n.t("loadFailed", I18n.errorMessage(error)), true));

@@ -1,6 +1,6 @@
 # Time Lens (时光镜) Privacy Policy
 
-**Last updated:** October 3, 2026
+**Last updated:** October 19, 2026 (local Firebase sync edition)
 
 **Contact:** [GitHub Issues](https://github.com/yuzhounh/timelens-chrome-extension/issues)
 
@@ -8,13 +8,15 @@
 
 ## Summary
 
-Time Lens is a **local-first** Chrome extension. By default, your browsing statistics are stored **only on your device**. We do not operate a central server that collects your browsing history.
+Time Lens tracks website browsing time and synchronizes devices through your Google account. After Google sign-in, statistics and shared settings sync automatically using Firebase Authentication and Cloud Firestore in the `timelens-chrome-extension` project, with records separated by account and device. Device storage supports offline tracking and caching; queued changes upload when connectivity returns. Signing in is required for cloud sync.
 
 ---
 
 ## What data the extension collects
 
 When you browse the web, the extension may record, **per website domain**:
+
+New records also accumulate browsing duration by the device's local hour for hourly patterns. Hourly totals synchronize and are included in JSON backups; historical daily-only records are not expanded into inferred hourly data.
 
 | Data | Purpose |
 |------|---------|
@@ -23,7 +25,7 @@ When you browse the web, the extension may record, **per website domain**:
 | Visit count | Count how often a site is opened |
 | Page title and URL | Show “last visit” details in the dashboard |
 
-You may set a device name. A random identifier is generated locally for each browser profile to distinguish its reports; it is not a hardware identifier. These fields stay local unless you export a report or enable email backup. The identifier survives renaming and extension updates, and is regenerated after uninstalling or clearing extension storage.
+You may set a device name. A random identifier is generated locally for each browser profile; it is not a hardware identifier. The name and identifier are included in synchronized device records and reports when sync is enabled. The identifier survives renaming and extension updates, and is regenerated after uninstalling or clearing extension storage.
 
 ### What is **not** collected by default
 
@@ -60,24 +62,14 @@ You can export all data as JSON from **Data Management**, or delete everything w
 | `tabs` | Read the active tab URL and title to attribute time to a domain |
 | `idle` | Pause tracking when you step away from the computer |
 | `alarms` | Schedule periodic report generation |
+| `offscreen` | Complete Google sign-in through the Firebase authentication helper page |
 | `<all_urls>` | Access tab URLs on regular http/https pages you visit |
 
 ---
 
-## Optional email backup (user-configured)
+## Retired report and email features
 
-If you enable **Email backup** in Settings, the extension sends periodic reports to an **email gateway URL that you provide** (for example, a self-hosted Cloudflare Worker included in this repository).
-
-When enabled, the following may be transmitted **only to your configured gateway**:
-
-- Report summary (period, totals, top sites)
-- Your custom device name (or generated label), local profile identifier, and a random delivery identifier used to deduplicate retries
-- A JSON attachment containing the report
-- The recipient address and gateway access token you configured, as required to authorize and deliver the email
-
-The extension **does not** embed email API keys. You control the gateway, recipient address, and access token.
-
-We do **not** receive this data unless you configure a gateway we operate—which we do not provide as a hosted service.
+This local edition no longer generates periodic reports or sends email. Existing reports and settings are retained for backup compatibility; old scheduled jobs are not executed.
 
 ---
 
@@ -85,26 +77,27 @@ We do **not** receive this data unless you configure a gateway we operate—whic
 
 The extension itself does not include analytics or advertising SDKs.
 
-If you configure an optional email gateway (e.g. Resend via Cloudflare Worker), that service’s privacy policy applies to emails sent through it.
+Google account sync uses Firebase Authentication and Cloud Firestore. Google’s applicable privacy policies apply.
 
 ---
 
 ## Data sharing
 
-We do **not** sell, rent, or share your browsing data. The extension does not automatically transmit browsing statistics off your device.
+We do **not** sell or rent your browsing data. Off-device transmission follows the features you enable.
 
 - A manual export places a copy of the data in a JSON file you choose to download.
-- Browsing statistics are transmitted off-device only if you enable email backup and provide your own gateway.
+- Google sign-in enables automatic synchronization of domain statistics, durations, visits, titles, URLs, reports, device labels and shared settings to Cloud Firestore in Hong Kong (`asia-east2`). Google Authentication processes your Google identity. Database rules restrict access to the signed-in account's own records.
 
-The extension uses `chrome.storage.local`, not `chrome.storage.sync`, and does not automatically sync browsing statistics through your Google account.
+Sync uses Firebase rather than Chrome's `chrome.storage.sync`. Authentication tokens are stored locally in trusted extension storage. Email gateway tokens and pending email jobs are not uploaded. Signing out stops synchronization but retains local records and downloaded caches.
 
 ---
 
 ## Data retention & deletion
 
 - Data is kept locally until you delete it or uninstall the extension
-- Use **Delete data** in the dashboard to remove all statistics and reports
+- Use **Delete data** to remove records generated by this device. While signed in, the deletion is propagated on the next successful sync; other devices' records remain intact.
 - Uninstalling the extension removes locally stored data associated with the extension (subject to Chrome’s behavior)
+- Uninstalling alone does not delete cloud records. Remove this device's data and complete a sync first if you want its current cloud records removed. Account owners can also manage cloud records in their Firebase console.
 
 ---
 
@@ -122,7 +115,7 @@ We may update this policy when the extension changes. The “Last updated” dat
 
 ## Your rights
 
-Because data stays on your device, you can access, export, or delete it at any time through the extension interface.
+You can view synchronized statistics and export or clear this device's records through the extension interface. Clearing this device's records propagates on the next successful sync; other devices' records remain intact.
 
 If you have questions, open an issue on GitHub or contact the developer through the Chrome Web Store listing.
 
@@ -130,6 +123,6 @@ If you have questions, open an issue on GitHub or contact the developer through 
 
 ## 中文摘要
 
-时光镜默认**仅在本机**保存浏览统计，不上传至开发者服务器。扩展会读取您正在访问的网站域名、标题和 URL 以统计时长；可选的邮件备份功能仅在您自行配置网关后，将报告发送至您指定的邮箱。您可随时导出或删除全部数据。
+时光镜通过 Google 账户同步多台设备。登录后，网站域名、标题、URL、访问时长与次数及通用设置自动同步至 Firebase，按账户和设备分别保存。本机记录与缓存支持离线计时和联网补传。您可导出或清除本机记录；清除会在成功同步后传播，其他设备记录保留。
 
 完整中文说明见：[PRIVACY_zh-CN.md](./PRIVACY_zh-CN.md)

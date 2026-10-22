@@ -9,6 +9,8 @@ release/
 # Local dependencies and tool state
 node_modules/
 .wrangler/
+.firebase/
+firebase-debug.log*
 email-worker/preview.html
 email-worker/preview-en.html
 timelens-chrome-extension-v*.zip
@@ -22,3 +24,7 @@ release/
 .DS_Store
 Thumbs.db
 Desktop.ini
+/results/recovery/
+/results/
+/tmp/
+**/__pycache__/

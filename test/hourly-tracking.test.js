@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+require('../lib.js');
+const source=fs.readFileSync(require('node:path').join(__dirname,'../background.js'),'utf8');
+const stats={'2026-10-18':{'example.com':{durationMs:1000,visits:1,title:'Old',url:'https://example.com'}}};
+const values={dailyStats:stats};
+const context={Core:global.TimeLensCore,TimeLensCore:global.TimeLensCore,Date,TextEncoder,crypto:require('node:crypto').webcrypto,chrome:{storage:{local:{get:async keys=>Object.fromEntries((Array.isArray(keys)?keys:[keys]).map(k=>[k,structuredClone(values[k])])),set:async data=>Object.assign(values,structuredClone(data)),remove:async keys=>{for(const k of Array.isArray(keys)?keys:[keys])delete values[k];}}}}};
+context.self=context;
+vm.createContext(context);
+for(const file of ['sync-core.js','stats-store.js'])vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'..',file),'utf8'),context);
+vm.runInContext(source.slice(source.indexOf('function splitByLocalDay('),source.indexOf('async function flushActive(')),context);
+(async()=>{
+  const start=new Date(2026,9,18,23,55).getTime(),end=new Date(2026,9,19,0,5).getTime();
+  const parts=context.splitByLocalDay(start,end);
+  assert.equal(parts.length,2);assert.equal(parts[0].hour,23);assert.equal(parts[1].hour,0);
+  assert.equal(parts.reduce((n,p)=>n+p.durationMs,0),end-start);
+  await context.recordSession({startedAt:start,host:'example.com',title:'New',url:'https://example.com',countVisit:true},end);
+  const updated=await context.TimeLensStats.read();
+  assert.equal(updated['2026-10-18']['example.com'].durationMs,301000);
+  assert.equal(updated['2026-10-18']['example.com'].hourlyMs[23],300000);
+  assert.equal(updated['2026-10-18']['example.com'].visits,2);
+  assert.equal(updated['2026-10-19']['example.com'].hourlyMs[0],300000);
+  assert.equal(updated['2026-10-19']['example.com'].visits,0);
+  const daytime=context.splitByLocalDay(new Date(2026,9,19,9,30).getTime(),new Date(2026,9,19,11,15).getTime());
+  assert.deepEqual(Array.from(daytime,p=>p.hour),[9,10,11]);
+  assert.equal(daytime.reduce((n,p)=>n+p.durationMs,0),105*60000);
+  console.log('hourly-tracking.test.js: hour and midnight splits preserve totals and visit counts without inventing historical hourly data');
+})().catch(error=>{console.error(error);process.exitCode=1;});
