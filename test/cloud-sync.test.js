@@ -8,15 +8,17 @@ let offline = false;
 let profileUnavailable = false;
 let commits = 0;
 const clone = (value) => value === undefined ? undefined : structuredClone(value);
+const ordered = value => Array.isArray(value) ? value.map(ordered) : value && typeof value === "object"
+  ? Object.fromEntries(Object.keys(value).sort().map(key => [key, ordered(value[key])])) : value;
 const record = (durationMs) => ({ durationMs, visits: 1, title: "Example", url: "https://example.com/" });
-function device(deviceId, durationMs) {
+function device(deviceId, durationMs, roundTrip = clone) {
   const store = { deviceId, dailyStats: { "2026-10-19": { "example.com": record(durationMs) } }, reports: [],
     settings: { deviceName: deviceId, idleThresholdSeconds: 60, email: { token: `secret-${deviceId}`, enabled: false } },
     cloudAuth: { uid: "same-user", email: "user@example.com", idToken: "same-user", refreshToken: "refresh", expiresAt: Date.now() + 3600000 } };
   const storage = {
-    async get(keys) { return Object.fromEntries((Array.isArray(keys) ? keys : [keys]).map((key) => [key, clone(store[key])])); },
+    async get(keys) { return Object.fromEntries((Array.isArray(keys) ? keys : [keys]).map((key) => [key, roundTrip(store[key])])); },
     async set(values) { Object.assign(store, clone(values)); },
-    async remove(key) { delete store[key]; }
+    async remove(keys) { for (const key of Array.isArray(keys) ? keys : [keys]) delete store[key]; }
   };
   const context = vm.createContext({ crypto, console, setTimeout, clearTimeout, TextEncoder, TextDecoder, URLSearchParams, URL, btoa, atob,
     AbortController, chrome: { storage: { local: storage } }, fetch: async (url, options = {}) => {
@@ -60,7 +62,7 @@ function device(deviceId, durationMs) {
   return { store, cloud: context.TimeLensCloud, core: context.TimeLensSyncCore, stats: context.TimeLensStats };
 }
 (async () => {
-  const home = device("home", 1000);
+  const home = device("home", 1000, ordered);
   const office = device("office", 2000);
   assert.equal((await home.cloud.kick()).ok, true);
   assert.equal(home.store.cloudAuth.displayName, "Test User");

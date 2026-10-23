@@ -3,14 +3,32 @@
   const INDEX = "dailyStatsIndex";
   const PENDING = "dailyStatsPending";
   const PREFIX = "dailyStats:v2:";
+  const HASH_FORMAT = "canonical-1";
   const local = () => chrome.storage.local;
   const key = (date, spec) => `${PREFIX}${date}:${spec.hash}`;
   const valid = (index) => index?.version === 2 && index.days && typeof index.days === "object";
   const managedKey = (value) => /^dailyStats:v2:\d{4}-\d{2}-\d{2}:[a-f0-9]{32}$/.test(value);
   let migration = null;
 
+  // Chrome storage dictionaries may return fields in a different order.
+  // Arrays keep their order; the same content must also produce the same cloud digest.
+  function canonical(value) {
+    if (Array.isArray(value)) return value.map(canonical);
+    if (!value || typeof value !== "object") return value;
+    return Object.fromEntries(Object.keys(value).sort().map(name => [name, canonical(value[name])]));
+  }
+
+  function sameContent(left, right) {
+    if (left === right) return true;
+    if (!left || !right || typeof left !== "object" || typeof right !== "object" ||
+        Array.isArray(left) !== Array.isArray(right)) return false;
+    const names = Object.keys(left);
+    return names.length === Object.keys(right).length && names.every(name =>
+      Object.hasOwn(right, name) && sameContent(left[name], right[name]));
+  }
+
   async function describe(sites) {
-    const chunks = root.TimeLensSyncCore.chunks(sites);
+    const chunks = root.TimeLensSyncCore.chunks(canonical(sites));
     const bytes = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(chunks.join(""))));
     return { hash: Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("").slice(0, 32), count: chunks.length };
   }
@@ -24,7 +42,7 @@
   }
 
   async function publish(previous, days, extra, verify = false) {
-    const next = { version: 2, generation: (previous?.generation || 0) + 1, days: {} };
+    const next = { version: 2, hashFormat: HASH_FORMAT, generation: (previous?.generation || 0) + 1, days: {} };
     const values = {};
     for (const [date, sites] of Object.entries(days)) {
       const spec = await describe(sites);
@@ -38,7 +56,7 @@
     if (verify) {
       const stored = await local().get(Object.keys(values));
       for (const [name, value] of Object.entries(values)) {
-        if (JSON.stringify(stored[name]) !== JSON.stringify(value)) throw new Error("Historical statistics migration verification failed");
+        if (!sameContent(stored[name], value)) throw new Error("Historical statistics migration verification failed");
       }
     }
     await local().set({ [INDEX]: next, ...extra });
@@ -55,7 +73,8 @@
       const stored = await local().get([INDEX, PENDING, "dailyStats"]);
       const index = valid(stored[INDEX]) ? stored[INDEX] : null;
       await recover(index, stored[PENDING]);
-      if (index) return index;
+      if (index?.hashFormat === HASH_FORMAT) return index;
+      if (index) return publish(index, await readIndexDays(index, Object.keys(index.days)), {}, true);
       return publish(null, root.TimeLensCore.normalizeDailyStats(stored.dailyStats), {}, true);
     })().catch(error => { migration = null; throw error; });
     await migration;
@@ -71,7 +90,7 @@
     for (const date of wanted) {
       const value = values[key(date, index.days[date])];
       if (!value || typeof value !== "object") throw new Error("Statistics index changed or a day is unavailable");
-      result[date] = value;
+      result[date] = canonical(value);
     }
     return result;
   }
@@ -97,7 +116,7 @@
   async function writeDays(patch, extra = {}) {
     const previous = await initialize();
     const clean = root.TimeLensCore.normalizeDailyStats(patch);
-    const next = { version: 2, generation: previous.generation + 1, days: { ...previous.days } };
+    const next = { version: 2, hashFormat: HASH_FORMAT, generation: previous.generation + 1, days: { ...previous.days } };
     const values = {}, obsolete = [];
     for (const [date, sites] of Object.entries(clean)) {
       const spec = await describe(sites);

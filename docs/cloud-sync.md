@@ -5,7 +5,7 @@
 - Firebase 项目 ID、显示名称：`timelens-chrome-extension`。
 - Firestore：`(default)`，Standard 免费数据库，香港 `asia-east2`；项目保持 Spark，无付费升级。
 - Google 登录已启用。登录辅助页：`https://timelens-chrome-extension.firebaseapp.com/extension-auth.html`，只用于认证，不是公开统计面板。
-- 当前日常源码版本：2.1.1，界面仅显示版本号。主界面为概览，管理功能集中到右上角设置弹窗。公开 Release 和 Chrome 应用商店版本单独维护；本轮不提交商店审核。
+- 当前日常源码版本：2.1.2，界面仅显示版本号。修正2.1.1迁移校验对对象字段顺序的误判，同时使本机日期摘要与云端分块使用同一稳定顺序；真实内容改变仍中止迁移，旧数据及索引在校验/提交完成前保留。主界面为概览，管理功能集中到右上角设置弹窗。公开 Release 和 Chrome 应用商店版本单独维护；本轮不提交商店审核。
 
 ## 多台电脑使用
 
