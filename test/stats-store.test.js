@@ -13,7 +13,7 @@ function fixture(legacy={},roundTrip=clone){
  };
  const context=vm.createContext({chrome:{storage:{local}},TextEncoder,crypto:{subtle:{digest(...args){calls.digests.push(args[1].byteLength);return crypto.subtle.digest(...args);}}}});context.self=context;
  for(const file of ['lib.js','sync-core.js','stats-store.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),context);
- return{values,calls,stats:context.TimeLensStats,setFailIndex:v=>failIndex=v,setFailCleanup:v=>failCleanup=v,setCorruptRead:v=>corruptRead=v,clearCalls(){calls.gets=[];calls.sets=[];calls.digests=[];}};
+ return{values,calls,stats:context.TimeLensStats,core:context.TimeLensCore,sync:context.TimeLensSyncCore,setFailIndex:v=>failIndex=v,setFailCleanup:v=>failCleanup=v,setCorruptRead:v=>corruptRead=v,clearCalls(){calls.gets=[];calls.sets=[];calls.digests=[];}};
 }
 const day=value=>({'example.com':{durationMs:value,visits:2,title:'Example',url:'https://example.com',hourlyMs:Array.from({length:24},(_,h)=>h===9?value:0)}});
 const ordered=value=>Array.isArray(value)?value.map(ordered):value&&typeof value==='object'
@@ -87,4 +87,45 @@ test('cleanup failure after commit stays successful; replace and clear preserve 
  f.setFailCleanup(false);await f.stats.replaceAll({'2026-10-21':day(2000)},{reports:[]});
  assert.deepEqual(Object.keys(await f.stats.read()),['2026-10-21']);await f.stats.replaceAll({},{reports:[]});
  assert.deepEqual(Object.keys(await f.stats.read()),[]);assert.equal(f.values.deviceId,'keep-device');assert.equal(f.values.cloudAuth.uid,'keep-user');
+});
+
+test('a dashboard reader reuses unchanged days and reads only the changed day',async()=>{
+ const original={};for(let i=0;i<365;i++)original[new Date(Date.UTC(2025,0,1+i)).toISOString().slice(0,10)]=day(1000+i);
+ const f=fixture(original);await f.stats.initialize();const read=f.stats.createReader(),first=await read();f.clearCalls();
+ assert.strictEqual((await read())['2025-01-01'],first['2025-01-01']);
+ assert.equal(f.calls.gets.flat().filter(k=>k.startsWith('dailyStats:v2:')).length,0);
+ await f.stats.writeDays({'2025-12-31':day(9000)});f.clearCalls();const next=await read();
+ assert.equal(f.calls.gets.flat().filter(k=>k.startsWith('dailyStats:v2:')).length,1);
+ assert.strictEqual(next['2025-01-01'],first['2025-01-01']);assert.equal(next['2025-12-31']['example.com'].durationMs,9000);
+ assert.equal(Object.isFrozen(next['2025-01-01']['example.com'].hourlyMs),true);
+ assert.equal(Reflect.set(next['2025-01-01']['example.com'],'durationMs',0),false);
+ assert.equal((await f.stats.read())['2025-01-01']['example.com'].durationMs,1000);
+});
+
+test('dashboard reads preserve ranges, replacement/deletion and retry after unavailable day',async()=>{
+ const f=fixture({'2026-10-20':day(1000),'2026-10-21':day(2000)});await f.stats.initialize();const read=f.stats.createReader();await read();
+ assert.deepEqual(Object.keys(await read({start:'2026-10-21'})),['2026-10-21']);
+ await f.stats.replaceAll({'2026-10-22':day(3000)});const name=Object.keys(f.values).find(k=>k.startsWith('dailyStats:v2:'));
+ const saved=f.values[name];delete f.values[name];await assert.rejects(read(),/unavailable/);
+ f.values[name]=saved;assert.deepEqual(clone(await read()),{'2026-10-22':day(3000)});
+ await f.stats.replaceAll({});assert.deepEqual(Object.keys(await read()),[]);
+ await f.stats.replaceAll({'2026-10-20':day(4000)});assert.equal((await read())['2026-10-20']['example.com'].durationMs,4000);
+});
+
+test('dashboard rollups normalize only changed days and invalidate scope, device and cloud removal',async()=>{
+ const f=fixture({'2026-10-20':day(1000),'2026-10-21':day(2000)});await f.stats.initialize();const read=f.stats.createReader(),view=f.sync.createStatsView();
+ const remote={other:{dailyStats:{'2026-10-20':day(500)},manifest:{days:{'2026-10-20':{hash:'remote-1'}}}}};
+ const own=await read(),first=view(own,remote,'all','device-1');let normalized=0;const normalize=f.core.normalizeDailyStats;
+ f.core.normalizeDailyStats=(value)=>{normalized++;return normalize(value);};
+ const unchanged=view(await read(),clone(remote),'all','device-1');assert.equal(normalized,0);assert.strictEqual(unchanged['2026-10-20'],first['2026-10-20']);
+ await f.stats.writeDays({'2026-10-21':day(2500)});normalized=0;const changed=view(await read(),clone(remote),'all','device-1');
+ assert.equal(normalized,1);assert.strictEqual(changed['2026-10-20'],first['2026-10-20']);assert.equal(changed['2026-10-21']['example.com'].durationMs,2500);
+ assert.equal(changed['2026-10-20']['example.com'].durationMs,1500);
+ assert.deepEqual(clone(view(await read(),remote,'local','device-1')),clone(f.sync.stats(await read(),remote,'local')));
+ assert.deepEqual(clone(view(await read(),remote,'other','device-1')),clone(f.sync.stats(await read(),remote,'other')));
+ const all=view(await read(),remote,'all','device-1');assert.notStrictEqual(view(await read(),remote,'all','device-2')['2026-10-20'],all['2026-10-20']);
+ assert.equal(view(await read(),{},'all','device-2')['2026-10-20']['example.com'].durationMs,1000);
+ remote.other.dailyStats['2026-10-20']=day(700);remote.other.manifest.days['2026-10-20'].hash='remote-2';
+ assert.equal(view(await read(),remote,'all','device-2')['2026-10-20']['example.com'].durationMs,1700);
+ await f.stats.replaceAll({});assert.deepEqual(Object.keys(view(await read(),{},'all','device-2')),[]);
 });

@@ -83,28 +83,44 @@
     return stored[INDEX];
   }
 
-  async function readIndexDays(index, dates) {
+  function freezeDay(value) {
+    if (value && typeof value === "object" && !Object.isFrozen(value)) {
+      Object.values(value).forEach(freezeDay);
+      Object.freeze(value);
+    }
+    return value;
+  }
+
+  async function readIndexDays(index, dates, cache) {
     const wanted = dates.filter(date => index.days[date]);
-    const values = await local().get(wanted.map(date => key(date, index.days[date])));
+    const missing = wanted.map(date => key(date, index.days[date])).filter(name => !cache?.has(name));
+    const values = missing.length ? await local().get(missing) : {};
     const result = {};
     for (const date of wanted) {
-      const value = values[key(date, index.days[date])];
+      const name = key(date, index.days[date]);
+      const value = cache?.get(name) || values[name];
       if (!value || typeof value !== "object") throw new Error("Statistics index changed or a day is unavailable");
-      result[date] = canonical(value);
+      result[date] = cache?.has(name) ? value : canonical(value);
+    }
+    if (cache) {
+      const keep = new Set(Object.entries(index.days).map(([date, spec]) => key(date, spec)));
+      for (const name of cache.keys()) if (!keep.has(name)) cache.delete(name);
+      for (const date of wanted) cache.set(key(date, index.days[date]), freezeDay(result[date]));
     }
     return result;
   }
 
-  async function read({ dates, start, end } = {}) {
+  async function read({ dates, start, end } = {}, cache) {
     for (let attempt = 0; attempt < 3; attempt++) {
       const stored = await local().get(INDEX);
       const index = stored[INDEX];
       if (!valid(index)) {
+        cache?.clear();
         const legacy = root.TimeLensCore.normalizeDailyStats((await local().get("dailyStats")).dailyStats);
         return Object.fromEntries(Object.entries(legacy).filter(([date]) => (!dates || dates.includes(date)) && (!start || date >= start) && (!end || date <= end)));
       }
       const selected = (dates || Object.keys(index.days)).filter(date => (!start || date >= start) && (!end || date <= end));
-      try { return await readIndexDays(index, selected); }
+      try { return await readIndexDays(index, selected, cache); }
       catch (error) {
         const current = (await local().get(INDEX))[INDEX];
         if (current?.generation === index.generation || attempt === 2) throw error;
@@ -144,5 +160,11 @@
     return { index, dailyStats: await readIndexDays(index, dates) };
   }
 
-  root.TimeLensStats = { INDEX, initialize, read, writeDays, replaceAll, changedSnapshot };
+  // View-owned read-only snapshots: content-addressed days stay reusable only while indexed.
+  function createReader() {
+    const cache = new Map();
+    return options => read(options, cache);
+  }
+
+  root.TimeLensStats = { INDEX, initialize, read, createReader, writeDays, replaceAll, changedSnapshot };
 })(typeof self === "undefined" ? globalThis : self);

@@ -1,5 +1,7 @@
 const Core = self.TimeLensCore;
 const I18n = self.TimeLensI18n;
+const readViewStats = self.TimeLensStats.createReader();
+const viewStats = self.TimeLensSyncCore.createStatsView();
 
 function displayDuration(milliseconds) {
   return Core.formatDuration(milliseconds, I18n.isEnglish());
@@ -89,7 +91,7 @@ function renderAppVersion() {
 async function loadState() {
   await sendMessage({ type: "get-summary" }).catch(() => null);
   const stored = await chrome.storage.local.get(["reports", "settings", "cloudCache", "viewScope", "deviceId", "cloudDevices"]);
-  stored.dailyStats = await self.TimeLensStats.read();
+  stored.dailyStats = await readViewStats();
   appState.settings = stored.settings || {};
   await I18n.init(appState.settings);
   I18n.apply();
@@ -105,7 +107,7 @@ async function loadState() {
 
 function applyDataView(stored) {
   const scope = document.getElementById("dataScope").value;
-  appState.dailyStats = self.TimeLensSyncCore.stats(stored.dailyStats, stored.cloudCache, scope);
+  appState.dailyStats = viewStats(stored.dailyStats, stored.cloudCache, scope, stored.deviceId);
 }
 
 let dataViewRefresh = null, dataViewDirty = false;
@@ -117,7 +119,7 @@ async function refreshDataView() {
     while (dataViewDirty && !document.hidden) {
       dataViewDirty = false;
       const stored = await chrome.storage.local.get(["reports", "cloudCache", "settings", "deviceId", "cloudDevices", "viewScope"]);
-      stored.dailyStats = await self.TimeLensStats.read();
+      stored.dailyStats = await readViewStats();
       if (document.hidden) { dataViewDirty = true; return; }
       renderDeviceScope(stored);
       applyDataView(stored);
